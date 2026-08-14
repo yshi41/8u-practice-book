@@ -1,0 +1,13 @@
+# Windows / OneDrive cruft
+desktop.ini
+Thumbs.db
+ehthumbs.db
+$RECYCLE.BIN/
+
+# macOS
+.DS_Store
+
+# Editor
+*.swp
+*~
+.vscode/
