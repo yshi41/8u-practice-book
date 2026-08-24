@@ -8,7 +8,7 @@ Sixteen 90-minute practice plans for a **9v9 SBMSA 8U girls' season** — eight 
 
 | File | What it is | When you use it |
 | --- | --- | --- |
-| [`index.html`](index.html) | **The Practice Book** — all sixteen session cards | Print it: one session per sheet. |
+| [`index.html`](index.html) | **Contents** — the season at a glance, linking to each session | Finding the session you want. |
 | `session-1.html` … `session-16.html` | **One practice per page** — its own URL, with previous/next links | Working from a single session, or sending one to someone. |
 | [`library.html`](library.html) | **The Coaching Library** — the season plan and every activity explained | At home, the night before. |
 
@@ -35,7 +35,9 @@ All of it is hidden when printing.
 
 ## Printing
 
-Open the practice book and press **Ctrl+P**. Each session prints to its own sheet — nav and screen chrome drop out, backgrounds go white. Take the sheets to the field; leave the library at home.
+Open a session page and press **Ctrl+P** — it prints to a single sheet, with the navigation, share buttons and adjust controls dropped out and the background white.
+
+There is no print-all page: every practice lives on its own page, so printing the whole season means printing sixteen pages. If you want a single printable sheet-per-session document, ask and it can be generated.
 
 ## What's in the library
 
@@ -85,7 +87,7 @@ Individual → individual against an opponent → scoring → with a teammate �
 
 ## Editing
 
-Two self-contained HTML files — no build step, no dependencies, no external fonts or CDN, and every diagram is inline SVG. Edit, commit, push; Pages redeploys in about a minute. Each file carries its own copy of the stylesheet, so either one still works opened straight off disk.
+Eighteen self-contained HTML files — no build step, no dependencies, no external fonts or CDN, and every diagram is inline SVG. Edit, commit, push; Pages redeploys in about a minute. Each file carries its own copy of the stylesheet, so either one still works opened straight off disk.
 
 ## Assumptions
 
