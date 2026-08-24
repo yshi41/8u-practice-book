@@ -1,0 +1,2154 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light">
+<meta name="description" content="Every exercise in the 8U Practice Book, with a diagram, setup steps, and what it teaches.">
+<title>8U Exercise Manual</title>
+<style>
+:root {
+  color-scheme: light;
+  --bg:#F4ECD8; --card:#FBF6E8; --tan:#EDE0BF; --rule:#D2C09C; --rule-hi:#B9A275;
+  --text:#241608; --sec:#46331C; --muted:#6B5334;
+  --rust:#7A3E0F; --forest:#1F5A34; --blue:#1A4A6A; --purple:#4A1A6A; --warn:#7A4A08;
+  --cone:#C8641E; --grass:#E7EDDF;
+  --fs:20px;
+  --font: Verdana, Tahoma, "DejaVu Sans", "Bitstream Vera Sans", Geneva, sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:var(--fs);line-height:1.6;overflow-wrap:break-word}
+.wrap{max-width:1080px;margin:0 auto;padding:28px 22px 80px}
+h1,h2,h3,h4{text-wrap:balance;line-height:1.2}
+[id]{scroll-margin-top:72px}
+.eyebrow{font-size:.72em;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+
+.mast{border-bottom:3px solid var(--rust);padding-bottom:20px;margin-bottom:24px}
+.mast h1{font-size:1.95em;font-weight:700;line-height:1.08;text-transform:uppercase;color:var(--rust);margin:10px 0 14px}
+.mast .sub{font-size:1em;color:var(--sec);max-width:60ch}
+.mast .sub + .sub{margin-top:10px}
+.backlink{display:inline-block;margin-top:16px;font-size:.8em;font-weight:700;color:var(--rust);text-decoration:none;border:1px solid var(--rule-hi);border-radius:4px;padding:8px 13px;background:var(--tan)}
+.backlink:hover{background:var(--rust);color:var(--card)}
+
+.nav{position:sticky;top:0;z-index:20;background:var(--bg);border-bottom:2px solid var(--rule);padding:10px 0;margin-bottom:26px;display:flex;flex-wrap:wrap;gap:6px}
+.nav a{font-size:.8em;font-weight:700;letter-spacing:.03em;text-transform:uppercase;color:var(--sec);text-decoration:none;border:1px solid var(--rule-hi);border-radius:4px;padding:8px 12px;white-space:nowrap;min-height:40px;display:inline-flex;align-items:center}
+.nav a:hover{background:var(--rust);color:var(--card);border-color:var(--rust)}
+.nav a:focus-visible{outline:3px solid var(--forest);outline-offset:2px}
+
+.sec-head{margin:46px 0 18px;border-bottom:2px solid var(--rule-hi);padding-bottom:10px}
+.sec-head h2{font-size:1.3em;font-weight:700;text-transform:uppercase;color:var(--rust);margin-top:6px}
+.sec-intro{font-size:.95em;color:var(--sec);max-width:68ch;margin-bottom:18px}
+
+.panel{background:var(--card);border:1px solid var(--rule);border-radius:6px;padding:20px 24px;margin-bottom:18px}
+.panel h3{font-size:.9em;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--rust);border-bottom:1px solid var(--rule);padding-bottom:9px;margin-bottom:14px}
+.panel p{font-size:.95em;color:var(--sec);margin-bottom:12px;max-width:68ch}
+.panel p:last-child{margin-bottom:0}
+.panel b{color:var(--text)}
+
+/* glossary */
+.gloss{display:flex;flex-direction:column}
+.grow{display:flex;gap:16px;padding:13px 0;border-bottom:1px solid var(--rule)}
+.grow:last-child{border-bottom:none;padding-bottom:0}
+.grow .gt{flex-shrink:0;width:200px;font-size:.9em;font-weight:700;color:var(--rust)}
+.grow .gd{font-size:.92em;color:var(--sec)}
+
+/* exercise entry */
+.ex{background:var(--card);border:1px solid var(--rule-hi);border-radius:6px;margin-bottom:22px;overflow:hidden;break-inside:avoid}
+.ex-hd{padding:16px 22px 13px;border-bottom:2px solid var(--rust);display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
+.ex-hd h3{font-size:1.15em;font-weight:700;text-transform:uppercase;color:var(--rust)}
+.ex-hd .when{font-size:.7em;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
+.ex-body{padding:18px 22px 20px}
+.ex-grid{display:grid;grid-template-columns:280px 1fr;gap:22px;align-items:start}
+.dia{width:100%;height:auto;background:var(--grass);border:1px solid var(--rule);border-radius:5px;display:block}
+.diacap{font-size:.72em;color:var(--muted);margin-top:7px;text-align:center}
+
+.need{font-size:.82em;color:var(--sec);background:var(--tan);border-radius:4px;padding:9px 13px;margin-bottom:14px}
+.need b{color:var(--rust);text-transform:uppercase;letter-spacing:.05em;font-size:.9em}
+
+.steps{margin:0 0 14px 0;padding:0;list-style:none;counter-reset:s}
+.steps li{counter-increment:s;position:relative;padding-left:34px;margin-bottom:9px;font-size:.92em;color:var(--sec)}
+.steps li:last-child{margin-bottom:0}
+.steps li::before{content:counter(s);position:absolute;left:0;top:1px;width:23px;height:23px;border-radius:4px;background:var(--rust);color:var(--card);font-size:.72em;font-weight:700;display:flex;align-items:center;justify-content:center}
+.steps li b{color:var(--text)}
+.sub-h{font-size:.75em;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:16px 0 8px}
+.sub-h:first-child{margin-top:0}
+
+.why{border-left:4px solid var(--forest);background:#EDF3E6;border-radius:0 4px 4px 0;padding:11px 15px;margin-top:14px;font-size:.88em;color:var(--sec)}
+.why b{display:block;color:var(--forest);text-transform:uppercase;letter-spacing:.06em;font-size:.82em;margin-bottom:4px}
+.why + .why{margin-top:9px}
+.why.warn{border-left-color:var(--warn);background:#F8EFDC}
+.why.warn b{color:var(--warn)}
+
+.say{font-size:.9em;line-height:1.55;color:var(--forest);font-weight:700;border-left:4px solid var(--forest);background:#EDF3E6;padding:9px 14px;margin:12px 0;border-radius:0 4px 4px 0}
+.say b{text-transform:uppercase;letter-spacing:.05em;font-size:.9em}
+
+.ramps{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+.ramp{font-size:.84em;line-height:1.5;padding:10px 13px;border-radius:4px;border:1px solid var(--rule);background:var(--bg);color:var(--sec)}
+.ramp b{display:block;font-size:.88em;font-weight:700;letter-spacing:.07em;text-transform:uppercase;margin-bottom:4px}
+.ramp.in{border-left:4px solid var(--blue)}.ramp.in b{color:var(--blue)}
+.ramp.up{border-left:4px solid var(--purple)}.ramp.up b{color:var(--purple)}
+
+.foot{margin-top:42px;padding-top:20px;border-top:2px solid var(--rule);font-size:.85em;color:var(--muted)}
+
+/* ---------- carried over with the introduction sections ---------- */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+
+.moves{display:flex;flex-direction:column}
+.move{display:flex;gap:15px;padding:15px 0;border-bottom:1px solid var(--rule)}
+.move:last-child{border-bottom:none;padding-bottom:0}
+.move .n{flex-shrink:0;width:30px;height:30px;border-radius:4px;background:var(--rust);color:var(--card);font-size:.7em;font-weight:700;display:flex;align-items:center;justify-content:center;margin-top:3px;font-variant-numeric:tabular-nums}
+.move .t{font-size:.95em;color:var(--sec)}
+.move .t b{display:block;color:var(--text);font-size:1em;font-weight:700;margin-bottom:4px}
+
+.heat{border:1px solid var(--warn);border-left:6px solid var(--warn);border-radius:5px;background:#F8EFDC;color:var(--sec);padding:15px 20px;margin-bottom:18px;font-size:.95em}
+.heat b{color:var(--warn);text-transform:uppercase;letter-spacing:.05em;font-size:.85em;display:block;margin-bottom:6px}
+
+.arc-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.arc{width:100%;min-width:640px;border-collapse:collapse;background:var(--card);border:1px solid var(--rule)}
+.arc th{background:var(--tan);color:var(--rust);font-size:.72em;font-weight:700;letter-spacing:.06em;text-transform:uppercase;text-align:left;padding:11px 13px;border-bottom:2px solid var(--rule-hi)}
+.arc td{padding:12px 13px;border-bottom:1px solid var(--rule);font-size:.9em;color:var(--sec);vertical-align:top}
+.arc tr:last-child td{border-bottom:none}
+.arc .w{font-weight:700;color:var(--rust);white-space:nowrap;font-variant-numeric:tabular-nums}
+.arc .th{color:var(--text);font-weight:700}
+.arc td.wr{min-width:118px;height:38px;border-left:1px solid var(--rule);background:var(--bg)}
+
+.pitch-fig{background:var(--tan);border:1px solid var(--rule);border-radius:6px;padding:14px;display:block;width:100%;max-width:340px;height:auto;margin:0 auto}
+
+@media (max-width:860px){.ex-grid{grid-template-columns:1fr}.g2{grid-template-columns:1fr}.dia{max-width:340px;margin:0 auto}}
+@media (max-width:760px){
+  :root{--fs:19px}
+  .wrap{padding:18px 15px 60px}
+  .mast h1{font-size:1.6em}
+  .nav{flex-wrap:nowrap;overflow-x:auto}
+  .panel{padding:17px}
+  .ex-hd{padding:15px 16px 12px}
+  .ex-body{padding:16px}
+  .ramps{grid-template-columns:1fr}
+  .grow{flex-direction:column;gap:4px}
+  .grow .gt{width:100%}
+  .move{gap:12px}
+}
+@media (max-width:420px){:root{--fs:18px}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+@media print{
+  @page{size:letter portrait;margin:.45in}
+  :root{--bg:#fff;--card:#fff;--tan:#F2EDE0;--grass:#F1F4EC;--rule:#BBB096;--rule-hi:#8A7F66;--text:#000;--sec:#1C1409;--muted:#4A3D28;--rust:#5E2F0B;--forest:#144326;--fs:10.5pt}
+  body{background:#fff}
+  .wrap{max-width:none;padding:0}
+  .nav,.backlink{display:none}
+  .ex{break-inside:avoid;border:1px solid #8A7F66;margin-bottom:14px}
+  .say,.why{background:none}
+  .sec-head{break-before:page}
+  .mast{margin-bottom:14px}
+  a{color:inherit;text-decoration:none}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="mast">
+  <div class="eyebrow">Companion to the 8U Practice Book</div>
+  <h1>The Exercise<br>Manual</h1>
+  <p class="sub">Every activity in the practice book, explained properly: what the setup looks like from above, exactly where the cones go, what happens step by step, and what the whole thing is supposed to teach.</p>
+  <p class="sub">The session cards tell you <em>what</em> you're running at 6:25. This tells you <em>how</em>. Read the entry once before you run an activity for the first time; after that the card is enough.</p>
+  <a class="backlink" href="index.html">&larr; Back to the practice book</a>
+</header>
+
+<nav class="nav" aria-label="Jump to section">
+  <a href="#how">How this works</a>
+  <a href="#mixed">Mixed ability</a>
+  <a href="#nine">9v9 &amp; shape</a>
+  <a href="#twelve">12 players</a>
+  <a href="#rules">League rules</a>
+  <a href="#heat">Heat</a>
+  <a href="#arc">Season arc</a>
+  <a href="#words">Soccer words</a>
+  <a href="#key">Diagram key</a>
+  <a href="#arrival">Arrival games</a>
+  <a href="#moves">Ball moves</a>
+  <a href="#skill">Skill blocks</a>
+  <a href="#ssg">Small-sided games</a>
+  <a href="#chall">Challenges</a>
+  <a href="#running">Running a session</a>
+</nav>
+<!-- ============ HOW TO USE ============ -->
+<section id="how">
+  <div class="sec-head">
+    <div class="eyebrow">Section one</div>
+    <h2>How this book works</h2>
+  </div>
+
+  <div class="panel">
+    <h3>The weekly loop</h3>
+    <p>Your schedule is unstable on purpose &mdash; a random weekday game will occasionally eat a practice. So the week is built so that the session you might lose is never the session that carries new material.</p>
+    <p><b>Sunday &rarr; teach.</b> It lands the day after Saturday's game, so you coach what you just watched. Every new concept in this book lives in a Sunday session.</p>
+    <p><b>Weeknight &rarr; sharpen.</b> It sits between Sunday and the next Saturday, so it rehearses and applies. When a Tuesday game wipes it out, you lose reinforcement, not curriculum. <b>Never move a Sunday session's content into a weeknight slot.</b></p>
+    <p><b>Saturday &rarr; play.</b> Coach almost nothing on game day. Two instructions, maximum, for the whole match.</p>
+  </div>
+
+  <div class="panel">
+    <h3>The 90-minute template, every single time</h3>
+    <p>The block structure never changes across all sixteen sessions. Eight-year-olds settle faster when the shape of the hour is predictable, and your assistant coaches can run a station off the card without a briefing. Only the <em>content</em> of each block changes.</p>
+    <div class="moves">
+      <div class="move"><span class="n">1</span><span class="t"><b>0:00 &middot; Arrival Game &middot; 10 min</b>Starts the second the first girl arrives. Ball at her feet before her bag hits the ground. Nobody ever waits for practice to "start," and late arrivals just fold in.</span></div>
+      <div class="move"><span class="n">2</span><span class="t"><b>0:10 &middot; Ball Mastery &middot; 12 min</b>Every girl, her own ball, the move of the week. This is the block that closes the skill gap over eight weeks &mdash; it is the one thing a beginner can practise alone in a driveway.</span></div>
+      <div class="move"><span class="n">3</span><span class="t"><b>0:22 &middot; Water &middot; 3 min</b>Non-negotiable. See the heat section.</span></div>
+      <div class="move"><span class="n">4</span><span class="t"><b>0:25 &middot; Skill Block &middot; 20 min</b>The teaching block. Two stations run in parallel &mdash; you take one, your assistant takes the other, and they swap at the ten-minute mark.</span></div>
+      <div class="move"><span class="n">5</span><span class="t"><b>0:45 &middot; Water + Team Challenge &middot; 5 min</b>A short, loud, silly competition that doubles as a rest. Pick any from the game bank.</span></div>
+      <div class="move"><span class="n">6</span><span class="t"><b>0:50 &middot; Small-Sided Game &middot; 20 min</b>The skill under real pressure, with one constraint that forces it to show up. This is where learning actually sticks.</span></div>
+      <div class="move"><span class="n">7</span><span class="t"><b>1:10 &middot; Scrimmage &amp; Keeper Club &middot; 15 min</b>The closest thing to Saturday. Keeper rotation happens here.</span></div>
+      <div class="move"><span class="n">8</span><span class="t"><b>1:25 &middot; Huddle &middot; 5 min</b>One thing we did well, one thing for next time, the question of the week, the cheer. Under three minutes of talking.</span></div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h3>The three things you never do</h3>
+    <p><b>Lines.</b> A girl standing in a queue is learning nothing. If an activity has a line of more than two, redesign it or split it into two stations.</p>
+    <p><b>Laps.</b> There is no fitness problem at eight years old that a game does not solve better. Never run without a ball, and never run as punishment.</p>
+    <p><b>Lectures.</b> Two coaching points per activity, thirty seconds maximum. Ask more than you tell &mdash; "where's the space?" beats "go wide" every time, because she has to look to answer.</p>
+  </div>
+</section>
+
+<!-- ============ MIXED ABILITY ============ -->
+<section id="mixed">
+  <div class="sec-head">
+    <div class="eyebrow">Section two</div>
+    <h2>Coaching a roster this wide</h2>
+  </div>
+
+  <div class="panel">
+    <p>This is the hardest thing you're being asked to do, and it has a real answer. The trap is thinking you must choose between boring your experienced players and drowning your new ones. You don't &mdash; you change what each girl is being asked to do <em>inside the same activity</em>. Every session card in this book carries two coloured strips on each block for exactly this.</p>
+    <div class="ramps" style="margin-top:14px">
+      <span class="ramp in"><b>Ramp in</b>How to make this work for a girl who is brand new &mdash; so she succeeds at something today.</span>
+      <span class="ramp up"><b>Ramp up</b>How to make this genuinely hard for a girl who's played for years &mdash; so she's still trying at 7:15.</span>
+    </div>
+    <p style="margin-top:14px"><b>Note the wording.</b> They're "ramp in" and "ramp up," not "easy version" and "hard version, " because eight-year-olds hear everything. You can say these out loud on the field without labelling a child.</p>
+  </div>
+
+  <div class="panel">
+    <h3>Seven moves that actually work</h3>
+    <div class="moves">
+      <div class="move"><span class="n">1</span><span class="t"><b>Never split by ability</b>Split by shoe colour, birthday month, or who had cereal for breakfast. The moment you make an "A group," every girl in the room knows which one she's in &mdash; including the ones you thought weren't paying attention. Ability differences get handled by the ramps, inside a mixed group.</span></div>
+      <div class="move"><span class="n">2</span><span class="t"><b>Handicap the game, not the child</b>This is the single best trick you have. "A goal only counts if a girl who hasn't scored yet touched the ball first." Now your best player is <em>hunting</em> for your newest player, of her own accord, and you never had to ask her to share.</span></div>
+      <div class="move"><span class="n">3</span><span class="t"><b>Give strong players a job, not a bigger role</b>"Your job this game is three good passes to Maya &mdash; passes she can actually control." A bored eight-year-old with a leadership task stops being bored. She's now solving a harder problem than scoring.</span></div>
+      <div class="move"><span class="n">4</span><span class="t"><b>Start beginners numbers-up</b>3v1 and 4v2 build confidence fast because success is nearly guaranteed. Put the newest girls on the overloaded side for the first repetitions, then even it out once they've had a few wins.</span></div>
+      <div class="move"><span class="n">5</span><span class="t"><b>Many small goals, not one big one</b>Four cone-goals in a grid means more scoring, more celebration, and more angles to find. Scoring is the drug that brings eight-year-olds back next season. Manufacture as much of it as you can.</span></div>
+      <div class="move"><span class="n">6</span><span class="t"><b>Never eliminate anyone</b>No knockout games, ever. The girl who most needs the repetitions is the first one out and then stands watching for six minutes. Replace every elimination mechanic with a re-entry one &mdash; three toe-taps and you're back in.</span></div>
+      <div class="move"><span class="n">7</span><span class="t"><b>Praise the attempt, not the outcome</b>"Great decision to take her on" matters more than "great goal," because the attempt is the thing she controls and can repeat. This is the difference between a girl who tries things and a girl who passes it away the moment it arrives.</span></div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h3>The size range</h3>
+    <p>You flagged a wide physical range, and at this age that gap is as big as the skill gap. Two adjustments handle most of it:</p>
+    <p><b>Design activities that reward change of direction, not strength.</b> Tight grids, gates, and turning games let a small quick girl win. Long open channels and shoulder-to-shoulder duels let the biggest girl win by being biggest, which teaches nobody anything.</p>
+    <p><b>Balance small-sided teams by size as well as skill.</b> Two big girls on the same side in a 4v4 makes a game nobody enjoys, including them.</p>
+  </div>
+</section>
+
+<!-- ============ 9v9 ============ -->
+<section id="nine">
+  <div class="sec-head">
+    <div class="eyebrow">Section three</div>
+    <h2>What 9v9 changes</h2>
+  </div>
+
+  <div class="panel">
+    <p>Nine-a-side is a big format for eight-year-olds, and it creates three problems this book is deliberately built around.</p>
+    <p><b>A new girl can disappear.</b> On a field this size she can genuinely go twenty minutes without a touch, and that is precisely how you lose her for next season. The countermeasure is that practice must be the <em>opposite</em> of game day: tiny grids, 3v3 and 4v4, where nobody can hide and everybody touches the ball constantly. If Saturday is her only experience of soccer, Saturday will decide whether she comes back.</p>
+    <p><b>You have about three subs.</b> With twelve rostered and nine on the field, equal playing time gets easier to satisfy but heat and fatigue get much harder. Read the heat section as an operational requirement, not a caution.</p>
+    <p><b>You will never scrimmage 9v9 at practice.</b> With a dozen girls at training, real shape gets taught by cone walkthrough and numbers-up phase play &mdash; 6v4 attacking, 6v6 with target zones &mdash; not by playing the game format. Sessions 11 through 14 do this work.</p>
+    <p><b>And bunch-ball is the default failure mode.</b> Every eight-year-old chases the ball; it's the most interesting object on the field. On a 9v9 pitch that produces a writhing knot of eighteen girls and nobody in space. "Make the field big" is therefore not a nice idea in this book &mdash; it's the season's spine, introduced in Week 6 and reinforced every week after.</p>
+  </div>
+
+  <div class="panel">
+    <h3>The shape: three at the back, three in the middle, two up top</h3>
+    <div class="g2" style="align-items:start">
+      <div>
+        <p>A 3&ndash;3&ndash;2 with the keeper makes nine. Use it because it produces three clean horizontal lines a child can actually picture and repeat back to you, and because it keeps a defender home when everyone else abandons their post.</p>
+        <p><b>Teach it with cones.</b> Put a disc down at each girl's home spot for the first few sessions. The instruction isn't a lecture about shape, it's four words: <em>"go back to your cone."</em> Remove the cones in Week 7 and see if the shape survives.</p>
+        <p><b>The one rule that fixes bunch-ball:</b> only <em>one</em> of us goes to the ball. Everybody else gets big. Say it fifty times this season.</p>
+        <p>Once they can hold 3&ndash;3&ndash;2 without cones, 3&ndash;2&ndash;3 is the more attacking version &mdash; but don't reach for it until the shape holds.</p>
+      </div>
+      <svg class="pitch-fig" viewBox="0 0 260 320" role="img" aria-label="A 3-3-2 formation with goalkeeper on a 9v9 pitch: keeper in goal, three defenders across the back, three midfielders across the middle, two forwards up top.">
+        <rect x="14" y="14" width="232" height="292" fill="none" stroke="var(--rule-hi)" stroke-width="1.6"/>
+        <line x1="14" y1="160" x2="246" y2="160" stroke="var(--rule-hi)" stroke-width="1.2" stroke-dasharray="5 5"/>
+        <circle cx="130" cy="160" r="26" fill="none" stroke="var(--rule-hi)" stroke-width="1.2"/>
+        <rect x="82" y="14" width="96" height="34" fill="none" stroke="var(--rule-hi)" stroke-width="1.2"/>
+        <rect x="82" y="272" width="96" height="34" fill="none" stroke="var(--rule-hi)" stroke-width="1.2"/>
+        <line x1="14" y1="238" x2="246" y2="238" stroke="var(--bib)" stroke-width="1.4" stroke-dasharray="3 4"/>
+        <text x="20" y="234" font-family="ui-sans-serif, sans-serif" font-size="8.5" font-weight="700" fill="var(--bib)" letter-spacing="0.6">BUILD-OUT LINE</text>
+        <g font-family="ui-sans-serif, sans-serif" font-size="9" font-weight="800" fill="var(--card)" text-anchor="middle">
+          <circle cx="130" cy="288" r="11" fill="var(--bib)"/><text x="130" y="291.5">GK</text>
+          <circle cx="62"  cy="248" r="11" fill="var(--pitch)"/><text x="62"  y="251.5">D</text>
+          <circle cx="130" cy="256" r="11" fill="var(--pitch)"/><text x="130" y="259.5">D</text>
+          <circle cx="198" cy="248" r="11" fill="var(--pitch)"/><text x="198" y="251.5">D</text>
+          <circle cx="52"  cy="168" r="11" fill="var(--pitch)"/><text x="52"  y="171.5">M</text>
+          <circle cx="130" cy="182" r="11" fill="var(--pitch)"/><text x="130" y="185.5">M</text>
+          <circle cx="208" cy="168" r="11" fill="var(--pitch)"/><text x="208" y="171.5">M</text>
+          <circle cx="92"  cy="86"  r="11" fill="var(--pitch)"/><text x="92"  y="89.5">F</text>
+          <circle cx="168" cy="86"  r="11" fill="var(--pitch)"/><text x="168" y="89.5">F</text>
+        </g>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<!-- ============ TWELVE ============ -->
+<section id="twelve">
+  <div class="sec-head">
+    <div class="eyebrow">Section four</div>
+    <h2>The 12-player plan</h2>
+  </div>
+
+  <div class="panel">
+    <h3>The arithmetic, and why it works out perfectly</h3>
+    <p>Twelve rostered, nine on the field, three off at any moment. Over four ten-minute quarters that is <b>9 &times; 40 = 360 player-minutes</b> to share among twelve girls &mdash; <b>30 minutes each</b>.</p>
+    <p>Three girls sit each quarter. Four quarters gives <b>twelve sit-slots for exactly twelve girls</b>. So every girl sits exactly one quarter, and nobody sits twice.</p>
+    <p><b>Split the roster into four groups of three. Each group takes one quarter off.</b> That is the entire substitution system. No stopwatch, no running tally, and any parent on the sideline can verify it &mdash; which is worth more than you would think in a league with a mandatory equal-time rule.</p>
+    <p><em>If your games run two 20-minute halves instead:</em> same four groups, but split each half at the 10-minute mark and sub there. The maths is identical.</p>
+  </div>
+
+  <div class="panel">
+    <h3>Build the four groups &mdash; and do not build them by ability</h3>
+    <p>Group A sits the first quarter. So if Group A is your three strongest players, <b>you have just made Q1 your weakest lineup of the game</b>. Every group of three needs one experienced girl, one in the middle, and one newer girl.</p>
+    <p>Balance for size too. Three of your biggest in one group means one quarter where the team is physical and three where it is not.</p>
+    <p>Write the names in once, in pen, at the start of the season. Keep the groups stable &mdash; girls learn who they come off with, and it stops the sideline negotiation before it starts.</p>
+    <div class="arc-scroll">
+    <table class="arc">
+      <thead><tr><th>Group</th><th>Sits</th><th>Player</th><th>Player</th><th>Player</th></tr></thead>
+      <tbody>
+        <tr><td class="w">A</td><td class="th">Quarter 1</td><td class="wr"></td><td class="wr"></td><td class="wr"></td></tr>
+        <tr><td class="w">B</td><td class="th">Quarter 2</td><td class="wr"></td><td class="wr"></td><td class="wr"></td></tr>
+        <tr><td class="w">C</td><td class="th">Quarter 3</td><td class="wr"></td><td class="wr"></td><td class="wr"></td></tr>
+        <tr><td class="w">D</td><td class="th">Quarter 4</td><td class="wr"></td><td class="wr"></td><td class="wr"></td></tr>
+      </tbody>
+    </table>
+    </div>
+    <p style="margin-top:12px"><b>One refinement worth making:</b> rotate which group sits <em>first</em> from game to game &mdash; A, then B, then C, then D as the opening sitters. Sitting the first quarter every single week gets noticed by an eight-year-old, even though the total minutes are identical.</p>
+  </div>
+
+  <div class="panel">
+    <h3>Where the keeper fits</h3>
+    <p>The keeper is one of the nine, so <b>keeper minutes are playing minutes</b> and the grid above already accounts for them. A girl who keeps a quarter still takes her sit-quarter like everyone else.</p>
+    <p>Rotate the keeper by quarter among your volunteers, never by assignment. With four quarters you need at most four keeper stints, and by Week 5 the Keeper Club should be giving you four or five willing names &mdash; more than enough. If only two girls volunteer, they take two quarters each; do not fill the gap by drafting someone who does not want it.</p>
+    <div class="say"><b>Say this &mdash;</b> "Who wants the next quarter in goal?" Never: "You're in goal this quarter."</div>
+  </div>
+
+  <div class="panel">
+    <h3>When fewer than twelve turn up</h3>
+    <p>It will happen most weeks. The grid degrades gracefully &mdash; work down this table.</p>
+    <div class="arc-scroll">
+    <table class="arc">
+      <thead><tr><th>Present</th><th>Off at a time</th><th>What to do</th></tr></thead>
+      <tbody>
+        <tr><td class="w">12</td><td class="th">3</td><td>The grid as written. Every girl sits exactly one quarter.</td></tr>
+        <tr><td class="w">11</td><td class="th">2</td><td>Eight sit-slots for eleven girls, so <b>three play the whole game</b>. Pick those three, write them down, and make sure they are different girls next week &mdash; this is the number one place equal time quietly breaks.</td></tr>
+        <tr><td class="w">10</td><td class="th">1</td><td>Four sit-slots, so six play the full game. Give the four sit-slots to whoever played most last week.</td></tr>
+        <tr><td class="w">9</td><td class="th">0</td><td>Everyone plays the whole game. Add an extra water break instead &mdash; nobody is getting a rest on the bench.</td></tr>
+        <tr><td class="w">8 or fewer</td><td class="th">&mdash;</td><td>Ask the opposing coach to drop a player and play 8v8. At 8U almost every coach says yes; ask before kickoff, not at half time.</td></tr>
+      </tbody>
+    </table>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h3>Twelve at practice: how the numbers divide</h3>
+    <p>Twelve is the best number you could have been given &mdash; it divides cleanly into almost everything, so nobody ever stands out of a game waiting for an even side.</p>
+    <div class="arc-scroll">
+    <table class="arc">
+      <thead><tr><th>You need</th><th>With 12 present</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr><td class="w">Pairs</td><td class="th">6 pairs</td><td>Pair a veteran with a newer girl and give the veteran a job.</td></tr>
+        <tr><td class="w">Threes</td><td class="th">4 groups</td><td>Same four groups as the game-day grid, if you want the reinforcement.</td></tr>
+        <tr><td class="w">Fours</td><td class="th">3 groups</td><td></td></tr>
+        <tr><td class="w">Sixes</td><td class="th">2 groups</td><td>One per coach.</td></tr>
+        <tr><td class="w">1v1 duels</td><td class="th">6 at once</td><td>Six simultaneous grids &mdash; no queue at all.</td></tr>
+        <tr><td class="w">2v2 games</td><td class="th">3 games</td><td></td></tr>
+        <tr><td class="w">3v3 games</td><td class="th">2 games</td><td>The workhorse. Maximum touches, nobody hides.</td></tr>
+        <tr><td class="w">6v6 game</td><td class="th">1 game</td><td>Use whenever the book calls for 4v4 or 5v5 and all twelve are there.</td></tr>
+        <tr><td class="w">5v5 + neutrals</td><td class="th">5v5 + 2</td><td>The two neutrals always play for whoever has the ball.</td></tr>
+        <tr><td class="w">Stations, 2 coaches</td><td class="th">6 + 6</td><td>Swap at the ten-minute mark.</td></tr>
+        <tr><td class="w">Stations, 3 coaches</td><td class="th">4 + 4 + 4</td><td>Third coach takes your three newest girls &mdash; see below.</td></tr>
+      </tbody>
+    </table>
+    </div>
+    <p style="margin-top:12px"><b>Split them by anything except ability.</b> Shoe colour, birthday month, who had cereal. The moment you make an "A group" every girl in the squad knows which one she is in.</p>
+  </div>
+
+  <div class="panel">
+    <h3>What each session runs with twelve</h3>
+    <p>The small-sided game on each card is written generically. This is the configuration to use when all twelve are there &mdash; a few sessions bump from 4v4 or 5v5 up to 6v6 so nobody is left spare.</p>
+    <div class="arc-scroll">
+    <table class="arc">
+      <thead><tr><th>Session</th><th>Skill block</th><th>Small-sided game</th></tr></thead>
+      <tbody>
+        <tr><td class="w">1</td><td>4 zones, free roam</td><td class="th">2 &times; 3v3 to four goals</td></tr>
+        <tr><td class="w">2</td><td>2 lanes of 6</td><td class="th">3 &times; 2v2 shooting boxes</td></tr>
+        <tr><td class="w">3</td><td>6 gate duels</td><td class="th">2 &times; 3v3 endzone dribble</td></tr>
+        <tr><td class="w">4</td><td>2 channels of 6</td><td class="th">6v6 long field <em>(up from 4v4)</em></td></tr>
+        <tr><td class="w">5</td><td>6 grids, 1v1 ladder</td><td class="th">2 &times; 3v3, 1v1 restarts</td></tr>
+        <tr><td class="w">6</td><td>6 shadow pairs</td><td class="th">6v6 win-it-back <em>(up from 4v4)</em></td></tr>
+        <tr><td class="w">7</td><td>2 stations of 6</td><td class="th">6v6 shootout <em>(up from 4v4)</em></td></tr>
+        <tr><td class="w">8</td><td>6 finishing + 6 keeper</td><td class="th">6v6 rebound rules <em>(up from 4v4)</em></td></tr>
+        <tr><td class="w">9</td><td>6 passing pairs</td><td class="th">5v5 + 2 neutrals</td></tr>
+        <tr><td class="w">10</td><td>2 give-and-go lanes</td><td class="th">2 &times; 3v3 freeze frame</td></tr>
+        <tr><td class="w">11</td><td>Whole squad, build-out</td><td class="th">6v6 wide zones <em>(up from 5v5)</em></td></tr>
+        <tr><td class="w">12</td><td>3 grids of 3v1</td><td class="th">6v6 switch bonus <em>(up from 5v5)</em></td></tr>
+        <tr><td class="w">13</td><td>3 grids of 2v2</td><td class="th">6v6 five-second rule <em>(up from 5v5)</em></td></tr>
+        <tr><td class="w">14</td><td>3 restart stations of 4</td><td class="th">6v6 shape, walk then live</td></tr>
+        <tr><td class="w">15</td><td>Girls' choice</td><td class="th">World Cup &mdash; 4 teams of 3</td></tr>
+        <tr><td class="w">16</td><td>Skills showcase, all 12</td><td class="th">Coaches vs. all 12</td></tr>
+      </tbody>
+    </table>
+    </div>
+    <p style="margin-top:12px"><b>If only eight or ten show up to practice, do not improvise.</b> Run the same card: keep the arrival game and ball mastery exactly as written since they are individual anyway, drop to one station instead of two, and take the small-sided game down to 3v3 or 2v2. Fewer girls means more touches each, which is the whole objective &mdash; a small session is a gift.</p>
+  </div>
+
+  <div class="panel">
+    <h3>The third coach, when you have one</h3>
+    <p>With twelve girls and three coaches the obvious split is 4 + 4 + 4. Do not do it.</p>
+    <p>Run two stations of six as normal, and give your third coach <b>three names</b> &mdash; your three newest girls &mdash; with one job: make sure those three touch the ball constantly and each hear something specific they did well before they go home. On a 9v9 field, disappearing on Saturday is the main way you lose a player, and this is the highest-leverage assignment available to you.</p>
+  </div>
+</section>
+
+<!-- ============ RULES ============ -->
+<section id="rules">
+  <div class="sec-head">
+    <div class="eyebrow">Section five</div>
+    <h2>Your league rules, turned into coaching</h2>
+  </div>
+
+  <div class="panel">
+    <h3>The build-out line is a gift &mdash; use it</h3>
+    <p>When your keeper has the ball or you have a goal kick, the opposition must retreat behind the build-out line. That means your team gets roughly <b>ten free seconds with nobody near them</b>, several times a game. Most 8U teams waste it by booting the ball straight back to the other team.</p>
+    <p><b>Teach it as a picture, not a tactic.</b> On a goal kick: two girls sprint to the <em>corners of the box</em>, wide as they can get; one girl goes long. The keeper rolls it to whoever has the most grass around her. She takes one touch forward and looks up.</p>
+    <div class="say"><b>Say this &mdash;</b> "When we have it at our goal, we get BIG. Corners and far away."</div>
+  </div>
+
+  <div class="panel">
+    <h3>No punting means your keeper needs a skill, not a leg</h3>
+    <p>Because she can't punt or drop-kick, distribution is a technique you can actually teach in one session: the <b>bowling roll</b>. Step forward, low, roll it along the ground to a girl's feet. It's accurate, it's easy, and eight-year-olds are good at it immediately &mdash; which makes it a confidence builder rather than a chore. Introduced Session 8, drilled Session 11.</p>
+  </div>
+
+  <div class="panel">
+    <h3>Equal playing time + a goalkeeper</h3>
+    <p>These two rules interact badly if you're not deliberate, and getting it wrong costs you a player.</p>
+    <p><b>Count keeper minutes as playing time.</b> Otherwise whoever volunteers quietly gets shortchanged, and volunteering stops.</p>
+    <p><b>Never assign a nervous girl to goal to be "fair."</b> That's the afternoon she decides soccer isn't for her. Fair means everyone gets the <em>offer</em>, not that everyone gets the assignment.</p>
+    <p><b>Run a Keeper Club instead.</b> Every girl tries keeper in practice, in low-stakes games where saves are celebrated and goals conceded are ignored. Keep a running list of who has volunteered for Saturday and rotate through it. By Week 5 you will typically have four or five willing keepers, which is more than you need.</p>
+    <div class="say"><b>Say this &mdash;</b> "Who wants to go in goal?" Never: "Ella, you're in goal."</div>
+  </div>
+
+  <div class="panel">
+    <h3>No heading</h3>
+    <p>Heading is out at this age. Coach the alternative from day one so it becomes a habit rather than a correction: <b>chest it, thigh it, or let it bounce and take it on the ground.</b> If a ball is above shoulder height, the right answer is always to let it land.</p>
+  </div>
+</section>
+
+<!-- ============ HEAT ============ -->
+<section id="heat">
+  <div class="sec-head">
+    <div class="eyebrow">Section six</div>
+    <h2>Houston heat</h2>
+  </div>
+
+  <div class="heat">
+    <b>This is an operational requirement, not a caution</b>
+    A Sunday afternoon in Houston in late spring, on a 9v9 field, with three subs, is the highest-risk combination on your calendar. Treat the water breaks in the template as fixed points that never get skipped because an activity is going well.
+  </div>
+
+  <div class="panel">
+    <div class="moves">
+      <div class="move"><span class="n">1</span><span class="t"><b>Water is built in, not asked for</b>The template has breaks at 0:22 and 0:45, and the Team Challenge block is a rest disguised as a competition. Add a third break in the scrimmage if it's above about 88&deg;F.</span></div>
+      <div class="move"><span class="n">2</span><span class="t"><b>Huddle in shade, always</b>Any time you're talking, move them to shade. It costs thirty seconds and buys you real recovery.</span></div>
+      <div class="move"><span class="n">3</span><span class="t"><b>Cut the scrimmage before you cut the water</b>If you're running behind, the block that gets shortened is the last one. Never the breaks.</span></div>
+      <div class="move"><span class="n">4</span><span class="t"><b>Watch for the quiet one</b>An overheating eight-year-old goes quiet and stops competing &mdash; she doesn't complain. The girl who suddenly drifts to the back of a game she was enjoying gets sat down with water immediately, no questions.</span></div>
+      <div class="move"><span class="n">5</span><span class="t"><b>Push the Sunday session later if you can</b>A 5:00 start in May is a materially different session from a 2:00 start. If the league gives you the choice, take the later slot every time.</span></div>
+      <div class="move"><span class="n">6</span><span class="t"><b>Ice and wet towels in the bag</b>Cheap, and the difference between a girl sitting out ten minutes and a girl going home.</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ SEASON ARC ============ -->
+<section id="arc">
+  <div class="sec-head">
+    <div class="eyebrow">Section seven</div>
+    <h2>The eight-week arc</h2>
+  </div>
+
+  <div class="panel" style="padding-bottom:6px">
+    <p style="margin-bottom:14px">The progression runs <b>individual &rarr; individual against an opponent &rarr; scoring &rarr; with a teammate &rarr; team shape &rarr; winning it back &rarr; play.</b> Ball mastery comes first and passing comes late, which is deliberate: at eight, a girl who can keep the ball is more useful than a girl who can pass it away, and technical confidence is what makes everything after it possible.</p>
+  </div>
+
+  <div class="arc-scroll">
+  <table class="arc">
+    <thead><tr><th>Week</th><th>Theme</th><th>Sunday &mdash; teach</th><th>Weeknight &mdash; sharpen</th><th>Move of the week</th></tr></thead>
+    <tbody>
+      <tr><td class="w">1</td><td class="th">Belonging &amp; ball comfort</td><td>1 &middot; Everybody's First Touch</td><td>2 &middot; First Shot</td><td>Toe taps &amp; sole rolls</td></tr>
+      <tr><td class="w">2</td><td class="th">Dribbling to escape</td><td>3 &middot; Stop &amp; Go</td><td>4 &middot; Run With It</td><td>The pullback</td></tr>
+      <tr><td class="w">3</td><td class="th">1v1, both ways</td><td>5 &middot; Take Her On</td><td>6 &middot; Slow Her Down</td><td>The inside cut</td></tr>
+      <tr><td class="w">4</td><td class="th">Scoring</td><td>7 &middot; Shoot!</td><td>8 &middot; Second Chances</td><td>Foundations &amp; strike shape</td></tr>
+      <tr><td class="w">5</td><td class="th">Playing with a friend</td><td>9 &middot; Find a Friend</td><td>10 &middot; Pass and Move</td><td>Push pass &amp; first touch</td></tr>
+      <tr><td class="w">6</td><td class="th">Making the field big</td><td>11 &middot; Make the Field BIG</td><td>12 &middot; The Other Side</td><td>Open up across your body</td></tr>
+      <tr><td class="w">7</td><td class="th">Winning it back</td><td>13 &middot; Win It Back</td><td>14 &middot; Restarts &amp; Shape</td><td>The step-over</td></tr>
+      <tr><td class="w">8</td><td class="th">Play</td><td>15 &middot; Their Game</td><td>16 &middot; Finale</td><td>Free choice &mdash; they teach</td></tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+
+<!-- ============ GLOSSARY ============ -->
+<section id="words">
+  <div class="sec-head">
+    <div class="eyebrow">Start here</div>
+    <h2>Soccer words, in plain English</h2>
+  </div>
+  <p class="sec-intro">Coaching writing is full of shorthand. Here is every term used in the practice book, in ordinary words. Distances are given in <b>adult walking steps</b>, because you will never have a tape measure on the field.</p>
+
+  <div class="panel">
+    <h3>Things you build out of cones</h3>
+    <div class="gloss">
+      <div class="grow"><span class="gt">Cone / disc</span><span class="gd">A flat plastic disc or small cone. Everything below is built out of these. Twenty-four is plenty for any session in the book.</span></div>
+      <div class="grow"><span class="gt">Grid</span><span class="gd">A square or rectangle marked by putting one cone at each corner. That's it. "A 15-step grid" means each side is about fifteen walking steps. Everything happens inside it.</span></div>
+      <div class="grow"><span class="gt">Gate</span><span class="gd">Two cones set about two steps apart, making a little doorway. Girls dribble or pass through the gap. Scatter six or eight gates around a grid and you have an activity.</span></div>
+      <div class="grow"><span class="gt">Cone-goal</span><span class="gd">Two cones about four steps apart used as a goal instead of a real net. No goalkeeper. Ball passes between them at any height = goal.</span></div>
+      <div class="grow"><span class="gt">Channel / lane</span><span class="gd">A long narrow strip marked with cones down both sides, like a running lane. Used when you want girls moving in one direction.</span></div>
+      <div class="grow"><span class="gt">Endzone</span><span class="gd">A strip at the end of a grid, like in American football. Instead of scoring in a goal, a girl scores by dribbling the ball across that line under control.</span></div>
+      <div class="grow"><span class="gt">Wide zone</span><span class="gd">A narrow strip (about five steps) marked along each long edge of the field, used to reward playing near the sidelines instead of everyone crowding the middle.</span></div>
+      <div class="grow"><span class="gt">Home cone</span><span class="gd">A disc placed on the spot where a girl is supposed to stand in the team shape. "Go back to your cone" is the whole coaching instruction.</span></div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h3>Ways of counting players</h3>
+    <div class="gloss">
+      <div class="grow"><span class="gt">3v3, 4v4, 6v6</span><span class="gd">Three against three, and so on. Small games. The smaller the number, the more times each girl touches the ball &mdash; which is why the book uses tiny games even though Saturday is 9v9.</span></div>
+      <div class="grow"><span class="gt">1v1</span><span class="gd">One attacker against one defender. The single most useful thing to practise at this age.</span></div>
+      <div class="grow"><span class="gt">Numbers-up</span><span class="gd">Deliberately uneven, like 3v1 or 4v2, so the bigger side almost always succeeds. Used to build confidence &mdash; put your newest girls on the big side first.</span></div>
+      <div class="grow"><span class="gt">Neutral</span><span class="gd">A girl who always plays for whichever team currently has the ball. She is never on defence. It makes passing succeed constantly, and it's a safe, useful job for a nervous player.</span></div>
+      <div class="grow"><span class="gt">Rotate</span><span class="gd">Swap who is doing what &mdash; new partners, new opponents, or the defender becomes the attacker. Do it often; eight-year-olds get bored of the same matchup in about ninety seconds.</span></div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h3>Words about feet and the ball</h3>
+    <div class="gloss">
+      <div class="grow"><span class="gt">Touch</span><span class="gd">One contact between foot and ball. "More touches" is the entire goal of a practice &mdash; it's the closest thing to a measure of whether the session worked.</span></div>
+      <div class="grow"><span class="gt">Two-touch</span><span class="gd">A rule that a girl may only touch the ball twice before passing or shooting. Speeds the game up. Use it to make things harder for your experienced girls, never for beginners.</span></div>
+      <div class="grow"><span class="gt">Weak foot</span><span class="gd">The foot she doesn't naturally use. Practising with it is hard and unglamorous, which makes it a perfect way to challenge a strong player without singling her out.</span></div>
+      <div class="grow"><span class="gt">First touch</span><span class="gd">What she does with the ball the instant it arrives. A good first touch pushes it into space in front of her; a bad one leaves it stuck under her feet.</span></div>
+      <div class="grow"><span class="gt">Laces</span><span class="gd">The top of the foot, where the shoelaces are. Used for shooting hard. Toe pointed down, ankle stiff.</span></div>
+      <div class="grow"><span class="gt">Inside of the foot</span><span class="gd">The flat arch on the inner side. Used for passing and for accurate short shots. Think of a door swinging shut.</span></div>
+      <div class="grow"><span class="gt">Sole</span><span class="gd">The bottom of the shoe. Used to stop the ball dead or drag it backwards.</span></div>
+      <div class="grow"><span class="gt">Standing foot</span><span class="gd">The foot she is <em>not</em> kicking with. Where she plants it decides where the ball goes; beside the ball, pointing at the target.</span></div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h3>Words about position</h3>
+    <div class="gloss">
+      <div class="grow"><span class="gt">Front foot</span><span class="gd">When a defender stands with one foot ahead of the other, the ahead one is her front foot. Attacking "her front foot" means going to that side, because she has to turn her whole body to follow &mdash; it's the slow direction for her.</span></div>
+      <div class="grow"><span class="gt">Goal-side</span><span class="gd">A defender is goal-side when she is between the attacker and the goal she's defending. It's where a defender wants to be.</span></div>
+      <div class="grow"><span class="gt">Near post</span><span class="gd">On a corner kick, the goalpost closest to where the ball is being kicked from. Putting one girl there is the simplest corner routine that works at 8U.</span></div>
+      <div class="grow"><span class="gt">Support angle</span><span class="gd">Standing somewhere your teammate can actually pass to you &mdash; off to the side rather than directly behind the defender. At this age, "move so she can see you" is the whole idea.</span></div>
+      <div class="grow"><span class="gt">Switch</span><span class="gd">Moving the ball from one side of the field to the other, because the space is almost always where the crowd of girls isn't.</span></div>
+      <div class="grow"><span class="gt">Build-out line</span><span class="gd">A line across the field, part of your league's rules. When your keeper has the ball or you have a goal kick, the other team must retreat behind it &mdash; so you get roughly ten free seconds with nobody near you.</span></div>
+      <div class="grow"><span class="gt">Transition</span><span class="gd">The moment possession changes hands. The five seconds right after you lose the ball are the most important five seconds in the game.</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ DIAGRAM KEY ============ -->
+<section id="key">
+  <div class="sec-head">
+    <div class="eyebrow">How to read the pictures</div>
+    <h2>Diagram key</h2>
+  </div>
+  <p class="sec-intro">Every diagram is drawn looking straight down at the field from above, as if you were standing on a ladder. The same symbols mean the same thing everywhere.</p>
+
+  <div class="panel">
+    <svg viewBox="0 0 640 130" class="dia" style="max-width:640px" role="img" aria-label="Diagram key: filled circles are the team with the ball, outlined circles are defenders, small triangles are cones, a white dot is the ball, a solid arrow means a girl runs, a dashed arrow means the ball is passed or shot, and a thick bar is a goal.">
+      <g font-family="Verdana, sans-serif" font-size="11" fill="#46331C">
+        <circle cx="34" cy="34" r="13" fill="#7A3E0F"/><text x="34" y="38.5" font-size="11" font-weight="700" fill="#FBF6E8" text-anchor="middle">A</text>
+        <text x="56" y="38">Team with the ball (attacker)</text>
+
+        <circle cx="34" cy="76" r="13" fill="#FBF6E8" stroke="#1F5A34" stroke-width="2.5"/><text x="34" y="80.5" font-size="11" font-weight="700" fill="#1F5A34" text-anchor="middle">D</text>
+        <text x="56" y="80">Defender</text>
+
+        <circle cx="34" cy="115" r="13" fill="#FBF6E8" stroke="#4A1A6A" stroke-width="2.5" stroke-dasharray="4 3"/><text x="34" y="119.5" font-size="11" font-weight="700" fill="#4A1A6A" text-anchor="middle">C</text>
+        <text x="56" y="119">Coach, or a neutral player</text>
+
+        <path d="M300 27 l11 16 h-22 z" fill="#C8641E"/>
+        <text x="322" y="38">A cone</text>
+
+        <circle cx="300" cy="76" r="6" fill="#fff" stroke="#241608" stroke-width="2"/>
+        <text x="322" y="80">The ball</text>
+
+        <path d="M292 108 h20 v14 h-20 z" fill="none" stroke="#C8641E" stroke-width="2"/>
+        <text x="322" y="119">A gate (two cones, a doorway)</text>
+
+        <line x1="470" y1="34" x2="530" y2="34" stroke="#241608" stroke-width="2.5" marker-end="url(#kar)"/>
+        <text x="542" y="38">A girl runs</text>
+
+        <line x1="470" y1="76" x2="530" y2="76" stroke="#241608" stroke-width="2.5" stroke-dasharray="6 4" marker-end="url(#kar)"/>
+        <text x="542" y="80">The ball is passed or shot</text>
+
+        <line x1="470" y1="115" x2="530" y2="115" stroke="#7A3E0F" stroke-width="7"/>
+        <text x="542" y="119">A goal</text>
+      </g>
+      <defs>
+        <marker id="kar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+          <path d="M0 0 L10 5 L0 10 z" fill="#241608"/>
+        </marker>
+      </defs>
+    </svg>
+    <p style="margin-top:14px"><b>Sizes are in adult walking steps.</b> A "15-step grid" is fifteen of your normal paces on each side. Nothing in this book needs to be measured accurately &mdash; if an activity feels crowded, make it bigger; if girls are standing around, make it smaller.</p>
+  </div>
+</section>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+  <marker id="run" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#241608"/></marker>
+  <marker id="pas" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#241608"/></marker>
+</defs></svg>
+
+<!-- ============ ARRIVAL GAMES ============ -->
+<section id="arrival">
+  <div class="sec-head">
+    <div class="eyebrow">The first 10 minutes</div>
+    <h2>Arrival games</h2>
+  </div>
+  <p class="sec-intro">These start the moment the first girl arrives &mdash; ball at her feet before her bag hits the ground. They all work with any number of players, and a girl who turns up late just walks in and joins. Set the grid up before anybody arrives, once, and leave it.</p>
+
+  <article class="ex" id="sharks">
+    <div class="ex-hd"><h3>Sharks &amp; Minnows</h3><span class="when">Sessions 1, 7, 16</span></div>
+    <div class="ex-body"><div class="ex-grid">
+      <div>
+        <svg class="dia" viewBox="0 0 220 160" role="img" aria-label="A square grid with six girls each dribbling their own ball, and two coaches moving among them trying to kick the balls out.">
+          <rect x="12" y="12" width="196" height="136" fill="none" stroke="#B9A275" stroke-width="2"/>
+          <g><circle cx="50" cy="45" r="11" fill="#7A3E0F"/><circle cx="50" cy="61" r="5" fill="#fff" stroke="#241608" stroke-width="1.8"/></g>
+          <g><circle cx="110" cy="38" r="11" fill="#7A3E0F"/><circle cx="110" cy="54" r="5" fill="#fff" stroke="#241608" stroke-width="1.8"/></g>
+          <g><circle cx="172" cy="52" r="11" fill="#7A3E0F"/><circle cx="172" cy="68" r="5" fill="#fff" stroke="#241608" stroke-width="1.8"/></g>
+          <g><circle cx="44" cy="115" r="11" fill="#7A3E0F"/><circle cx="44" cy="131" r="5" fill="#fff" stroke="#241608" stroke-width="1.8"/></g>
+          <g><circle cx="150" cy="118" r="11" fill="#7A3E0F"/><circle cx="150" cy="134" r="5" fill="#fff" stroke="#241608" stroke-width="1.8"/></g>
+          <circle cx="88" cy="90" r="11" fill="#FBF6E8" stroke="#4A1A6A" stroke-width="2.5" stroke-dasharray="4 3"/><text x="88" y="94" font-size="10" font-weight="700" fill="#4A1A6A" text-anchor="middle" font-family="Verdana, sans-serif">C</text>
+          <circle cx="140" cy="80" r="11" fill="#FBF6E8" stroke="#4A1A6A" stroke-width="2.5" stroke-dasharray="4 3"/><text x="140" y="84" font-size="10" font-weight="700" fill="#4A1A6A" text-anchor="middle" font-family="Verdana, sans-serif">C</text>
+          <line x1="99" y1="86" x2="122" y2="70" stroke="#241608" stroke-width="2" marker-end="url(#run)"/>
+        </svg>
+        <p class="diacap">Everyone dribbles. The two coaches hunt.</p>
+      </div>
+      <div>
+        <div class="need"><b>You need</b> &mdash; 4 cones, one ball per girl, a grid about 20 steps square</div>
+        <div class="sub-h">Set it up</div>
+        <ol class="steps">
+          <li>Put one cone at each corner of a square about <b>20 walking steps</b> on each side.</li>
+          <li>Every girl gets a ball and stands anywhere inside.</li>
+          <li>You and your assistant are the sharks. You have no ball.</li>
+        </ol>
+        <div class="sub-h">How it runs</div>
+        <ol class="steps">
+          <li>Say go. Everyone dribbles around inside the square, keeping their ball away from the sharks.</li>
+          <li>The sharks walk and jog around trying to <b>kick balls out of the square</b>. Don't sprint &mdash; you'll flatten someone.</li>
+          <li>If a girl's ball gets kicked out, she runs and fetches it, does <b>three toe-taps</b>, and comes straight back in. <b>Nobody is ever out.</b></li>
+          <li>Learn a name out loud every time you take a ball: "got you, Maya!" That's what the first two weeks are really for.</li>
+          <li>Run it about ten minutes, adding girls as they arrive.</li>
+        </ol>
+        <div class="why"><b>Point of it</b> Dribbling while something is actually coming at her &mdash; which is completely different from dribbling through cones. It also gets bodies warm and names learned without anybody standing in a line.</div>
+        <div class="why"><b>Working when</b> Girls are changing direction and looking up. If everyone is running in straight lines staring down, make the square smaller.</div>
+        <div class="ramps">
+          <span class="ramp in"><b>Ramp in</b>Sharks visibly avoid the newest girls for the first minute. Let them keep the ball and feel good.</span>
+          <span class="ramp up"><b>Ramp up</b>She has to protect a partner's ball as well as her own.</span>
+        </div>
+      </div>
+    </div></div>
+  </article>
+
+  <article class="ex" id="traffic">
+    <div class="ex-hd"><h3>Traffic Lights</h3><span class="when">Sessions 2, 8, 14</span></div>
+    <div class="ex-body"><div class="ex-grid">
+      <div>
+        <svg class="dia" viewBox="0 0 220 160" role="img" aria-label="Girls with balls spread across a grid, all facing the coach who stands at one end calling colours.">
+          <rect x="12" y="12" width="196" height="136" fill="none" stroke="#B9A275" stroke-width="2"/>
+          <circle cx="110" cy="30" r="12" fill="#FBF6E8" stroke="#4A1A6A" stroke-width="2.5" stroke-dasharray="4 3"/><text x="110" y="34.5" font-size="10" font-weight="700" fill="#4A1A6A" text-anchor="middle" font-family="Verdana, sans-serif">C</text>
+          <g><circle cx="45" cy="80" r="11" fill="#7A3E0F"/><circle cx="45" cy="96" r="5" fill="#fff" stroke="#241608" stroke-width="1.8"/><line x1="45" y1="72" x2="45" y2="56" stroke="#241608" stroke-width="2" marker-end="url(#run)"/></g>
+          <g><circle cx="90" cy="98" r="11" fill="#7A3E0F"/><circle cx="90" cy="114" r="5" fill="#fff" stroke="#241608" stroke-width="1.8"/><line x1="90" y1="90" x2="90" y2="74" stroke="#241608" stroke-width="2" marker-end="url(#run)"/></g>
+          <g><circle cx="135" cy="86" r="11" fill="#7A3E0F"/><circle cx="135" cy="102" r="5" fill="#fff" stroke="#241608" stroke-width="1.8"/><line x1="135" y1="78" x2="135" y2="62" stroke="#241608" stroke-width="2" marker-end="url(#run)"/></g>
+          <g><circle cx="180" cy="105" r="11" fill="#7A3E0F"/><circle cx="180" cy="121" r="5" fill="#fff" stroke="#241608" stroke-width="1.8"/><line x1="180" y1="97" x2="180" y2="81" stroke="#241608" stroke-width="2" marker-end="url(#run)"/></g>
+        </svg>
+        <p class="diacap">You call the colour. They all react at once.</p>
+      </div>
+      <div>
+        <div class="need"><b>You need</b> &mdash; 4 cones, one ball per girl, a grid about 20 steps square</div>
+        <div class="sub-h">Set it up</div>
+        <ol class="steps">
+          <li>Same square as Sharks &amp; Minnows. If it's already out, use it.</li>
+          <li>Every girl has a ball. You stand where they can all hear you.</li>
+        </ol>
+        <div class="sub-h">How it runs</div>
+        <ol class="steps">
+          <li>Explain the three calls once, and demonstrate each: <b>green</b> = dribble normally. <b>Yellow</b> = slow motion, tiny touches. <b>Red</b> = stop the ball completely dead with the bottom of your foot and freeze.</li>
+          <li>Call colours in random order. Leave a few seconds between calls at first, then start switching fast.</li>
+          <li>Nobody is out for getting it wrong. Just call it again.</li>
+          <li>Once they've got it, add a fourth call of your own &mdash; "shoot" or "spin" or anything silly.</li>
+        </ol>
+        <div class="why"><b>Point of it</b> Controlling <em>speed</em>, and stopping the ball on purpose. Nearly every 8U turnover is a girl running faster than she can control the ball, and this is the cheapest fix.</div>
+        <div class="why"><b>Working when</b> On "red" the balls actually stop instead of trickling three more steps.</div>
+        <div class="ramps">
+          <span class="ramp in"><b>Ramp in</b>Bigger space, slower calls, and any kind of stop counts.</span>
+          <span class="ramp up"><b>Ramp up</b>Red means stop it with the sole and drag it back one step before freezing.</span>
+        </div>
+      </div>
+    </div></div>
+  </article>
+
+  <article class="ex" id="bodypart">
+    <div class="ex-hd"><h3>Body Part Stop</h3><span class="when">Sessions 3, 12</span></div>
+    <div class="ex-body"><div class="ex-grid">
+      <div>
+        <svg class="dia" viewBox="0 0 220 160" role="img" aria-label="Girls scattered across a grid each with a ball, stopping the ball with different body parts.">
+          <rect x="12" y="12" width="196" height="136" fill="none" stroke="#B9A275" stroke-width="2"/>
+          <g><circle cx="55" cy="50" r="11" fill="#7A3E0F"/><circle cx="55" cy="66" r="5" fill="#fff" stroke="#241608" stroke-width="1.8"/><text x="55" y="86" font-size="8.5" fill="#46331C" text-anchor="middle" font-family="Verdana, sans-serif">sole</text></g>
+          <g><circle cx="128" cy="45" r="11" fill="#7A3E0F"/><circle cx="128" cy="61" r="5" fill="#fff" stroke="#241608" stroke-width="1.8"/><text x="128" y="81" font-size="8.5" fill="#46331C" text-anchor="middle" font-family="Verdana, sans-serif">knee</text></g>
+          <g><circle cx="70" cy="112" r="11" fill="#7A3E0F"/><circle cx="70" cy="128" r="5" fill="#fff" stroke="#241608" stroke-width="1.8"/><text x="70" y="145" font-size="8.5" fill="#46331C" text-anchor="middle" font-family="Verdana, sans-serif">elbow</text></g>
+          <g><circle cx="165" cy="105" r="11" fill="#7A3E0F"/><circle cx="165" cy="121" r="5" fill="#fff" stroke="#241608" stroke-width="1.8"/><text x="165" y="138" font-size="8.5" fill="#46331C" text-anchor="middle" font-family="Verdana, sans-serif">hand</text></g>
+        </svg>
+        <p class="diacap">One call, everyone finds a different way to stop it.</p>
+      </div>
+      <div>
+        <div class="need"><b>You need</b> &mdash; 4 cones, one ball per girl</div>
+        <div class="sub-h">How it runs</div>
+        <ol class="steps">
+          <li>Everyone dribbles freely inside the square.</li>
+          <li>Shout a body part &mdash; <b>"knee!"</b> &mdash; and every girl has to stop her ball with that body part as fast as she can.</li>
+          <li>Call sole, knee, elbow, hand, bottom, forehead. Make it ridiculous on purpose; the laughing is the point.</li>
+          <li>Let a girl do the calling for the last two minutes. They love this and it costs you nothing.</li>
+        </ol>
+        <div class="why"><b>Point of it</b> Getting comfortable being near the ball and reacting fast, without any pressure to be good at soccer. It's the friendliest possible activity for a girl who has never played, because there is no wrong answer.</div>
+        <div class="why warn"><b>One rule</b> Heading is not allowed at this age. If you call "head", make it explicitly a joke &mdash; catch it, don't head it &mdash; or just leave that one out.</div>
+      </div>
+    </div></div>
+  </article>
+
+  <article class="ex" id="follow">
+    <div class="ex-hd"><h3>Follow the Leader</h3><span class="when">Sessions 6, 10</span></div>
+    <div class="ex-body"><div class="ex-grid">
+      <div>
+        <svg class="dia" viewBox="0 0 220 160" role="img" aria-label="Three pairs of girls, each pair one behind the other with their own balls, the back girl copying the front girl's path.">
+          <rect x="12" y="12" width="196" height="136" fill="none" stroke="#B9A275" stroke-width="2"/>
+          <g><circle cx="50" cy="42" r="10" fill="#7A3E0F"/><circle cx="50" cy="56" r="4.5" fill="#fff" stroke="#241608" stroke-width="1.6"/>
+             <circle cx="50" cy="80" r="10" fill="#FBF6E8" stroke="#7A3E0F" stroke-width="2.5"/><circle cx="50" cy="94" r="4.5" fill="#fff" stroke="#241608" stroke-width="1.6"/>
+             <path d="M62 42 q22 -14 36 8" fill="none" stroke="#241608" stroke-width="2" stroke-dasharray="4 3" marker-end="url(#run)"/></g>
+          <g><circle cx="120" cy="60" r="10" fill="#7A3E0F"/><circle cx="120" cy="74" r="4.5" fill="#fff" stroke="#241608" stroke-width="1.6"/>
+             <circle cx="120" cy="98" r="10" fill="#FBF6E8" stroke="#7A3E0F" stroke-width="2.5"/><circle cx="120" cy="112" r="4.5" fill="#fff" stroke="#241608" stroke-width="1.6"/></g>
+          <g><circle cx="180" cy="46" r="10" fill="#7A3E0F"/><circle cx="180" cy="60" r="4.5" fill="#fff" stroke="#241608" stroke-width="1.6"/>
+             <circle cx="180" cy="84" r="10" fill="#FBF6E8" stroke="#7A3E0F" stroke-width="2.5"/><circle cx="180" cy="98" r="4.5" fill="#fff" stroke="#241608" stroke-width="1.6"/></g>
+        </svg>
+        <p class="diacap">Filled circle leads, outlined circle copies.</p>
+      </div>
+      <div>
+        <div class="need"><b>You need</b> &mdash; 4 cones, one ball per girl. With 12 girls that's <b>6 pairs</b>.</div>
+        <div class="sub-h">Set it up</div>
+        <ol class="steps">
+          <li>Put them in pairs. <b>Deliberately pair an experienced girl with a newer one</b> &mdash; this activity is the best mentoring tool in the book.</li>
+          <li>Both girls in a pair have their own ball. One stands a couple of steps behind the other.</li>
+        </ol>
+        <div class="sub-h">How it runs</div>
+        <ol class="steps">
+          <li>The front girl dribbles anywhere she likes &mdash; turns, stops, changes speed.</li>
+          <li>The back girl follows and copies whatever the leader does, with her own ball.</li>
+          <li>After about 45 seconds, shout swap. They change roles.</li>
+          <li>Give the experienced girl a job before you start: <b>"make it something she can actually copy."</b> That turns showing off into leading, and it keeps her interested.</li>
+        </ol>
+        <div class="why"><b>Point of it</b> A newer girl gets a model to imitate at her own pace with nobody watching her, and an experienced girl gets a leadership task instead of being told to go easy. Both of those matter more than the dribbling.</div>
+        <div class="why"><b>Working when</b> The leader is glancing back to check her partner is keeping up. That's the whole lesson, and it's about her, not the ball.</div>
+      </div>
+    </div></div>
+  </article>
+
+  <article class="ex" id="freeze">
+    <div class="ex-hd"><h3>Number Freeze</h3><span class="when">Sessions 4, 9, 11</span></div>
+    <div class="ex-body"><div class="ex-grid">
+      <div>
+        <svg class="dia" viewBox="0 0 220 160" role="img" aria-label="Girls with balls grouping into clusters of three after the coach calls a number.">
+          <rect x="12" y="12" width="196" height="136" fill="none" stroke="#B9A275" stroke-width="2"/>
+          <text x="110" y="30" font-size="12" font-weight="700" fill="#7A3E0F" text-anchor="middle" font-family="Verdana, sans-serif">&#8220;THREE!&#8221;</text>
+          <g><circle cx="55" cy="70" r="10" fill="#7A3E0F"/><circle cx="80" cy="60" r="10" fill="#7A3E0F"/><circle cx="72" cy="88" r="10" fill="#7A3E0F"/>
+             <circle cx="68" cy="74" r="26" fill="none" stroke="#C8641E" stroke-width="1.5" stroke-dasharray="4 3"/></g>
+          <g><circle cx="150" cy="70" r="10" fill="#7A3E0F"/><circle cx="175" cy="82" r="10" fill="#7A3E0F"/><circle cx="152" cy="98" r="10" fill="#7A3E0F"/>
+             <circle cx="159" cy="83" r="27" fill="none" stroke="#C8641E" stroke-width="1.5" stroke-dasharray="4 3"/></g>
+          <line x1="110" y1="120" x2="130" y2="105" stroke="#241608" stroke-width="2" marker-end="url(#run)"/>
+          <circle cx="103" cy="127" r="10" fill="#7A3E0F"/>
+        </svg>
+        <p class="diacap">Call a number, they scramble into groups of that size.</p>
+      </div>
+      <div>
+        <div class="need"><b>You need</b> &mdash; 4 cones, one ball per girl</div>
+        <div class="sub-h">How it runs</div>
+        <ol class="steps">
+          <li>Everyone dribbles freely around the square.</li>
+          <li>Shout a number &mdash; <b>"three!"</b> &mdash; and they have to get into groups of exactly that many, as fast as possible, bringing their ball with them.</li>
+          <li>Anyone left over just joins the nearest group. <b>Never send anyone out.</b> That's the whole difference between this being fun and being a source of dread.</li>
+          <li>Call another number and go again. Vary it: two, five, four, three.</li>
+        </ol>
+        <div class="why"><b>Point of it</b> It mixes the group up constantly without you ever having to pick teams out loud, which means friendship cliques break up on their own and nobody feels chosen last.</div>
+        <div class="why"><b>Later in the season</b> Add a rule: once they're in a group they must complete that many passes before you call the next number. In Session 11, add that no two girls in a group may stand closer than three steps &mdash; a first taste of spreading out.</div>
+      </div>
+    </div></div>
+  </article>
+
+  <article class="ex" id="rescue">
+    <div class="ex-hd"><h3>Rescue Tag</h3><span class="when">Sessions 5, 13</span></div>
+    <div class="ex-body"><div class="ex-grid">
+      <div>
+        <svg class="dia" viewBox="0 0 220 160" role="img" aria-label="A tagger chasing dribblers, one frozen girl standing with legs apart while a teammate passes a ball through to free her.">
+          <rect x="12" y="12" width="196" height="136" fill="none" stroke="#B9A275" stroke-width="2"/>
+          <circle cx="60" cy="45" r="11" fill="#FBF6E8" stroke="#1F5A34" stroke-width="2.5"/><text x="60" y="49" font-size="10" font-weight="700" fill="#1F5A34" text-anchor="middle" font-family="Verdana, sans-serif">T</text>
+          <line x1="72" y1="50" x2="95" y2="62" stroke="#241608" stroke-width="2" marker-end="url(#run)"/>
+          <g><circle cx="115" cy="72" r="11" fill="#7A3E0F"/><circle cx="115" cy="88" r="5" fill="#fff" stroke="#241608" stroke-width="1.8"/></g>
+          <g><circle cx="168" cy="60" r="11" fill="#7A3E0F" opacity="0.45"/><text x="168" y="82" font-size="8.5" fill="#46331C" text-anchor="middle" font-family="Verdana, sans-serif">frozen</text>
+             <line x1="162" y1="70" x2="158" y2="80" stroke="#46331C" stroke-width="2"/><line x1="174" y1="70" x2="178" y2="80" stroke="#46331C" stroke-width="2"/></g>
+          <g><circle cx="120" cy="126" r="11" fill="#7A3E0F"/>
+             <line x1="131" y1="120" x2="162" y2="90" stroke="#241608" stroke-width="2" stroke-dasharray="5 3" marker-end="url(#pas)"/>
+             <circle cx="133" cy="118" r="5" fill="#fff" stroke="#241608" stroke-width="1.8"/></g>
+        </svg>
+        <p class="diacap">A pass between her feet unfreezes her.</p>
+      </div>
+      <div>
+        <div class="need"><b>You need</b> &mdash; 4 cones, one ball per girl, plus 2&ndash;3 girls or coaches as taggers with no ball</div>
+        <div class="sub-h">Set it up</div>
+        <ol class="steps">
+          <li>The usual square. Pick <b>two taggers</b> (three later in the season). They don't have a ball.</li>
+          <li>Everyone else has a ball and dribbles.</li>
+        </ol>
+        <div class="sub-h">How it runs</div>
+        <ol class="steps">
+          <li>Taggers try to tag dribblers. No kicking balls away &mdash; a hand tag on the shoulder.</li>
+          <li>A tagged girl <b>freezes</b> with her feet apart and her ball held in her hands above her head.</li>
+          <li>Any teammate can free her by <b>passing her ball between the frozen girl's legs</b>. Then both carry on.</li>
+          <li>Swap taggers every couple of minutes so everyone gets a turn.</li>
+        </ol>
+        <div class="why"><b>Point of it</b> Nobody sits out, and it sneaks in accurate short passing under time pressure without ever calling it a passing drill. It also builds the habit of helping a teammate, which pays off in the small-sided games later.</div>
+        <div class="why"><b>Working when</b> Girls are choosing to go and rescue someone instead of just running away. Praise the rescuer by name, loudly.</div>
+      </div>
+    </div></div>
+  </article>
+</section>
+
+<!-- ============ BALL MOVES ============ -->
+<section id="moves">
+  <div class="sec-head">
+    <div class="eyebrow">The middle 12 minutes &mdash; one move per week</div>
+    <h2>Ball moves</h2>
+  </div>
+  <p class="sec-intro">These are the eight skills the season is built on, one per week. Each girl has her own ball and her own patch of grass &mdash; there is no setup beyond that, and no waiting. This is the block that quietly closes the gap between your experienced girls and your beginners, because it is the one thing a girl can practise alone in a driveway.</p>
+  <p class="sec-intro"><b>How to teach any of them:</b> demonstrate once, slowly and badly. Then let them try fifty times while you say nothing. Only after two full minutes do you start correcting anybody &mdash; and then one thing at a time, by name.</p>
+  <p class="sec-intro">The diagrams below are drawn <b>looking down at her feet</b>, not at the field.</p>
+
+  <article class="ex" id="toetaps">
+    <div class="ex-hd"><h3>Toe Taps &amp; Sole Rolls</h3><span class="when">Week 1 &middot; Sessions 1, 2</span></div>
+    <div class="ex-body"><div class="ex-grid">
+      <div>
+        <svg class="dia" viewBox="0 0 230 100" role="img" aria-label="Looking down at the feet: the ball sits between the feet and the girl taps the top of it with alternating feet, then rolls it sideways with the sole.">
+          <line x1="76" y1="10" x2="76" y2="90" stroke="#D2C09C" stroke-width="1"/><line x1="152" y1="10" x2="152" y2="90" stroke="#D2C09C" stroke-width="1"/>
+          <g><text x="38" y="22" font-size="9" font-weight="700" fill="#6B5334" text-anchor="middle" font-family="Verdana, sans-serif">TAP LEFT</text>
+             <circle cx="38" cy="58" r="12" fill="#fff" stroke="#241608" stroke-width="2"/>
+             <rect x="14" y="46" width="12" height="24" rx="5" fill="#7A3E0F"/>
+             <rect x="50" y="62" width="12" height="24" rx="5" fill="#46331C" opacity=".45"/>
+             <path d="M26 52 q8 -4 10 2" fill="none" stroke="#241608" stroke-width="1.8" marker-end="url(#run)"/></g>
+          <g><text x="114" y="22" font-size="9" font-weight="700" fill="#6B5334" text-anchor="middle" font-family="Verdana, sans-serif">TAP RIGHT</text>
+             <circle cx="114" cy="58" r="12" fill="#fff" stroke="#241608" stroke-width="2"/>
+             <rect x="126" y="46" width="12" height="24" rx="5" fill="#7A3E0F"/>
+             <rect x="90" y="62" width="12" height="24" rx="5" fill="#46331C" opacity=".45"/>
+             <path d="M126 52 q-8 -4 -10 2" fill="none" stroke="#241608" stroke-width="1.8" marker-end="url(#run)"/></g>
+          <g><text x="190" y="22" font-size="9" font-weight="700" fill="#6B5334" text-anchor="middle" font-family="Verdana, sans-serif">SOLE ROLL</text>
+             <circle cx="178" cy="58" r="12" fill="#fff" stroke="#241608" stroke-width="2"/>
+             <rect x="172" y="44" width="12" height="24" rx="5" fill="#7A3E0F"/>
+             <line x1="192" y1="58" x2="214" y2="58" stroke="#241608" stroke-width="2" stroke-dasharray="4 3" marker-end="url(#run)"/></g>
+        </svg>
+        <p class="diacap">Tap the top with alternating feet. Then roll it across.</p>
+      </div>
+      <div>
+        <div class="need"><b>You need</b> &mdash; one ball per girl. No cones.</div>
+        <div class="sub-h">Toe taps &mdash; how to do it</div>
+        <ol class="steps">
+          <li>Ball still on the ground in front of her.</li>
+          <li>Tap the <b>top</b> of the ball lightly with the sole of one foot, then put that foot down.</li>
+          <li>Tap with the other foot. Then back again. Keep alternating, like jogging on the spot on top of the ball.</li>
+          <li>The ball should barely move. It's a tap, not a kick.</li>
+        </ol>
+        <div class="sub-h">Sole rolls &mdash; how to do it</div>
+        <ol class="steps">
+          <li>Put the sole of one foot on top of the ball.</li>
+          <li><b>Roll</b> the ball sideways across her body to the other foot.</li>
+          <li>The other foot's sole catches it and rolls it back.</li>
+        </ol>
+        <div class="sub-h">Running the block</div>
+        <ol class="steps">
+          <li>Twenty seconds on, ten seconds rest. Six or eight rounds.</li>
+          <li><b>Count out loud as a team</b> so nobody is counting alone and nobody's number is visibly lower than her neighbour's.</li>
+        </ol>
+        <div class="why"><b>Point of it</b> Getting used to the ball being touched constantly. At this stage you are not building a skill, you are building the feeling that the ball is not a scary object.</div>
+        <div class="ramps">
+          <span class="ramp in"><b>Ramp in</b>Any contact counts. Praise the tenth touch exactly as loudly as the hundredth.</span>
+          <span class="ramp up"><b>Ramp up</b>Eyes up the entire time &mdash; she has to call out how many fingers you're holding up while still tapping.</span>
+        </div>
+      </div>
+    </div></div>
+  </article>
+
+  <article class="ex" id="pullback">
+    <div class="ex-hd"><h3>The Pullback</h3><span class="when">Week 2 &middot; Sessions 3, 4</span></div>
+    <div class="ex-body"><div class="ex-grid">
+      <div>
+        <svg class="dia" viewBox="0 0 230 100" role="img" aria-label="Three steps: dribbling forward, sole placed on top of the ball, then the ball dragged backwards as the girl turns around.">
+          <line x1="76" y1="10" x2="76" y2="90" stroke="#D2C09C" stroke-width="1"/><line x1="152" y1="10" x2="152" y2="90" stroke="#D2C09C" stroke-width="1"/>
+          <g><text x="38" y="22" font-size="9" font-weight="700" fill="#6B5334" text-anchor="middle" font-family="Verdana, sans-serif">1. RUNNING</text>
+             <rect x="32" y="66" width="12" height="24" rx="5" fill="#7A3E0F"/>
+             <circle cx="38" cy="44" r="11" fill="#fff" stroke="#241608" stroke-width="2"/>
+             <line x1="38" y1="62" x2="38" y2="34" stroke="#241608" stroke-width="1.8" stroke-dasharray="3 3"/></g>
+          <g><text x="114" y="22" font-size="9" font-weight="700" fill="#6B5334" text-anchor="middle" font-family="Verdana, sans-serif">2. FOOT ON TOP</text>
+             <circle cx="114" cy="52" r="11" fill="#fff" stroke="#241608" stroke-width="2"/>
+             <rect x="108" y="40" width="12" height="24" rx="5" fill="#7A3E0F"/></g>
+          <g><text x="190" y="22" font-size="9" font-weight="700" fill="#6B5334" text-anchor="middle" font-family="Verdana, sans-serif">3. DRAG BACK</text>
+             <circle cx="190" cy="72" r="11" fill="#fff" stroke="#241608" stroke-width="2"/>
+             <rect x="184" y="38" width="12" height="24" rx="5" fill="#7A3E0F"/>
+             <line x1="190" y1="48" x2="190" y2="62" stroke="#241608" stroke-width="2.2" marker-end="url(#run)"/></g>
+        </svg>
+        <p class="diacap">Foot on top, drag it back, turn and go the other way.</p>
+      </div>
+      <div>
+        <div class="need"><b>You need</b> &mdash; one ball per girl</div>
+        <div class="sub-h">How to do it</div>
+        <ol class="steps">
+          <li>Dribbling forward at a walk.</li>
+          <li>Put the <b>sole of the foot on top of the ball</b> and stop it.</li>
+          <li><b>Drag it backwards</b> a step, still with the sole.</li>
+          <li>Turn the body around and dribble away in the new direction.</li>
+        </ol>
+        <div class="sub-h">Teaching it</div>
+        <ol class="steps">
+          <li>Demonstrate once at walking pace. Don't explain the mechanics.</li>
+          <li>Let them do it fifty times with nobody watching them individually.</li>
+          <li>Then add the whistle version: everyone dribbles, and on your call they all pullback and go the other way. (That's <b>Red Light Corner</b> in the skill blocks.)</li>
+        </ol>
+        <div class="say"><b>Say this &mdash;</b> "Foot on top, drag it back, turn and go." &nbsp;&middot;&nbsp; "This is the move for when someone is in front of you."</div>
+        <div class="why"><b>Point of it</b> This is the single most useful escape in youth soccer. A girl who can turn away from trouble stops losing the ball, and a girl who stops losing the ball starts enjoying herself.</div>
+        <div class="ramps">
+          <span class="ramp in"><b>Ramp in</b>Ball already stopped, walking pace. Just the drag is the win.</span>
+          <span class="ramp up"><b>Ramp up</b>Pullback then accelerate five steps. Both feet, alternating.</span>
+        </div>
+      </div>
+    </div></div>
+  </article>
+
+  <article class="ex" id="insidecut">
+    <div class="ex-hd"><h3>The Inside Cut</h3><span class="when">Week 3 &middot; Sessions 5, 6</span></div>
+    <div class="ex-body"><div class="ex-grid">
+      <div>
+        <svg class="dia" viewBox="0 0 230 100" role="img" aria-label="Three steps: running forward with the ball, reaching across the ball with the inside of the foot, then the ball pushed sharply to the other side.">
+          <line x1="76" y1="10" x2="76" y2="90" stroke="#D2C09C" stroke-width="1"/><line x1="152" y1="10" x2="152" y2="90" stroke="#D2C09C" stroke-width="1"/>
+          <g><text x="38" y="22" font-size="9" font-weight="700" fill="#6B5334" text-anchor="middle" font-family="Verdana, sans-serif">1. RUNNING</text>
+             <rect x="32" y="64" width="12" height="24" rx="5" fill="#7A3E0F"/>
+             <circle cx="38" cy="44" r="11" fill="#fff" stroke="#241608" stroke-width="2"/></g>
+          <g><text x="114" y="22" font-size="9" font-weight="700" fill="#6B5334" text-anchor="middle" font-family="Verdana, sans-serif">2. REACH ACROSS</text>
+             <circle cx="122" cy="52" r="11" fill="#fff" stroke="#241608" stroke-width="2"/>
+             <rect x="130" y="42" width="12" height="24" rx="5" fill="#7A3E0F" transform="rotate(28 136 54)"/>
+             <text x="100" y="80" font-size="8" fill="#46331C" font-family="Verdana, sans-serif">inside of foot</text></g>
+          <g><text x="190" y="22" font-size="9" font-weight="700" fill="#6B5334" text-anchor="middle" font-family="Verdana, sans-serif">3. PUSH &amp; GO</text>
+             <rect x="200" y="42" width="12" height="24" rx="5" fill="#7A3E0F"/>
+             <circle cx="176" cy="60" r="11" fill="#fff" stroke="#241608" stroke-width="2"/>
+             <line x1="196" y1="54" x2="180" y2="60" stroke="#241608" stroke-width="2.2" marker-end="url(#run)"/></g>
+        </svg>
+        <p class="diacap">Reach across the ball, push it the other way, accelerate.</p>
+      </div>
+      <div>
+        <div class="need"><b>You need</b> &mdash; one ball per girl</div>
+        <div class="sub-h">How to do it</div>
+        <ol class="steps">
+          <li>Dribbling forward.</li>
+          <li>Reach the kicking foot <b>across the front of the ball</b>, so the flat inside arch of the foot is on the far side of it.</li>
+          <li><b>Push the ball sharply back across her body</b>, in the opposite direction to the way she was going.</li>
+          <li>Take three quick steps away. The speed change is what beats the defender, not the touch.</li>
+        </ol>
+        <div class="say"><b>Say this &mdash;</b> "Reach across it and push it the other way." &nbsp;&middot;&nbsp; "Slow&hellip; then GO."</div>
+        <div class="why"><b>Point of it</b> Her second escape route. Combined with the pullback from Week 2, she now has an answer whether the defender is in front of her or beside her &mdash; which is most of 1v1 at this age.</div>
+        <div class="why"><b>Working when</b> There is a visible change of speed after the touch. A perfect cut followed by a jog achieves nothing.</div>
+        <div class="ramps">
+          <span class="ramp in"><b>Ramp in</b>Walking, no defender, exaggerated and slow.</span>
+          <span class="ramp up"><b>Ramp up</b>Cut then explode three steps, both feet, against a defender who is allowed to move.</span>
+        </div>
+      </div>
+    </div></div>
+  </article>
+
+  <article class="ex" id="foundations">
+    <div class="ex-hd"><h3>Foundations &amp; Strike Shape</h3><span class="when">Week 4 &middot; Sessions 7, 8</span></div>
+    <div class="ex-body"><div class="ex-grid">
+      <div>
+        <svg class="dia" viewBox="0 0 230 100" role="img" aria-label="Two steps: tapping the ball side to side between the insides of both feet, then the standing foot planted beside the ball with the kicking foot swinging through, toe pointed down.">
+          <line x1="114" y1="10" x2="114" y2="90" stroke="#D2C09C" stroke-width="1"/>
+          <g><text x="57" y="22" font-size="9" font-weight="700" fill="#6B5334" text-anchor="middle" font-family="Verdana, sans-serif">FOUNDATIONS</text>
+             <circle cx="57" cy="58" r="12" fill="#fff" stroke="#241608" stroke-width="2"/>
+             <rect x="27" y="46" width="12" height="24" rx="5" fill="#7A3E0F"/>
+             <rect x="75" y="46" width="12" height="24" rx="5" fill="#7A3E0F"/>
+             <line x1="41" y1="58" x2="73" y2="58" stroke="#241608" stroke-width="2" stroke-dasharray="4 3" marker-start="url(#run)" marker-end="url(#run)"/></g>
+          <g><text x="172" y="22" font-size="9" font-weight="700" fill="#6B5334" text-anchor="middle" font-family="Verdana, sans-serif">STRIKE SHAPE</text>
+             <circle cx="172" cy="58" r="12" fill="#fff" stroke="#241608" stroke-width="2"/>
+             <rect x="146" y="46" width="12" height="24" rx="5" fill="#46331C"/>
+             <text x="140" y="86" font-size="7.5" fill="#46331C" font-family="Verdana, sans-serif">standing foot</text>
+             <rect x="188" y="40" width="12" height="26" rx="5" fill="#7A3E0F"/>
+             <path d="M196 74 q6 -14 0 -22" fill="none" stroke="#241608" stroke-width="2" marker-end="url(#run)"/></g>
+        </svg>
+        <p class="diacap">Tap it between the feet. Then plant beside it and swing.</p>
+      </div>
+      <div>
+        <div class="need"><b>You need</b> &mdash; one ball per girl, and a net or fence to hit into for the second half</div>
+        <div class="sub-h">Foundations</div>
+        <ol class="steps">
+          <li>Ball between her feet.</li>
+          <li>Tap it with the <b>inside</b> of one foot so it travels to the other foot.</li>
+          <li>That foot taps it straight back. Keep going, side to side, getting faster.</li>
+        </ol>
+        <div class="sub-h">Strike shape &mdash; without a full kick</div>
+        <ol class="steps">
+          <li>Ball still on the ground.</li>
+          <li>Plant the <b>standing foot beside the ball</b>, pointing at the target. Not behind it, not a step away &mdash; beside it. This is the single biggest cause of bad shots at this age.</li>
+          <li>Point the kicking toe <b>down</b> and lock the ankle stiff.</li>
+          <li>Swing through and strike the ball with the <b>laces</b> &mdash; the hard top of the foot, not the toe.</li>
+          <li>Practise the plant and the swing ten times before anybody kicks anything hard.</li>
+        </ol>
+        <div class="say"><b>Say this &mdash;</b> "Standing foot beside the ball." &nbsp;&middot;&nbsp; "Toe down, ankle stiff."</div>
+        <div class="why"><b>Point of it</b> Preparation for the shooting week. Scoring is the thing that keeps eight-year-olds coming back, and where she puts her standing foot decides whether the ball goes in.</div>
+        <div class="ramps">
+          <span class="ramp in"><b>Ramp in</b>Just the standing-foot placement, walked through ten times. No kicking at all.</span>
+          <span class="ramp up"><b>Ramp up</b>Foundations at speed, then strike a moving ball into the net with the weak foot.</span>
+        </div>
+      </div>
+    </div></div>
+  </article>
+
+  <article class="ex" id="pushpass">
+    <div class="ex-hd"><h3>Push Pass &amp; First Touch</h3><span class="when">Week 5 &middot; Sessions 9, 10</span></div>
+    <div class="ex-body"><div class="ex-grid">
+      <div>
+        <svg class="dia" viewBox="0 0 230 100" role="img" aria-label="Two steps: the inside of the foot swinging through the ball like a door closing, and a first touch that pushes an arriving ball forward into space instead of stopping it dead.">
+          <line x1="114" y1="10" x2="114" y2="90" stroke="#D2C09C" stroke-width="1"/>
+          <g><text x="57" y="22" font-size="9" font-weight="700" fill="#6B5334" text-anchor="middle" font-family="Verdana, sans-serif">PUSH PASS</text>
+             <circle cx="62" cy="58" r="11" fill="#fff" stroke="#241608" stroke-width="2"/>
+             <rect x="30" y="46" width="12" height="24" rx="5" fill="#46331C"/>
+             <path d="M46 76 q10 -10 4 -22" fill="none" stroke="#241608" stroke-width="2" marker-end="url(#run)"/>
+             <line x1="75" y1="58" x2="100" y2="58" stroke="#241608" stroke-width="2" stroke-dasharray="4 3" marker-end="url(#pas)"/>
+             <text x="46" y="92" font-size="7.5" fill="#46331C" font-family="Verdana, sans-serif">like a door</text></g>
+          <g><text x="172" y="22" font-size="9" font-weight="700" fill="#6B5334" text-anchor="middle" font-family="Verdana, sans-serif">FIRST TOUCH</text>
+             <line x1="128" y1="46" x2="152" y2="52" stroke="#241608" stroke-width="2" stroke-dasharray="4 3" marker-end="url(#pas)"/>
+             <rect x="156" y="46" width="12" height="24" rx="5" fill="#7A3E0F"/>
+             <circle cx="192" cy="66" r="11" fill="#fff" stroke="#241608" stroke-width="2"/>
+             <line x1="170" y1="58" x2="185" y2="64" stroke="#241608" stroke-width="2" marker-end="url(#run)"/>
+             <text x="150" y="92" font-size="7.5" fill="#46331C" font-family="Verdana, sans-serif">into space, not under her feet</text></g>
+        </svg>
+        <p class="diacap">Swing the inside of the foot through it. Then push it forward.</p>
+      </div>
+      <div>
+        <div class="need"><b>You need</b> &mdash; one ball per girl, plus a wall or a partner</div>
+        <div class="sub-h">The push pass</div>
+        <ol class="steps">
+          <li>Plant the standing foot beside the ball, pointing where she wants it to go.</li>
+          <li>Turn the passing foot <b>sideways</b> so the flat inside arch faces the target.</li>
+          <li>Swing through the middle of the ball &mdash; <b>like a door swinging shut</b>. That image works better than any technical description.</li>
+          <li>Accuracy over power, always. A soft accurate pass is a good pass.</li>
+        </ol>
+        <div class="sub-h">The first touch</div>
+        <ol class="steps">
+          <li>When the ball arrives, don't stop it dead on her toes.</li>
+          <li><b>Push it forward into the space</b> she wants to go, so it's already moving in the right direction.</li>
+          <li>Now she has time. This is why some girls always look unhurried.</li>
+        </ol>
+        <div class="say"><b>Say this &mdash;</b> "Look at your friend BEFORE you pass, not after."</div>
+        <div class="why"><b>Point of it</b> The first "with a teammate" skill of the season, deliberately taught in Week 5 rather than Week 1. At eight, a girl who can keep the ball is worth more than a girl who passes it away the second it arrives.</div>
+        <div class="ramps">
+          <span class="ramp in"><b>Ramp in</b>Pass against a wall or to a coach from five steps away. Accuracy only.</span>
+          <span class="ramp up"><b>Ramp up</b>First touch across her body away from an imagined defender, weak foot only.</span>
+        </div>
+      </div>
+    </div></div>
+  </article>
+
+  <article class="ex" id="openup">
+    <div class="ex-hd"><h3>Opening Up Across Your Body</h3><span class="when">Week 6 &middot; Sessions 11, 12</span></div>
+    <div class="ex-body"><div class="ex-grid">
+      <div>
+        <svg class="dia" viewBox="0 0 230 110" role="img" aria-label="A ball arriving from behind; instead of stopping it facing backwards, the girl takes it sideways with the far foot so she ends up facing up the field.">
+          <text x="60" y="20" font-size="9" font-weight="700" fill="#8B1A1A" text-anchor="middle" font-family="Verdana, sans-serif">NOT THIS</text>
+          <line x1="18" y1="46" x2="44" y2="52" stroke="#241608" stroke-width="2" stroke-dasharray="4 3" marker-end="url(#pas)"/>
+          <circle cx="60" cy="58" r="11" fill="#7A3E0F"/><circle cx="60" cy="76" r="7" fill="#fff" stroke="#241608" stroke-width="2"/>
+          <path d="M60 92 v10" stroke="#8B1A1A" stroke-width="2" marker-end="url(#run)"/>
+          <text x="60" y="106" font-size="7.5" fill="#8B1A1A" text-anchor="middle" font-family="Verdana, sans-serif">facing backwards</text>
+          <line x1="114" y1="14" x2="114" y2="100" stroke="#D2C09C" stroke-width="1"/>
+          <text x="172" y="20" font-size="9" font-weight="700" fill="#1F5A34" text-anchor="middle" font-family="Verdana, sans-serif">THIS</text>
+          <line x1="130" y1="46" x2="152" y2="52" stroke="#241608" stroke-width="2" stroke-dasharray="4 3" marker-end="url(#pas)"/>
+          <circle cx="168" cy="58" r="11" fill="#7A3E0F"/>
+          <circle cx="196" cy="52" r="7" fill="#fff" stroke="#241608" stroke-width="2"/>
+          <path d="M178 58 q10 -4 12 -6" fill="none" stroke="#241608" stroke-width="2" marker-end="url(#run)"/>
+          <path d="M196 40 v-12" stroke="#1F5A34" stroke-width="2" marker-end="url(#run)"/>
+          <text x="180" y="98" font-size="7.5" fill="#1F5A34" text-anchor="middle" font-family="Verdana, sans-serif">facing up the field</text>
+        </svg>
+        <p class="diacap">Take it sideways with the far foot, not straight back.</p>
+      </div>
+      <div>
+        <div class="need"><b>You need</b> &mdash; a ball, and a partner or coach to roll it to her</div>
+        <div class="sub-h">How to do it</div>
+        <ol class="steps">
+          <li>Before the ball even arrives, <b>look over her shoulder</b> to see what's behind her. Call this "taking a picture."</li>
+          <li>Receive the ball with the foot <b>furthest from where it came from</b> &mdash; the far foot, not the near one.</li>
+          <li>Take that first touch <b>sideways</b>, across her body.</li>
+          <li>She now ends up facing up the field instead of facing back where the ball came from.</li>
+        </ol>
+        <div class="sub-h">Teaching it</div>
+        <ol class="steps">
+          <li>Roll the ball to her gently from the side. Any touch that leaves her facing forward is a success &mdash; say so.</li>
+          <li>Then add the shoulder check before every touch. Ask her what she saw.</li>
+        </ol>
+        <div class="say"><b>Say this &mdash;</b> "Take a picture before the ball comes."</div>
+        <div class="why"><b>Point of it</b> This one touch is why some players look like they have more time than everyone else. On a 9v9 field with lots of space, a girl who receives the ball already facing forward can actually use that space.</div>
+        <div class="ramps">
+          <span class="ramp in"><b>Ramp in</b>Just the look. Turning her head before she touches it <em>is</em> the skill &mdash; the footwork can come later.</span>
+          <span class="ramp up"><b>Ramp up</b>Shoulder check, open up, then play a fifteen-step pass to the far side of the field.</span>
+        </div>
+      </div>
+    </div></div>
+  </article>
+
+  <article class="ex" id="stepover">
+    <div class="ex-hd"><h3>The Step-Over</h3><span class="when">Week 7 &middot; Sessions 13, 14</span></div>
+    <div class="ex-body"><div class="ex-grid">
+      <div>
+        <svg class="dia" viewBox="0 0 230 100" role="img" aria-label="Three steps: approaching the ball, swinging one foot over the top of it without touching, then pushing it away in the other direction with the outside of the other foot.">
+          <line x1="76" y1="10" x2="76" y2="90" stroke="#D2C09C" stroke-width="1"/><line x1="152" y1="10" x2="152" y2="90" stroke="#D2C09C" stroke-width="1"/>
+          <g><text x="38" y="22" font-size="9" font-weight="700" fill="#6B5334" text-anchor="middle" font-family="Verdana, sans-serif">1. APPROACH</text>
+             <circle cx="38" cy="46" r="11" fill="#fff" stroke="#241608" stroke-width="2"/>
+             <rect x="32" y="64" width="12" height="24" rx="5" fill="#7A3E0F"/></g>
+          <g><text x="114" y="22" font-size="9" font-weight="700" fill="#6B5334" text-anchor="middle" font-family="Verdana, sans-serif">2. FOOT OVER</text>
+             <circle cx="114" cy="56" r="11" fill="#fff" stroke="#241608" stroke-width="2"/>
+             <path d="M100 74 q0 -26 26 -20" fill="none" stroke="#241608" stroke-width="2" stroke-dasharray="3 3" marker-end="url(#run)"/>
+             <text x="114" y="92" font-size="7.5" fill="#46331C" text-anchor="middle" font-family="Verdana, sans-serif">don't touch it!</text></g>
+          <g><text x="190" y="22" font-size="9" font-weight="700" fill="#6B5334" text-anchor="middle" font-family="Verdana, sans-serif">3. PUSH AWAY</text>
+             <rect x="196" y="44" width="12" height="24" rx="5" fill="#7A3E0F"/>
+             <circle cx="172" cy="62" r="11" fill="#fff" stroke="#241608" stroke-width="2"/>
+             <line x1="192" y1="56" x2="176" y2="62" stroke="#241608" stroke-width="2.2" marker-end="url(#run)"/></g>
+        </svg>
+        <p class="diacap">Swing the foot over without touching, then go the other way.</p>
+      </div>
+      <div>
+        <div class="need"><b>You need</b> &mdash; one ball per girl</div>
+        <div class="sub-h">How to do it</div>
+        <ol class="steps">
+          <li>Dribble up to the ball and slow down.</li>
+          <li>Swing one foot <b>over the top of the ball without touching it</b>, from inside to outside, as if stepping around it.</li>
+          <li>That fake makes the defender lean the wrong way.</li>
+          <li>Push the ball away in the <b>other</b> direction with the outside of the other foot, and go.</li>
+        </ol>
+        <div class="why"><b>Point of it &mdash; and read this before you teach it</b> Almost nobody will do this well, and that is completely fine. It is in the book for <b>bravery</b>, not for success rate. Week 7 is late enough in the season that the group is comfortable enough to try something flashy and laugh at each other when it fails. That willingness to try things is worth far more at eight than a working step-over.</div>
+        <div class="why warn"><b>Do not</b> correct technique here. If a girl invents her own version, praise it and move on.</div>
+        <div class="ramps">
+          <span class="ramp in"><b>Ramp in</b>Step over a completely still ball, walking. That's the whole thing.</span>
+          <span class="ramp up"><b>Ramp up</b>Step-over straight into an inside cut, at pace, against a defender allowed to move.</span>
+        </div>
+      </div>
+    </div></div>
+  </article>
+
+  <article class="ex" id="freechoice">
+    <div class="ex-hd"><h3>Free Choice &mdash; and They Teach</h3><span class="when">Week 8 &middot; Sessions 15, 16</span></div>
+    <div class="ex-body">
+      <div class="need"><b>You need</b> &mdash; one ball per girl, and the discipline to stay quiet</div>
+      <div class="sub-h">How it runs</div>
+      <ol class="steps">
+        <li>Each girl picks whichever move from the season she likes best and practises it. No instruction from you.</li>
+        <li>Then ask for <b>three volunteers to teach theirs to the group</b>. She demonstrates, the others copy.</li>
+        <li>If you can engineer it, make sure one of the three is a girl who had never played before this season. Do it without announcing why.</li>
+      </ol>
+      <div class="why"><b>Point of it</b> Ownership. A child who has taught something to her team comes back next season. Nothing you say all year will land as hard as a girl who started in September not knowing how to stop a ball standing in front of eleven others showing them a move.</div>
+      <div class="why"><b>It also tells you something</b> Whatever they choose is what actually stuck. Write it down &mdash; that's your Week 1 for next season.</div>
+    </div>
+  </article>
+</section>
+
+<!-- ============ SKILL BLOCKS ============ -->
+<section id="skill">
+  <div class="sec-head">
+    <div class="eyebrow">The main 20 minutes</div>
+    <h2>Skill blocks</h2>
+  </div>
+  <p class="sec-intro">This is the teaching part of the session. With two coaches you run <b>two stations of six</b> and swap at the ten-minute mark; with twelve girls that divides perfectly. The golden rule is that <b>no queue is ever longer than two</b> &mdash; if girls are waiting, split into more stations or shrink the activity.</p>
+
+  <article class="ex" id="toybox">
+    <div class="ex-hd"><h3>The Toy Box</h3><span class="when">Session 1</span></div>
+    <div class="ex-body"><div class="ex-grid">
+      <div>
+        <svg class="dia" viewBox="0 0 220 160" role="img" aria-label="Four small squares marked by cones, each a different task, with girls roaming freely between them with their own balls.">
+          <rect x="14" y="14" width="90" height="62" fill="none" stroke="#C8641E" stroke-width="2"/><text x="59" y="48" font-size="9" fill="#46331C" text-anchor="middle" font-family="Verdana, sans-serif">toe taps</text>
+          <rect x="116" y="14" width="90" height="62" fill="none" stroke="#C8641E" stroke-width="2"/><text x="161" y="48" font-size="9" fill="#46331C" text-anchor="middle" font-family="Verdana, sans-serif">sole rolls</text>
+          <rect x="14" y="88" width="90" height="62" fill="none" stroke="#C8641E" stroke-width="2"/><text x="59" y="122" font-size="9" fill="#46331C" text-anchor="middle" font-family="Verdana, sans-serif">in &amp; out</text>
+          <rect x="116" y="88" width="90" height="62" fill="none" stroke="#C8641E" stroke-width="2"/><text x="161" y="122" font-size="9" fill="#46331C" text-anchor="middle" font-family="Verdana, sans-serif">stop it dead</text>
+          <circle cx="40" cy="30" r="8" fill="#7A3E0F"/><circle cx="85" cy="62" r="8" fill="#7A3E0F"/>
+          <circle cx="140" cy="34" r="8" fill="#7A3E0F"/><circle cx="45" cy="105" r="8" fill="#7A3E0F"/>
+          <circle cx="180" cy="130" r="8" fill="#7A3E0F"/><circle cx="130" cy="112" r="8" fill="#7A3E0F"/>
+          <path d="M100 62 q10 12 22 20" fill="none" stroke="#241608" stroke-width="1.8" stroke-dasharray="3 3" marker-end="url(#run)"/>
+        </svg>
+        <p class="diacap">Four zones, one task each. They wander between them.</p>
+      </div>
+      <div>
+        <div class="need"><b>You need</b> &mdash; 16 cones (4 per zone), one ball per girl</div>
+        <div class="sub-h">Set it up</div>
+        <ol class="steps">
+          <li>Mark <b>four small squares</b>, each about 8 steps across, in a block of four with gaps between them.</li>
+          <li>Give each square one job: toe taps, sole rolls, in-and-out touches, stop-it-dead.</li>
+        </ol>
+        <div class="sub-h">How it runs</div>
+        <ol class="steps">
+          <li>Girls go wherever they want with their own ball and do that square's job.</li>
+          <li>Every three minutes shout switch &mdash; everyone moves to a different square.</li>
+          <li><b>There are no turns and no lines.</b> Everybody is touching a ball for the full twenty minutes.</li>
+          <li>Walk between squares and say one specific thing to each girl by name.</li>
+        </ol>
+        <div class="why"><b>Point of it</b> Maximum touches on day one with zero pressure and zero waiting. It's also the easiest possible first session for a girl who has never played &mdash; there is nothing to get wrong.</div>
+        <div class="ramps">
+          <span class="ramp in"><b>Ramp in</b>Bigger zone, slower. Push-and-run is a win. Stand with her and count her reps out loud.</span>
+          <span class="ramp up"><b>Ramp up</b>Weak foot only, or ten clean reps before she's allowed to switch squares.</span>
+        </div>
+      </div>
+    </div></div>
+  </article>
+
+  <article class="ex" id="dribbleshoot">
+    <div class="ex-hd"><h3>Dribble&ndash;Shoot Gates</h3><span class="when">Session 2</span></div>
+    <div class="ex-body"><div class="ex-grid">
+      <div>
+        <svg class="dia" viewBox="0 0 220 160" role="img" aria-label="Two parallel lanes, each with two gates to dribble through and a goal at the end, with a girl in each lane and one waiting behind.">
+          <g stroke="#C8641E" stroke-width="2" fill="none">
+            <path d="M28 118 h14"/><path d="M28 84 h14"/><path d="M28 50 h14"/><path d="M28 118 v0"/>
+          </g>
+          <circle cx="35" cy="140" r="10" fill="#7A3E0F"/><circle cx="35" cy="152" r="4" fill="#fff" stroke="#241608" stroke-width="1.5"/>
+          <line x1="35" y1="130" x2="35" y2="30" stroke="#241608" stroke-width="1.8" stroke-dasharray="4 3" marker-end="url(#run)"/>
+          <line x1="18" y1="22" x2="52" y2="22" stroke="#7A3E0F" stroke-width="6"/>
+          <g stroke="#C8641E" stroke-width="2" fill="none">
+            <path d="M148 118 h14"/><path d="M148 84 h14"/><path d="M148 50 h14"/>
+          </g>
+          <circle cx="155" cy="140" r="10" fill="#7A3E0F"/><circle cx="155" cy="152" r="4" fill="#fff" stroke="#241608" stroke-width="1.5"/>
+          <line x1="155" y1="130" x2="155" y2="30" stroke="#241608" stroke-width="1.8" stroke-dasharray="4 3" marker-end="url(#run)"/>
+          <line x1="138" y1="22" x2="172" y2="22" stroke="#7A3E0F" stroke-width="6"/>
+          <text x="95" y="80" font-size="9" fill="#6B5334" text-anchor="middle" font-family="Verdana, sans-serif">2 lanes</text>
+          <text x="95" y="94" font-size="9" fill="#6B5334" text-anchor="middle" font-family="Verdana, sans-serif">1 per coach</text>
+        </svg>
+        <p class="diacap">Through the gates, then shoot. Collect your own ball.</p>
+      </div>
+      <div>
+        <div class="need"><b>You need</b> &mdash; 8 cones, 2 pop-up goals, one ball per girl</div>
+        <div class="sub-h">Set it up</div>
+        <ol class="steps">
+          <li>Make <b>two lanes side by side</b>, one per coach, each about 20 steps long.</li>
+          <li>In each lane put <b>two gates</b> &mdash; two cones about 2 steps apart &mdash; spaced along the way.</li>
+          <li>Put a goal at the end of each lane.</li>
+          <li>Six girls line up behind each lane. That's a queue of six, which sounds wrong &mdash; see step 3 below.</li>
+        </ol>
+        <div class="sub-h">How it runs</div>
+        <ol class="steps">
+          <li>First girl dribbles through both gates, then shoots at the goal.</li>
+          <li>She <b>fetches her own ball</b> and jogs back to the end of her line.</li>
+          <li><b>Don't wait for her to finish.</b> Send the next girl as soon as the one ahead is through the first gate. Three girls should be moving at once, so nobody actually stands still.</li>
+        </ol>
+        <div class="say"><b>Say this &mdash;</b> "Standing foot beside the ball." &nbsp;&middot;&nbsp; "Look down when you hit it, then look up."</div>
+        <div class="why"><b>Point of it</b> The first shot on goal of the season. Manufacture goals shamelessly today &mdash; the net needs to become the happiest place on the field before it becomes a place with pressure attached.</div>
+        <div class="ramps">
+          <span class="ramp in"><b>Ramp in</b>Shoot from 6 steps, inside of the foot, ball already stopped. A goal is a goal.</span>
+          <span class="ramp up"><b>Ramp up</b>From 12 steps, laces, and she has to beat a coach who defends at half speed on the way in.</span>
+        </div>
+      </div>
+    </div></div>
+  </article>
+
+  <article class="ex" id="gateduel">
+    <div class="ex-hd"><h3>Red Light Corner &rarr; Gate Duel</h3><span class="when">Session 3</span></div>
+    <div class="ex-body"><div class="ex-grid">
+      <div>
+        <svg class="dia" viewBox="0 0 220 160" role="img" aria-label="Left: girls dribbling in a square turning back on a whistle. Right: two girls facing each other either side of a single gate, both trying to dribble through it.">
+          <rect x="12" y="20" width="86" height="120" fill="none" stroke="#B9A275" stroke-width="2"/>
+          <text x="55" y="14" font-size="8.5" font-weight="700" fill="#6B5334" text-anchor="middle" font-family="Verdana, sans-serif">FIRST 10 MIN</text>
+          <circle cx="38" cy="52" r="9" fill="#7A3E0F"/><line x1="38" y1="62" x2="38" y2="80" stroke="#241608" stroke-width="1.8" marker-end="url(#run)"/>
+          <circle cx="74" cy="96" r="9" fill="#7A3E0F"/><line x1="74" y1="86" x2="74" y2="68" stroke="#241608" stroke-width="1.8" marker-end="url(#run)"/>
+          <circle cx="45" cy="120" r="9" fill="#7A3E0F"/>
+          <text x="163" y="14" font-size="8.5" font-weight="700" fill="#6B5334" text-anchor="middle" font-family="Verdana, sans-serif">SECOND 10 MIN</text>
+          <path d="M148 76 h12" stroke="#C8641E" stroke-width="3"/><path d="M182 76 h12" stroke="#C8641E" stroke-width="3"/>
+          <circle cx="171" cy="42" r="11" fill="#7A3E0F"/><circle cx="171" cy="58" r="5" fill="#fff" stroke="#241608" stroke-width="1.8"/>
+          <circle cx="171" cy="118" r="11" fill="#FBF6E8" stroke="#1F5A34" stroke-width="2.5"/>
+          <line x1="171" y1="66" x2="171" y2="88" stroke="#241608" stroke-width="2" marker-end="url(#run)"/>
+          <text x="171" y="150" font-size="8.5" fill="#46331C" text-anchor="middle" font-family="Verdana, sans-serif">both want the gate</text>
+        </svg>
+        <p class="diacap">First half alone. Second half against somebody.</p>
+      </div>
+      <div>
+        <div class="need"><b>You need</b> &mdash; 12 cones, one ball per girl</div>
+        <div class="sub-h">First ten minutes &mdash; Red Light Corner</div>
+        <ol class="steps">
+          <li>One square, about 20 steps. Everyone dribbling inside it.</li>
+          <li>On your whistle, <b>every girl does a pullback</b> and heads the other way.</li>
+          <li>Whistle every 5&ndash;8 seconds. Nothing else to it.</li>
+        </ol>
+        <div class="sub-h">Second ten minutes &mdash; Gate Duel</div>
+        <ol class="steps">
+          <li>Make <b>six gates</b> scattered around, each two cones about 2 steps apart. With 12 girls that's one gate per pair.</li>
+          <li>Two girls stand on opposite sides of their gate. <b>One ball between them</b>, in the middle.</li>
+          <li>Say go. Both try to win the ball and dribble it through the gate. Whoever does gets a point.</li>
+          <li>Reset and go again. Rotate partners every two minutes so nobody gets stuck losing to the same girl.</li>
+        </ol>
+        <div class="say"><b>Say this &mdash;</b> "The move is for when someone's in front of you, not for showing off in space." (Though showing off in space is also fine.)</div>
+        <div class="why"><b>Point of it</b> Week 2's pullback, first alone and then with a real opponent trying to take the ball. The jump from practising a move to using a move is the whole session.</div>
+        <div class="ramps">
+          <span class="ramp in"><b>Ramp in</b>She duels a coach who defends at half speed and lets her win the first three.</span>
+          <span class="ramp up"><b>Ramp up</b>She must complete a pullback before she's allowed to go through the gate.</span>
+        </div>
+      </div>
+    </div></div>
+  </article>
+
+  <article class="ex" id="highway">
+    <div class="ex-hd"><h3>The Highway</h3><span class="when">Session 4</span></div>
+    <div class="ex-body"><div class="ex-grid">
+      <div>
+        <svg class="dia" viewBox="0 0 220 160" role="img" aria-label="Two long narrow lanes with a girl in each pushing the ball far ahead and sprinting after it.">
+          <line x1="40" y1="16" x2="40" y2="144" stroke="#C8641E" stroke-width="2" stroke-dasharray="6 6"/>
+          <line x1="92" y1="16" x2="92" y2="144" stroke="#C8641E" stroke-width="2" stroke-dasharray="6 6"/>
+          <line x1="128" y1="16" x2="128" y2="144" stroke="#C8641E" stroke-width="2" stroke-dasharray="6 6"/>
+          <line x1="180" y1="16" x2="180" y2="144" stroke="#C8641E" stroke-width="2" stroke-dasharray="6 6"/>
+          <circle cx="66" cy="128" r="10" fill="#7A3E0F"/>
+          <circle cx="66" cy="72" r="6" fill="#fff" stroke="#241608" stroke-width="2"/>
+          <line x1="66" y1="118" x2="66" y2="86" stroke="#241608" stroke-width="2.2" marker-end="url(#run)"/>
+          <text x="66" y="150" font-size="8" fill="#46331C" text-anchor="middle" font-family="Verdana, sans-serif">big touch, sprint</text>
+          <circle cx="154" cy="112" r="10" fill="#7A3E0F"/>
+          <circle cx="154" cy="48" r="6" fill="#fff" stroke="#241608" stroke-width="2"/>
+          <line x1="154" y1="102" x2="154" y2="62" stroke="#241608" stroke-width="2.2" marker-end="url(#run)"/>
+        </svg>
+        <p class="diacap">Push it a long way ahead, then chase it down.</p>
+      </div>
+      <div>
+        <div class="need"><b>You need</b> &mdash; 8 cones, one ball per girl</div>
+        <div class="sub-h">Set it up</div>
+        <ol class="steps">
+          <li>Mark <b>two long lanes</b>, each about 25 steps long and 6 steps wide, using cones down the sides.</li>
+          <li>Six girls at the start of each lane.</li>
+        </ol>
+        <div class="sub-h">How it runs</div>
+        <ol class="steps">
+          <li>Push the ball a <b>long way ahead</b> &mdash; much further than feels comfortable &mdash; then sprint to catch it.</li>
+          <li>Catch up, push it long again, sprint again. Two or three big touches gets her to the end.</li>
+          <li>Jog back down the outside and go again. Send the next girl as soon as the one before has taken her first touch.</li>
+          <li>Race a coach a few times. Lose about half.</li>
+        </ol>
+        <div class="say"><b>Say this &mdash;</b> "Nobody near you? Push it and RUN." &nbsp;&middot;&nbsp; "One big touch, then look up."</div>
+        <div class="why"><b>Point of it</b> The difference between <em>dribbling</em> (ball close, someone near you) and <em>running with the ball</em> (big touches, nobody near you). On a 9v9 field there is a lot of open grass, and girls who only know one speed waste all of it.</div>
+        <div class="ramps">
+          <span class="ramp in"><b>Ramp in</b>Shorter lane, jogging. She's racing her own previous time, not another girl.</span>
+          <span class="ramp up"><b>Ramp up</b>Timed, must beat her own best, and add a turn at the far cone.</span>
+        </div>
+      </div>
+    </div></div>
+  </article>
+
+  <article class="ex" id="ladder">
+    <div class="ex-hd"><h3>The 1v1 Ladder</h3><span class="when">Session 5</span></div>
+    <div class="ex-body"><div class="ex-grid">
+      <div>
+        <svg class="dia" viewBox="0 0 220 160" role="img" aria-label="Four small grids side by side, each with one attacker against one defender, with arrows showing winners moving up a grid and losers moving down.">
+          <g fill="none" stroke="#B9A275" stroke-width="2">
+            <rect x="10" y="40" width="46" height="76"/><rect x="64" y="40" width="46" height="76"/>
+            <rect x="118" y="40" width="46" height="76"/><rect x="172" y="40" width="38" height="76"/>
+          </g>
+          <g><circle cx="33" cy="60" r="9" fill="#7A3E0F"/><circle cx="33" cy="98" r="9" fill="#FBF6E8" stroke="#1F5A34" stroke-width="2.3"/></g>
+          <g><circle cx="87" cy="60" r="9" fill="#7A3E0F"/><circle cx="87" cy="98" r="9" fill="#FBF6E8" stroke="#1F5A34" stroke-width="2.3"/></g>
+          <g><circle cx="141" cy="60" r="9" fill="#7A3E0F"/><circle cx="141" cy="98" r="9" fill="#FBF6E8" stroke="#1F5A34" stroke-width="2.3"/></g>
+          <g><circle cx="191" cy="60" r="9" fill="#7A3E0F"/><circle cx="191" cy="98" r="9" fill="#FBF6E8" stroke="#1F5A34" stroke-width="2.3"/></g>
+          <path d="M60 30 h44" fill="none" stroke="#1F5A34" stroke-width="2" marker-end="url(#run)"/>
+          <text x="82" y="24" font-size="8" fill="#1F5A34" text-anchor="middle" font-family="Verdana, sans-serif">winner up</text>
+          <path d="M104 130 h-44" fill="none" stroke="#8B1A1A" stroke-width="2" marker-end="url(#run)"/>
+          <text x="82" y="146" font-size="8" fill="#8B1A1A" text-anchor="middle" font-family="Verdana, sans-serif">loser down</text>
+        </svg>
+        <p class="diacap">Win, move up. Lose, move down. Nobody is ever out.</p>
+      </div>
+      <div>
+        <div class="need"><b>You need</b> &mdash; 16 cones, a ball each, two cone-goals per grid</div>
+        <div class="sub-h">Set it up</div>
+        <ol class="steps">
+          <li>Mark <b>four small grids in a row</b>, each about 10 steps square, with a small cone-goal at each end.</li>
+          <li>Three girls at each grid: one attacking, one defending, one waiting (she's next).</li>
+        </ol>
+        <div class="sub-h">How it runs</div>
+        <ol class="steps">
+          <li>Attacker starts with the ball and has <b>20 seconds</b> to beat the defender and score.</li>
+          <li>Whistle at 20 seconds regardless. Whoever won that duel <b>moves up one grid</b>; whoever lost <b>moves down one</b>.</li>
+          <li>The waiting girl steps straight in. Everyone is playing again within five seconds.</li>
+          <li><b>Nobody is ever eliminated.</b> A girl who loses six in a row just ends up at the bottom grid &mdash; which is exactly where she can compete and start winning.</li>
+        </ol>
+        <div class="say"><b>Say this &mdash;</b> "Attack her front foot." &nbsp;&middot;&nbsp; "Slow&hellip; then GO."</div>
+        <div class="why"><b>Point of it</b> The ladder sorts itself so every girl ends up against someone roughly her level &mdash; without you ever announcing an ability group. That's the trick, and it's why this beats splitting the squad.</div>
+        <div class="why"><b>Working when</b> Girls are trying to beat their opponent rather than passing the problem away. <b>Applaud the attempts that fail.</b></div>
+        <div class="ramps">
+          <span class="ramp in"><b>Ramp in</b>Three-step head start and the defender starts passive.</span>
+          <span class="ramp up"><b>Ramp up</b>Defender starts live and goal-side; only 10 seconds to get past.</span>
+        </div>
+      </div>
+    </div></div>
+  </article>
+
+  <article class="ex" id="shadow">
+    <div class="ex-hd"><h3>The Shadow</h3><span class="when">Session 6</span></div>
+    <div class="ex-body"><div class="ex-grid">
+      <div>
+        <svg class="dia" viewBox="0 0 220 160" role="img" aria-label="An attacker dribbling side to side with a defender mirroring her movement while staying in front, not tackling.">
+          <rect x="14" y="30" width="192" height="100" fill="none" stroke="#B9A275" stroke-width="2"/>
+          <circle cx="70" cy="100" r="12" fill="#7A3E0F"/><circle cx="70" cy="118" r="5" fill="#fff" stroke="#241608" stroke-width="1.8"/>
+          <circle cx="70" cy="58" r="12" fill="#FBF6E8" stroke="#1F5A34" stroke-width="2.5"/><text x="70" y="62.5" font-size="10" font-weight="700" fill="#1F5A34" text-anchor="middle" font-family="Verdana, sans-serif">D</text>
+          <path d="M84 100 h50" fill="none" stroke="#241608" stroke-width="2" stroke-dasharray="4 3" marker-end="url(#run)"/>
+          <path d="M84 58 h50" fill="none" stroke="#1F5A34" stroke-width="2" stroke-dasharray="4 3" marker-end="url(#run)"/>
+          <text x="160" y="82" font-size="9" fill="#1F5A34" text-anchor="middle" font-family="Verdana, sans-serif">she mirrors</text>
+          <text x="110" y="146" font-size="9" font-weight="700" fill="#8B1A1A" text-anchor="middle" font-family="Verdana, sans-serif">NO TACKLING for the first 10 minutes</text>
+        </svg>
+        <p class="diacap">Her only job is to stay in front. That's the whole exercise.</p>
+      </div>
+      <div>
+        <div class="need"><b>You need</b> &mdash; 8 cones, a ball per pair. With 12 girls that's <b>6 pairs</b>.</div>
+        <div class="sub-h">First ten minutes &mdash; no tackling allowed at all</div>
+        <ol class="steps">
+          <li>Pairs, one ball. One girl attacks, one defends, in a lane about 10 steps wide.</li>
+          <li>The attacker dribbles slowly side to side and forward.</li>
+          <li>The defender's <b>only</b> job is to stay in front of her for 15 seconds. She is <b>not allowed to try to win the ball.</b></li>
+          <li>Swap roles. Repeat several times.</li>
+        </ol>
+        <div class="sub-h">Second ten minutes</div>
+        <ol class="steps">
+          <li>Same setup, but now the defender gets <b>one tackle attempt</b> per go.</li>
+          <li>If she misses, she goes back to just staying in front.</li>
+        </ol>
+        <div class="say"><b>Say this &mdash;</b> "Get there fast, then slow down and get small." &nbsp;&middot;&nbsp; "Stay on your feet &mdash; don't dive in."</div>
+        <div class="why"><b>Point of it &mdash; and why the no-tackling rule matters</b> New players are frightened of defending because they think it means crashing into somebody. Starting with no tackling removes that completely and lets them discover that defending is mostly <b>patience and footwork</b>. This is a retention session disguised as a tactics session.</div>
+        <div class="ramps">
+          <span class="ramp in"><b>Ramp in</b>Shadow only, for the whole twenty minutes. Staying in front <em>is</em> the success &mdash; tell her so by name.</span>
+          <span class="ramp up"><b>Ramp up</b>She has to win it and then dribble out through a gate to finish the rep.</span>
+        </div>
+      </div>
+    </div></div>
+  </article>
+
+  <article class="ex" id="shooting">
+    <div class="ex-hd"><h3>Laces Lab &amp; Rolling Finish</h3><span class="when">Session 7 &middot; two stations, swap at 10 min</span></div>
+    <div class="ex-body"><div class="ex-grid">
+      <div>
+        <svg class="dia" viewBox="0 0 220 160" role="img" aria-label="Left station: girls shooting a still ball into an empty goal. Right station: a coach rolling a ball in from the side for the girl to control and finish.">
+          <line x1="110" y1="12" x2="110" y2="148" stroke="#D2C09C" stroke-width="1"/>
+          <text x="55" y="22" font-size="8.5" font-weight="700" fill="#6B5334" text-anchor="middle" font-family="Verdana, sans-serif">A &middot; LACES LAB</text>
+          <line x1="28" y1="38" x2="84" y2="38" stroke="#7A3E0F" stroke-width="6"/>
+          <circle cx="56" cy="72" r="6" fill="#fff" stroke="#241608" stroke-width="2"/>
+          <circle cx="56" cy="102" r="11" fill="#7A3E0F"/>
+          <line x1="56" y1="64" x2="56" y2="46" stroke="#241608" stroke-width="2" stroke-dasharray="4 3" marker-end="url(#pas)"/>
+          <circle cx="34" cy="128" r="9" fill="#7A3E0F" opacity=".5"/><circle cx="78" cy="128" r="9" fill="#7A3E0F" opacity=".5"/>
+          <text x="165" y="22" font-size="8.5" font-weight="700" fill="#6B5334" text-anchor="middle" font-family="Verdana, sans-serif">B &middot; ROLLING FINISH</text>
+          <line x1="138" y1="38" x2="194" y2="38" stroke="#7A3E0F" stroke-width="6"/>
+          <circle cx="204" cy="92" r="10" fill="#FBF6E8" stroke="#4A1A6A" stroke-width="2.3" stroke-dasharray="4 3"/><text x="204" y="96" font-size="9" font-weight="700" fill="#4A1A6A" text-anchor="middle" font-family="Verdana, sans-serif">C</text>
+          <line x1="194" y1="88" x2="176" y2="82" stroke="#241608" stroke-width="2" stroke-dasharray="4 3" marker-end="url(#pas)"/>
+          <circle cx="166" cy="80" r="6" fill="#fff" stroke="#241608" stroke-width="2"/>
+          <circle cx="152" cy="104" r="11" fill="#7A3E0F"/>
+          <line x1="160" y1="72" x2="166" y2="48" stroke="#241608" stroke-width="2" stroke-dasharray="4 3" marker-end="url(#pas)"/>
+        </svg>
+        <p class="diacap">Still ball first. Then a moving one.</p>
+      </div>
+      <div>
+        <div class="need"><b>You need</b> &mdash; 2 pop-up goals, a bag of balls, 8 cones</div>
+        <div class="sub-h">Station A &mdash; Laces Lab</div>
+        <ol class="steps">
+          <li>Six girls, a goal, and a pile of balls about 10 steps out.</li>
+          <li>Ball is <b>completely still</b>. She walks up and strikes it into an empty goal.</li>
+          <li>Ten shots each, then collect. Focus only on the standing foot and the ankle.</li>
+        </ol>
+        <div class="sub-h">Station B &mdash; Rolling Finish</div>
+        <ol class="steps">
+          <li>Coach stands to the side with a ball.</li>
+          <li>Coach <b>rolls the ball</b> across in front of the girl.</li>
+          <li>She takes <b>one touch to set it</b>, then shoots with her second touch.</li>
+          <li>Next girl goes immediately. Keep it fast.</li>
+        </ol>
+        <div class="say"><b>Say this &mdash;</b> "Ankle locked, toe pointed down." &nbsp;&middot;&nbsp; "Watch the ball hit your foot."</div>
+        <div class="why"><b>Point of it</b> This is the highest-joy session in the whole book, placed mid-season on purpose &mdash; right when the novelty of a new sport starts wearing off. <b>Do not let a single girl go home without having scored.</b> If that means two extra minutes at the end, take the two minutes.</div>
+        <div class="ramps">
+          <span class="ramp in"><b>Ramp in</b>Inside of the foot, from 6 steps, into an empty goal. It counts. Celebrate it exactly as loudly.</span>
+          <span class="ramp up"><b>Ramp up</b>Weak foot round, first-time finishes, or call a corner she has to hit.</span>
+        </div>
+      </div>
+    </div></div>
+  </article>
+
+  <article class="ex" id="twoball">
+    <div class="ex-hd"><h3>Two-Ball Finishing &amp; Keeper Club</h3><span class="when">Session 8</span></div>
+    <div class="ex-body"><div class="ex-grid">
+      <div>
+        <svg class="dia" viewBox="0 0 220 160" role="img" aria-label="A girl shoots at goal and the coach immediately rolls in a second ball for her to finish again, while at the other goal a keeper practises catching.">
+          <line x1="110" y1="12" x2="110" y2="148" stroke="#D2C09C" stroke-width="1"/>
+          <text x="55" y="22" font-size="8.5" font-weight="700" fill="#6B5334" text-anchor="middle" font-family="Verdana, sans-serif">A &middot; TWO BALLS</text>
+          <line x1="26" y1="38" x2="86" y2="38" stroke="#7A3E0F" stroke-width="6"/>
+          <circle cx="56" cy="96" r="11" fill="#7A3E0F"/>
+          <circle cx="46" cy="74" r="5.5" fill="#fff" stroke="#241608" stroke-width="2"/>
+          <line x1="48" y1="68" x2="42" y2="48" stroke="#241608" stroke-width="1.8" stroke-dasharray="4 3" marker-end="url(#pas)"/>
+          <circle cx="90" cy="120" r="10" fill="#FBF6E8" stroke="#4A1A6A" stroke-width="2.3" stroke-dasharray="4 3"/>
+          <circle cx="76" cy="108" r="5.5" fill="#fff" stroke="#241608" stroke-width="2"/>
+          <line x1="82" y1="112" x2="66" y2="102" stroke="#241608" stroke-width="1.8" stroke-dasharray="4 3" marker-end="url(#pas)"/>
+          <text x="55" y="148" font-size="8" fill="#46331C" text-anchor="middle" font-family="Verdana, sans-serif">second ball, straight away</text>
+          <text x="165" y="22" font-size="8.5" font-weight="700" fill="#6B5334" text-anchor="middle" font-family="Verdana, sans-serif">B &middot; KEEPER CLUB</text>
+          <line x1="136" y1="38" x2="196" y2="38" stroke="#7A3E0F" stroke-width="6"/>
+          <circle cx="166" cy="56" r="12" fill="#FBF6E8" stroke="#7A3E0F" stroke-width="3"/><text x="166" y="60.5" font-size="9" font-weight="700" fill="#7A3E0F" text-anchor="middle" font-family="Verdana, sans-serif">GK</text>
+          <circle cx="166" cy="100" r="6" fill="#fff" stroke="#241608" stroke-width="2"/>
+          <line x1="166" y1="92" x2="166" y2="74" stroke="#241608" stroke-width="2" stroke-dasharray="4 3" marker-end="url(#pas)"/>
+          <circle cx="166" cy="128" r="10" fill="#FBF6E8" stroke="#4A1A6A" stroke-width="2.3" stroke-dasharray="4 3"/>
+        </svg>
+        <p class="diacap">Shoot, then immediately shoot again. Everyone tries goal.</p>
+      </div>
+      <div>
+        <div class="need"><b>You need</b> &mdash; 2 goals, a bag of spare balls, keeper gloves</div>
+        <div class="sub-h">Station A &mdash; Two-Ball Finishing</div>
+        <ol class="steps">
+          <li>She shoots. The instant the ball leaves her foot, the coach <b>rolls a second ball</b> in from the side.</li>
+          <li>She has to react and finish that one too.</li>
+          <li>Two shots per go, back to back. Next girl.</li>
+        </ol>
+        <div class="sub-h">Station B &mdash; Keeper Club</div>
+        <ol class="steps">
+          <li><b>Every girl rotates through.</b> Nobody is assigned; everybody tries it.</li>
+          <li>The <b>set position</b>: feet apart, knees bent, hands up in front with thumbs together making a W shape.</li>
+          <li>The <b>scoop</b>: get the whole body behind the ball, don't just reach with hands.</li>
+          <li>The <b>bowling roll</b>: step forward, low, and roll the ball along the ground to a teammate's feet. Because your league bans punting, this is her only distribution &mdash; and eight-year-olds are immediately good at it, which makes it a confidence builder.</li>
+          <li>Cheer every save absurdly loudly. Say <b>nothing at all</b> about goals conceded.</li>
+        </ol>
+        <div class="why"><b>Point of it</b> Rebounds are the cheapest goals in 8U soccer, and following your own shot is a habit rather than a skill. The keeper half exists so that Saturday's goalkeeper is a volunteer who has done it before, not a frightened girl you drafted.</div>
+        <div class="ramps">
+          <span class="ramp in"><b>Ramp in</b>Second ball served slowly by hand. In goal she faces only rolled balls, and every save gets a cheer.</span>
+          <span class="ramp up"><b>Ramp up</b>Two attackers competing for the same rebound; in goal she faces live shots from 8 steps.</span>
+        </div>
+      </div>
+    </div></div>
+  </article>
+
+  <article class="ex" id="passgates">
+    <div class="ex-hd"><h3>Passing Gates</h3><span class="when">Session 9</span></div>
+    <div class="ex-body"><div class="ex-grid">
+      <div>
+        <svg class="dia" viewBox="0 0 220 160" role="img" aria-label="Gates scattered around a grid with pairs of girls passing the ball back and forth through them.">
+          <rect x="12" y="12" width="196" height="136" fill="none" stroke="#B9A275" stroke-width="2"/>
+          <g stroke="#C8641E" stroke-width="3">
+            <path d="M52 40 h0"/><circle cx="52" cy="40" r="2.5" fill="#C8641E" stroke="none"/><circle cx="52" cy="62" r="2.5" fill="#C8641E" stroke="none"/>
+            <circle cx="120" cy="34" r="2.5" fill="#C8641E" stroke="none"/><circle cx="142" cy="34" r="2.5" fill="#C8641E" stroke="none"/>
+            <circle cx="170" cy="92" r="2.5" fill="#C8641E" stroke="none"/><circle cx="170" cy="114" r="2.5" fill="#C8641E" stroke="none"/>
+            <circle cx="60" cy="118" r="2.5" fill="#C8641E" stroke="none"/><circle cx="82" cy="118" r="2.5" fill="#C8641E" stroke="none"/>
+          </g>
+          <circle cx="30" cy="51" r="11" fill="#7A3E0F"/>
+          <circle cx="80" cy="51" r="11" fill="#FBF6E8" stroke="#7A3E0F" stroke-width="2.5"/>
+          <line x1="42" y1="51" x2="67" y2="51" stroke="#241608" stroke-width="2" stroke-dasharray="4 3" marker-end="url(#pas)"/>
+          <circle cx="131" cy="14" r="10" fill="#7A3E0F"/>
+          <circle cx="131" cy="60" r="10" fill="#FBF6E8" stroke="#7A3E0F" stroke-width="2.5"/>
+          <line x1="131" y1="24" x2="131" y2="48" stroke="#241608" stroke-width="2" stroke-dasharray="4 3" marker-end="url(#pas)"/>
+        </svg>
+        <p class="diacap">Pass through the doorways. Count how many in 90 seconds.</p>
+      </div>
+      <div>
+        <div class="need"><b>You need</b> &mdash; 16 cones (8 gates), one ball per pair. With 12 girls that's <b>6 pairs</b>.</div>
+        <div class="sub-h">Set it up</div>
+        <ol class="steps">
+          <li>Scatter <b>eight gates</b> around a grid about 20 steps square, all pointing different ways. Each gate is two cones about 2 steps apart.</li>
+          <li>Pairs, one ball between them.</li>
+          <li><b>Pair an experienced girl with a newer one.</b> Give the experienced one a job before you start: <em>"your passes have to be easy for her to control."</em></li>
+        </ol>
+        <div class="sub-h">How it runs</div>
+        <ol class="steps">
+          <li>Ninety seconds. The pair passes the ball back and forth to each other <b>through</b> as many different gates as they can.</li>
+          <li>One girl stands one side of a gate, her partner the other, pass through, then both move to a new gate.</li>
+          <li>Count out loud. Shout the score at the end.</li>
+          <li>Change partners and go again. Four or five rounds.</li>
+        </ol>
+        <div class="say"><b>Say this &mdash;</b> "Look at your friend BEFORE you pass, not after."</div>
+        <div class="why"><b>Point of it</b> Passing arrives in Week 5 on purpose, not Week 1. And giving the strong player a <em>serving</em> task rather than a scoring one is what keeps her engaged &mdash; it's a harder problem than just beating people.</div>
+        <div class="ramps">
+          <span class="ramp in"><b>Ramp in</b>Wider gates, 5-step passes, and the ball may be rolling slowly.</span>
+          <span class="ramp up"><b>Ramp up</b>One touch only through the gate; weak foot.</span>
+        </div>
+      </div>
+    </div></div>
+  </article>
+
+  <article class="ex" id="givego">
+    <div class="ex-hd"><h3>Give-and-Go Gates</h3><span class="when">Session 10</span></div>
+    <div class="ex-body"><div class="ex-grid">
+      <div>
+        <svg class="dia" viewBox="0 0 220 160" role="img" aria-label="A girl passes to a coach, sprints past a cone, receives the ball back in front of her, and dribbles to a target goal.">
+          <circle cx="34" cy="120" r="12" fill="#7A3E0F"/>
+          <circle cx="108" cy="92" r="11" fill="#FBF6E8" stroke="#4A1A6A" stroke-width="2.3" stroke-dasharray="4 3"/><text x="108" y="96" font-size="9" font-weight="700" fill="#4A1A6A" text-anchor="middle" font-family="Verdana, sans-serif">C</text>
+          <line x1="46" y1="114" x2="95" y2="97" stroke="#241608" stroke-width="2" stroke-dasharray="5 3" marker-end="url(#pas)"/>
+          <text x="58" y="138" font-size="8" fill="#46331C" font-family="Verdana, sans-serif">1. pass</text>
+          <path d="M40 108 q28 -42 74 -46" fill="none" stroke="#241608" stroke-width="2.2" marker-end="url(#run)"/>
+          <text x="52" y="70" font-size="8" fill="#46331C" font-family="Verdana, sans-serif">2. sprint past</text>
+          <path d="M124 84 q22 -14 36 -20" fill="none" stroke="#241608" stroke-width="2" stroke-dasharray="5 3" marker-end="url(#pas)"/>
+          <text x="126" y="112" font-size="8" fill="#46331C" font-family="Verdana, sans-serif">3. back to her</text>
+          <path d="M100 46 l9 13 h-18 z" fill="#C8641E"/>
+          <line x1="176" y1="30" x2="208" y2="30" stroke="#7A3E0F" stroke-width="6"/>
+        </svg>
+        <p class="diacap">Pass, then run. The run is the lesson, not the pass.</p>
+      </div>
+      <div>
+        <div class="need"><b>You need</b> &mdash; 8 cones, 2 cone-goals, a ball per pair</div>
+        <div class="sub-h">Set it up</div>
+        <ol class="steps">
+          <li>Two lanes, one per coach. In each, put a cone about halfway up and a target goal at the far end.</li>
+          <li>Coach stands off to one side of the cone.</li>
+        </ol>
+        <div class="sub-h">How it runs</div>
+        <ol class="steps">
+          <li>Girl passes the ball to the coach.</li>
+          <li>She <b>immediately sprints past the cone</b> &mdash; not toward the coach, past her, into the space beyond.</li>
+          <li>Coach passes it back into her path so she runs onto it.</li>
+          <li>She dribbles on and scores in the target goal, collects her ball, jogs back.</li>
+        </ol>
+        <div class="say"><b>Say this &mdash;</b> "Pass, then MOVE &mdash; never stand and watch." &nbsp;&middot;&nbsp; "Run into the space, not at your friend."</div>
+        <div class="why"><b>Point of it</b> The single most-missed idea at this age: girls pass, then stand and admire the pass. On a 9v9 field that's what turns a team into eleven spectators and one girl with the ball.</div>
+        <div class="ramps">
+          <span class="ramp in"><b>Ramp in</b>Coach returns it slowly into her path and <b>calls her name</b> as it leaves her foot.</span>
+          <span class="ramp up"><b>Ramp up</b>Return pass must be one-touch, and add a defender who is allowed to chase.</span>
+        </div>
+      </div>
+    </div></div>
+  </article>
+
+  <article class="ex" id="buildout">
+    <div class="ex-hd"><h3>The Build-Out Drill</h3><span class="when">Session 11</span></div>
+    <div class="ex-body"><div class="ex-grid">
+      <div>
+        <svg class="dia" viewBox="0 0 220 175" role="img" aria-label="The keeper with the ball in goal, two girls sprinting wide to the corners of the box, one girl going long, and the opposition held behind the build-out line.">
+          <rect x="12" y="12" width="196" height="152" fill="none" stroke="#B9A275" stroke-width="2"/>
+          <line x1="60" y1="150" x2="160" y2="150" stroke="#7A3E0F" stroke-width="6"/>
+          <rect x="56" y="112" width="108" height="40" fill="none" stroke="#B9A275" stroke-width="1.5"/>
+          <line x1="12" y1="72" x2="208" y2="72" stroke="#C8641E" stroke-width="2" stroke-dasharray="5 4"/>
+          <text x="110" y="66" font-size="8" font-weight="700" fill="#C8641E" text-anchor="middle" font-family="Verdana, sans-serif">BUILD-OUT LINE</text>
+          <circle cx="110" cy="140" r="11" fill="#FBF6E8" stroke="#7A3E0F" stroke-width="3"/><text x="110" y="144" font-size="8.5" font-weight="700" fill="#7A3E0F" text-anchor="middle" font-family="Verdana, sans-serif">GK</text>
+          <circle cx="34" cy="112" r="11" fill="#7A3E0F"/><circle cx="186" cy="112" r="11" fill="#7A3E0F"/>
+          <circle cx="110" cy="88" r="11" fill="#7A3E0F"/>
+          <path d="M96 132 l-48 -14" fill="none" stroke="#241608" stroke-width="2" stroke-dasharray="5 3" marker-end="url(#pas)"/>
+          <path d="M78 122 q-20 -6 -34 -8" fill="none" stroke="#241608" stroke-width="2" marker-end="url(#run)" opacity="0"/>
+          <circle cx="60" cy="42" r="10" fill="#FBF6E8" stroke="#1F5A34" stroke-width="2.3"/>
+          <circle cx="150" cy="40" r="10" fill="#FBF6E8" stroke="#1F5A34" stroke-width="2.3"/>
+          <text x="110" y="30" font-size="8.5" fill="#1F5A34" text-anchor="middle" font-family="Verdana, sans-serif">they must stay back here</text>
+        </svg>
+        <p class="diacap">Two go to the corners, one goes long, keeper rolls it.</p>
+      </div>
+      <div>
+        <div class="need"><b>You need</b> &mdash; cones to mark a build-out line, a goal, keeper gloves, a ball</div>
+        <div class="sub-h">Set it up</div>
+        <ol class="steps">
+          <li>Mark a <b>build-out line</b> with cones right across the field, about 25 steps out from your goal.</li>
+          <li>A keeper in goal with the ball. Six girls in front of her as the team.</li>
+          <li>Two coaches and two girls are the opposition. <b>They must stay behind the build-out line</b> until the ball is touched &mdash; exactly like Saturday.</li>
+        </ol>
+        <div class="sub-h">How it runs &mdash; the same picture every time</div>
+        <ol class="steps">
+          <li>Keeper has the ball. On your call, <b>two girls sprint to the two corners of the penalty box</b>, as wide as they can get.</li>
+          <li>A third girl runs long, up the middle.</li>
+          <li>Keeper <b>rolls</b> it &mdash; never kicks it, never punts &mdash; to whichever girl has the most grass around her.</li>
+          <li>That girl takes <b>one touch forward</b> and looks up.</li>
+          <li>Reset and do it again. Twenty times. It should become automatic.</li>
+        </ol>
+        <div class="say"><b>Say this &mdash;</b> "When we have it at our goal, we get BIG. Corners and far away." &nbsp;&middot;&nbsp; "Keeper &mdash; find the girl with nobody near her."</div>
+        <div class="why"><b>Point of it</b> Your league's build-out line hands you roughly <b>ten free seconds</b> several times a game. Most 8U teams waste it by booting the ball straight back to the other team. This is the easiest tactical win available to you all season.</div>
+        <div class="ramps">
+          <span class="ramp in"><b>Ramp in</b>Put a cone exactly where she stands. Walk it through with no opposition at all until the picture is automatic.</span>
+          <span class="ramp up"><b>Ramp up</b>Opposition presses the instant the ball is touched; keeper must choose the correct side under pressure.</span>
+        </div>
+      </div>
+    </div></div>
+  </article>
+
+  <article class="ex" id="twogoal">
+    <div class="ex-hd"><h3>Two-Goal Scan</h3><span class="when">Session 12</span></div>
+    <div class="ex-body"><div class="ex-grid">
+      <div>
+        <svg class="dia" viewBox="0 0 220 160" role="img" aria-label="Three attackers against one defender in a box with a goal on the left and right; the defender covers one goal so the attackers should attack the other.">
+          <rect x="30" y="26" width="160" height="108" fill="none" stroke="#B9A275" stroke-width="2"/>
+          <line x1="30" y1="58" x2="30" y2="102" stroke="#7A3E0F" stroke-width="6"/>
+          <line x1="190" y1="58" x2="190" y2="102" stroke="#7A3E0F" stroke-width="6"/>
+          <circle cx="70" cy="52" r="11" fill="#7A3E0F"/>
+          <circle cx="84" cy="112" r="11" fill="#7A3E0F"/>
+          <circle cx="140" cy="80" r="11" fill="#7A3E0F"/>
+          <circle cx="66" cy="82" r="11" fill="#FBF6E8" stroke="#1F5A34" stroke-width="2.5"/><text x="66" y="86" font-size="9" font-weight="700" fill="#1F5A34" text-anchor="middle" font-family="Verdana, sans-serif">D</text>
+          <text x="46" y="150" font-size="8.5" fill="#8B1A1A" text-anchor="middle" font-family="Verdana, sans-serif">crowded</text>
+          <text x="172" y="150" font-size="8.5" fill="#1F5A34" text-anchor="middle" font-family="Verdana, sans-serif">free!</text>
+          <line x1="152" y1="80" x2="178" y2="80" stroke="#241608" stroke-width="2" stroke-dasharray="4 3" marker-end="url(#pas)"/>
+        </svg>
+        <p class="diacap">The defender can only guard one goal. Attack the other.</p>
+      </div>
+      <div>
+        <div class="need"><b>You need</b> &mdash; 12 cones, 3 balls. With 12 girls run <b>three boxes of 3v1</b>.</div>
+        <div class="sub-h">Set it up</div>
+        <ol class="steps">
+          <li>Mark a box about 15 steps square with a <b>cone-goal on the left side and another on the right side</b>.</li>
+          <li>Three attackers, one defender.</li>
+        </ol>
+        <div class="sub-h">How it runs</div>
+        <ol class="steps">
+          <li>The three keep the ball and try to score in <b>either</b> goal.</li>
+          <li>The defender can only cover one goal at a time, so the answer is always the goal she isn't at.</li>
+          <li>Swap the defender every 90 seconds so everybody defends.</li>
+        </ol>
+        <div class="say"><b>Say this &mdash;</b> "Take a picture before the ball comes." &nbsp;&middot;&nbsp; "If the crowd's on one side, the answer's the other side."</div>
+        <div class="why"><b>Point of it</b> Teaching a girl to look up and choose, rather than just attacking whatever is in front of her. On a 9v9 field, the space is almost always on the opposite side from the crowd &mdash; and the girl who learns to look for it becomes your most valuable player.</div>
+        <div class="ramps">
+          <span class="ramp in"><b>Ramp in</b>Point at the free goal and call it out for her. Then stop calling it and see if she looks.</span>
+          <span class="ramp up"><b>Ramp up</b>Silent version &mdash; no talking allowed, she has to see it herself. Make it 3v2.</span>
+        </div>
+      </div>
+    </div></div>
+  </article>
+
+  <article class="ex" id="twoontheball">
+    <div class="ex-hd"><h3>Two on the Ball</h3><span class="when">Session 13</span></div>
+    <div class="ex-body"><div class="ex-grid">
+      <div>
+        <svg class="dia" viewBox="0 0 220 160" role="img" aria-label="Two defenders against two attackers, showing the correct staggered shape with one defender pressing and the second behind and inside her, contrasted with the wrong side-by-side shape.">
+          <rect x="14" y="26" width="192" height="110" fill="none" stroke="#B9A275" stroke-width="2"/>
+          <circle cx="52" cy="48" r="11" fill="#7A3E0F"/><circle cx="52" cy="64" r="5" fill="#fff" stroke="#241608" stroke-width="1.8"/>
+          <circle cx="140" cy="44" r="11" fill="#7A3E0F"/>
+          <circle cx="66" cy="90" r="11" fill="#FBF6E8" stroke="#1F5A34" stroke-width="2.5"/><text x="66" y="94" font-size="9" font-weight="700" fill="#1F5A34" text-anchor="middle" font-family="Verdana, sans-serif">1</text>
+          <circle cx="96" cy="116" r="11" fill="#FBF6E8" stroke="#1F5A34" stroke-width="2.5"/><text x="96" y="120" font-size="9" font-weight="700" fill="#1F5A34" text-anchor="middle" font-family="Verdana, sans-serif">2</text>
+          <line x1="66" y1="79" x2="56" y2="62" stroke="#1F5A34" stroke-width="2" marker-end="url(#run)"/>
+          <text x="150" y="96" font-size="8.5" fill="#1F5A34" font-family="Verdana, sans-serif">1 presses</text>
+          <text x="150" y="112" font-size="8.5" fill="#1F5A34" font-family="Verdana, sans-serif">2 covers behind</text>
+          <text x="110" y="152" font-size="8.5" font-weight="700" fill="#8B1A1A" text-anchor="middle" font-family="Verdana, sans-serif">never side by side</text>
+        </svg>
+        <p class="diacap">One presses. The other stands behind her as the safety net.</p>
+      </div>
+      <div>
+        <div class="need"><b>You need</b> &mdash; 12 cones, 3 balls. With 12 girls run <b>three grids of 2v2</b>.</div>
+        <div class="sub-h">Set it up</div>
+        <ol class="steps">
+          <li>A grid about 15 steps square with a small goal at one end.</li>
+          <li>Two attackers, two defenders.</li>
+          <li><b>Start it 2v1</b> for the first few goes so the defenders can feel the correct shape without being under pressure.</li>
+        </ol>
+        <div class="sub-h">How it runs</div>
+        <ol class="steps">
+          <li>One defender goes to the ball and slows the attacker down.</li>
+          <li>The <b>second defender stands behind and inside her</b> &mdash; not level with her. She is the safety net if the first one gets beaten.</li>
+          <li><b>Freeze it</b> every few goes and check: are they side by side? That's the mistake. Move them into the right shape and let them look at it.</li>
+          <li>Then play live, and rotate every two minutes.</li>
+        </ol>
+        <div class="say"><b>Say this &mdash;</b> "First girl slows her down, second girl stands behind &mdash; never side by side." &nbsp;&middot;&nbsp; "Talk: 'I've got her, you take the other one.'"</div>
+        <div class="why"><b>Point of it</b> Two defenders side by side get beaten by one pass. Staggered, they almost never do. This is also the session where quieter girls often discover they're good at something.</div>
+        <div class="ramps">
+          <span class="ramp in"><b>Ramp in</b>Stay at 2v1 the whole time so the pair always succeeds and she learns the picture before the pressure.</span>
+          <span class="ramp up"><b>Ramp up</b>Live 2v2, and they must win it <em>and</em> dribble out through a gate to finish the rep.</span>
+        </div>
+      </div>
+    </div></div>
+  </article>
+
+  <article class="ex" id="restarts">
+    <div class="ex-hd"><h3>Restart Circuit</h3><span class="when">Session 14 &middot; three stations, ~6 min each</span></div>
+    <div class="ex-body"><div class="ex-grid">
+      <div>
+        <svg class="dia" viewBox="0 0 220 160" role="img" aria-label="Three stations: throw-in with both feet on the ground, goal kick with players spread wide, and a corner kick with one girl at the near post and one at the top of the box.">
+          <text x="36" y="18" font-size="8" font-weight="700" fill="#6B5334" text-anchor="middle" font-family="Verdana, sans-serif">THROW-IN</text>
+          <line x1="8" y1="30" x2="64" y2="30" stroke="#B9A275" stroke-width="2"/>
+          <circle cx="36" cy="52" r="11" fill="#7A3E0F"/>
+          <circle cx="36" cy="34" r="5" fill="#fff" stroke="#241608" stroke-width="1.8"/>
+          <line x1="28" y1="64" x2="28" y2="70" stroke="#46331C" stroke-width="2.5"/><line x1="44" y1="64" x2="44" y2="70" stroke="#46331C" stroke-width="2.5"/>
+          <text x="36" y="84" font-size="7.5" fill="#8B1A1A" text-anchor="middle" font-family="Verdana, sans-serif">both feet down</text>
+          <text x="110" y="18" font-size="8" font-weight="700" fill="#6B5334" text-anchor="middle" font-family="Verdana, sans-serif">GOAL KICK</text>
+          <line x1="88" y1="30" x2="132" y2="30" stroke="#7A3E0F" stroke-width="5"/>
+          <circle cx="110" cy="42" r="9" fill="#FBF6E8" stroke="#7A3E0F" stroke-width="2.5"/>
+          <circle cx="86" cy="70" r="9" fill="#7A3E0F"/><circle cx="134" cy="70" r="9" fill="#7A3E0F"/>
+          <circle cx="110" cy="96" r="9" fill="#7A3E0F"/>
+          <text x="110" y="116" font-size="7.5" fill="#46331C" text-anchor="middle" font-family="Verdana, sans-serif">corners + one long</text>
+          <text x="180" y="18" font-size="8" font-weight="700" fill="#6B5334" text-anchor="middle" font-family="Verdana, sans-serif">CORNER</text>
+          <line x1="156" y1="30" x2="206" y2="30" stroke="#7A3E0F" stroke-width="5"/>
+          <circle cx="208" cy="46" r="8" fill="#7A3E0F"/>
+          <circle cx="166" cy="44" r="9" fill="#7A3E0F"/><text x="166" y="66" font-size="7" fill="#46331C" text-anchor="middle" font-family="Verdana, sans-serif">near post</text>
+          <circle cx="184" cy="84" r="9" fill="#7A3E0F"/><text x="184" y="104" font-size="7" fill="#46331C" text-anchor="middle" font-family="Verdana, sans-serif">top of box</text>
+          <path d="M202 52 q-14 -6 -28 -6" fill="none" stroke="#241608" stroke-width="1.8" stroke-dasharray="4 3" marker-end="url(#pas)"/>
+        </svg>
+        <p class="diacap">Three quick stations, six minutes each, four girls at each.</p>
+      </div>
+      <div>
+        <div class="need"><b>You need</b> &mdash; a goal, several balls, 10 cones. With 12 girls that's <b>three stations of four</b>.</div>
+        <div class="sub-h">Station 1 &mdash; Throw-in</div>
+        <ol class="steps">
+          <li>Ball goes <b>over the head</b>, using both hands.</li>
+          <li><b>Both feet stay on the ground</b> until the ball has left her hands. That's the rule referees actually call.</li>
+          <li>Practise throwing to a teammate who is <em>moving</em>, not standing still.</li>
+        </ol>
+        <div class="sub-h">Station 2 &mdash; Goal kick</div>
+        <ol class="steps">
+          <li>Exactly the same picture as the Build-Out Drill: <b>two girls wide to the corners of the box, one goes long</b>.</li>
+          <li>Take the kick, hit the wide girl, she takes one touch forward.</li>
+        </ol>
+        <div class="sub-h">Station 3 &mdash; Corner kick</div>
+        <ol class="steps">
+          <li><b>One girl at the near post</b> (the post closest to the corner the ball is coming from). <b>One girl at the top of the box.</b> Everybody else stays out of the way.</li>
+          <li>Kicker aims for the near-post girl. That's the whole routine &mdash; don't add anything.</li>
+        </ol>
+        <div class="why"><b>Point of it</b> Restarts are a huge chunk of 8U game time and almost nobody practises them, so an hour spent here shows up on Saturday immediately. This is the most direct points-in-the-bank session in the book.</div>
+        <div class="ramps">
+          <span class="ramp in"><b>Ramp in</b>Throw from her knees first to get the over-the-head motion. Corners taken from 8 steps out.</span>
+          <span class="ramp up"><b>Ramp up</b>Throw-in must find a moving teammate; corner must clear the first defender.</span>
+        </div>
+      </div>
+    </div></div>
+  </article>
+
+  <article class="ex" id="girlschoice">
+    <div class="ex-hd"><h3>Girls' Choice &amp; Skills Showcase</h3><span class="when">Sessions 15, 16</span></div>
+    <div class="ex-body">
+      <div class="need"><b>You need</b> &mdash; whatever they ask for, and the discipline to stay quiet</div>
+      <div class="sub-h">Girls' Choice &mdash; Session 15</div>
+      <ol class="steps">
+        <li>Before you start, ask them to <b>vote on their two favourite games</b> of the season.</li>
+        <li>Run those two. Set them up and then step back.</li>
+        <li>Coaches <b>only ask questions</b> &mdash; no instructions, no corrections, no organising beyond safety.</li>
+        <li>If you can, let a girl run a station herself with you standing <em>beside</em> her, not in front of her.</li>
+      </ol>
+      <div class="sub-h">Skills Showcase &mdash; Session 16</div>
+      <ol class="steps">
+        <li>Each girl demonstrates the one move she owns now, one at a time, with the team watching and clapping.</li>
+        <li><b>Every girl.</b> No exceptions and no skipping the shy one &mdash; help her pick something she'll definitely nail.</li>
+      </ol>
+      <div class="why"><b>Point of it</b> Ownership. A child who feels the team is partly hers signs up again next season, and that is the one measurable outcome this whole book is pointed at.</div>
+      <div class="why"><b>Write down what they choose</b> Whatever games they vote for are the ones that actually landed. That's your Week 1 for next season.</div>
+    </div>
+  </article>
+</section>
+
+<section id="running">
+  <div class="sec-head">
+    <div class="eyebrow">Practicalities</div>
+    <h2>Running a session</h2>
+  </div>
+  <div class="panel">
+    <h3>If only six or seven girls show up</h3>
+    <p>It will happen, probably more than once. Don't improvise &mdash; run the same card, but: <b>keep the arrival game and ball mastery exactly as written</b> (they're individual anyway), <b>run one station instead of two</b> in the skill block, and <b>drop the small-sided game to 3v3 or 2v2</b>. A small session is a gift, not a problem: fewer girls means more touches each, which is the whole objective.</p>
+    <p>If <em>fifteen</em> show up, the reverse: three stations, and put your third coach on the newest three girls for the whole skill block.</p>
+  </div>
+
+  <div class="panel">
+    <h3>What to hand your assistant coaches</h3>
+    <p>Print the session card and hand them the physical sheet before warm-up, with one sentence: "you've got the second station, ten minutes, swap when I shout." The <em>ramp in</em> and <em>ramp up</em> strips are written so a soccer parent can read them mid-activity and act on them without asking you.</p>
+    <p>If you have a third coach, don't give them a station. Give them <b>three names</b> &mdash; your three newest girls &mdash; and one job: make sure those three touch the ball constantly and get told they did something well before they go home. That's the highest-value assignment on the field.</p>
+  </div>
+</section>
+
+<!-- ============ SMALL-SIDED GAMES ============ -->
+<section id="ssg">
+  <div class="sec-head">
+    <div class="eyebrow">The last 20 minutes before the scrimmage</div>
+    <h2>Small-sided games</h2>
+  </div>
+  <p class="sec-intro">This is where the learning actually sticks &mdash; the skill from the teaching block, now under real pressure from a real opponent. Every one of these is a small game with <b>one rule added</b> that forces the skill to show up. Add the rule, then mostly stop talking.</p>
+  <p class="sec-intro"><b>Why so small?</b> Saturday is 9v9, but 3v3 gives each girl roughly three times as many touches. Practice should be the opposite of game day: tiny games where nobody can hide. With twelve girls, 3v3 means <b>two games running side by side</b> and 6v6 means one.</p>
+
+  <div class="panel">
+    <h3>The one rule that fixes a mixed-ability squad</h3>
+    <p>You can add this to <em>any</em> game in this section, and it is the single most useful thing in the book:</p>
+    <div class="say"><b>The rule &mdash;</b> "A goal only counts if a girl who hasn't scored yet touched the ball first."</div>
+    <p>Now your best player is <b>hunting for your newest player</b> of her own accord, and you never had to ask her to share. It converts a selfish incentive into a generous one without a single word of moralising. Use it in the scrimmage from Session 9 onward.</p>
+  </div>
+
+  <article class="ex" id="fourgoals">
+    <div class="ex-hd"><h3>3v3 to Four Goals</h3><span class="when">Session 1</span></div>
+    <div class="ex-body"><div class="ex-grid">
+      <div>
+        <svg class="dia" viewBox="0 0 220 160" role="img" aria-label="A square grid with a small cone-goal on each of the four sides and three attackers against three defenders inside.">
+          <rect x="26" y="24" width="168" height="112" fill="none" stroke="#B9A275" stroke-width="2"/>
+          <line x1="84" y1="24" x2="136" y2="24" stroke="#7A3E0F" stroke-width="6"/>
+          <line x1="84" y1="136" x2="136" y2="136" stroke="#7A3E0F" stroke-width="6"/>
+          <line x1="26" y1="58" x2="26" y2="102" stroke="#7A3E0F" stroke-width="6"/>
+          <line x1="194" y1="58" x2="194" y2="102" stroke="#7A3E0F" stroke-width="6"/>
+          <circle cx="72" cy="58" r="11" fill="#7A3E0F"/><circle cx="110" cy="96" r="11" fill="#7A3E0F"/><circle cx="150" cy="52" r="11" fill="#7A3E0F"/>
+          <circle cx="80" cy="104" r="11" fill="#FBF6E8" stroke="#1F5A34" stroke-width="2.5"/>
+          <circle cx="140" cy="98" r="11" fill="#FBF6E8" stroke="#1F5A34" stroke-width="2.5"/>
+          <circle cx="118" cy="52" r="11" fill="#FBF6E8" stroke="#1F5A34" stroke-width="2.5"/>
+        </svg>
+        <p class="diacap">Four goals means there is always an empty one.</p>
+      </div>
+      <div>
+        <div class="need"><b>You need</b> &mdash; 12 cones, a ball. With 12 girls run <b>two games side by side</b>.</div>
+        <div class="sub-h">Set it up</div>
+        <ol class="steps">
+          <li>A grid about 20 steps square.</li>
+          <li>Put a <b>cone-goal in the middle of each of the four sides</b> &mdash; two cones about 4 steps apart. No keepers.</li>
+          <li>Three against three.</li>
+        </ol>
+        <div class="sub-h">The rule</div>
+        <ol class="steps">
+          <li>Score in <b>any</b> of the four goals, from either side of it.</li>
+          <li>After you score, <b>your next goal has to be a different one</b>. That's what makes them lift their heads and look for space.</li>
+        </ol>
+        <div class="say"><b>Say this &mdash;</b> "If a goal is busy, go find an empty one."</div>
+        <div class="why"><b>Point of it</b> Four goals produces constant scoring and constant celebration on day one, and it teaches looking around without you ever using the word "awareness".</div>
+        <div class="ramps">
+          <span class="ramp in"><b>Ramp in</b>Make it 4v3 for the side with more new players, and widen their goals.</span>
+          <span class="ramp up"><b>Ramp up</b>She must beat one defender before scoring &mdash; no tap-ins.</span>
+        </div>
+      </div>
+    </div></div>
+  </article>
+
+  <article class="ex" id="endzone">
+    <div class="ex-hd"><h3>3v3 Endzone Dribble</h3><span class="when">Session 3</span></div>
+    <div class="ex-body"><div class="ex-grid">
+      <div>
+        <svg class="dia" viewBox="0 0 220 160" role="img" aria-label="A rectangular grid with a shaded strip at each end; a girl scores by dribbling across the far strip under control rather than shooting into a goal.">
+          <rect x="20" y="24" width="180" height="112" fill="none" stroke="#B9A275" stroke-width="2"/>
+          <rect x="20" y="24" width="180" height="22" fill="#7A3E0F" opacity=".16"/>
+          <rect x="20" y="114" width="180" height="22" fill="#1F5A34" opacity=".16"/>
+          <text x="110" y="39" font-size="8.5" font-weight="700" fill="#7A3E0F" text-anchor="middle" font-family="Verdana, sans-serif">END ZONE</text>
+          <text x="110" y="129" font-size="8.5" font-weight="700" fill="#1F5A34" text-anchor="middle" font-family="Verdana, sans-serif">END ZONE</text>
+          <circle cx="78" cy="88" r="11" fill="#7A3E0F"/><circle cx="78" cy="104" r="5" fill="#fff" stroke="#241608" stroke-width="1.8"/>
+          <line x1="78" y1="76" x2="78" y2="52" stroke="#241608" stroke-width="2.2" marker-end="url(#run)"/>
+          <circle cx="128" cy="72" r="11" fill="#7A3E0F"/>
+          <circle cx="104" cy="62" r="11" fill="#FBF6E8" stroke="#1F5A34" stroke-width="2.5"/>
+          <circle cx="150" cy="100" r="11" fill="#FBF6E8" stroke="#1F5A34" stroke-width="2.5"/>
+        </svg>
+        <p class="diacap">No goals. Dribble the ball over the line to score.</p>
+      </div>
+      <div>
+        <div class="need"><b>You need</b> &mdash; 12 cones, a ball. Two games with 12 girls.</div>
+        <div class="sub-h">Set it up</div>
+        <ol class="steps">
+          <li>A rectangle about 25 steps long, 18 wide.</li>
+          <li>Mark a strip about 3 steps deep across <b>each end</b> &mdash; that's the end zone. No goals at all.</li>
+        </ol>
+        <div class="sub-h">The rule</div>
+        <ol class="steps">
+          <li>You score by <b>dribbling the ball across the opponent's end line under control</b> &mdash; the ball has to stay at your feet.</li>
+          <li>Kicking it across doesn't count. She has to take it there.</li>
+        </ol>
+        <div class="why"><b>Point of it</b> Removing goals removes shooting, so the only way to score is the thing you just taught: dribbling and changing direction. It's the cleanest way to make a specific skill matter in a live game.</div>
+        <div class="ramps">
+          <span class="ramp in"><b>Ramp in</b>Her end zone is the whole line, and she gets a two-step head start on every restart.</span>
+          <span class="ramp up"><b>Ramp up</b>She must use a change of direction inside the last five steps for it to count.</span>
+        </div>
+      </div>
+    </div></div>
+  </article>
+
+  <article class="ex" id="longfield">
+    <div class="ex-hd"><h3>6v6 Long Field</h3><span class="when">Session 4</span></div>
+    <div class="ex-body"><div class="ex-grid">
+      <div>
+        <svg class="dia" viewBox="0 0 220 160" role="img" aria-label="A deliberately long and narrow pitch with goals at each far end, so large gaps of empty space appear between the players.">
+          <rect x="70" y="12" width="80" height="136" fill="none" stroke="#B9A275" stroke-width="2"/>
+          <line x1="92" y1="12" x2="128" y2="12" stroke="#7A3E0F" stroke-width="6"/>
+          <line x1="92" y1="148" x2="128" y2="148" stroke="#7A3E0F" stroke-width="6"/>
+          <circle cx="92" cy="118" r="10" fill="#7A3E0F"/><circle cx="92" cy="132" r="5" fill="#fff" stroke="#241608" stroke-width="1.8"/>
+          <circle cx="128" cy="108" r="10" fill="#7A3E0F"/>
+          <circle cx="100" cy="46" r="10" fill="#7A3E0F"/>
+          <circle cx="110" cy="80" r="10" fill="#FBF6E8" stroke="#1F5A34" stroke-width="2.3"/>
+          <circle cx="86" cy="66" r="10" fill="#FBF6E8" stroke="#1F5A34" stroke-width="2.3"/>
+          <line x1="92" y1="106" x2="98" y2="62" stroke="#241608" stroke-width="2.2" marker-end="url(#run)"/>
+          <text x="30" y="80" font-size="9" fill="#6B5334" text-anchor="middle" font-family="Verdana, sans-serif">long</text>
+          <text x="30" y="94" font-size="9" fill="#6B5334" text-anchor="middle" font-family="Verdana, sans-serif">and</text>
+          <text x="30" y="108" font-size="9" fill="#6B5334" text-anchor="middle" font-family="Verdana, sans-serif">narrow</text>
+        </svg>
+        <p class="diacap">Long and thin, so space keeps opening up ahead.</p>
+      </div>
+      <div>
+        <div class="need"><b>You need</b> &mdash; 8 cones, 2 goals, a ball. One game of 6v6 with 12 girls.</div>
+        <div class="sub-h">Set it up</div>
+        <ol class="steps">
+          <li>Mark a pitch that is <b>deliberately long and narrow</b> &mdash; about 40 steps long, 20 wide.</li>
+          <li>A goal at each end.</li>
+        </ol>
+        <div class="sub-h">The rule</div>
+        <ol class="steps">
+          <li>Normal game, but a goal scored <b>after a run of ten or more steps with the ball counts double</b>.</li>
+          <li>Count it out loud when you see one so everybody notices.</li>
+        </ol>
+        <div class="why"><b>Point of it</b> The long shape keeps producing empty grass ahead of the ball, and the double-goal rule pays girls to attack it rather than dribbling sideways. Direct preparation for the space on a real 9v9 field.</div>
+        <div class="ramps">
+          <span class="ramp in"><b>Ramp in</b>Play her side 7v6 and let the extra girl be a free runner nobody is allowed to tackle.</span>
+          <span class="ramp up"><b>Ramp up</b>Two touches maximum in her own half; unlimited once she's over halfway.</span>
+        </div>
+      </div>
+    </div></div>
+  </article>
+
+  <article class="ex" id="neutrals">
+    <div class="ex-hd"><h3>5v5 + 2 Neutrals</h3><span class="when">Session 9</span></div>
+    <div class="ex-body"><div class="ex-grid">
+      <div>
+        <svg class="dia" viewBox="0 0 220 160" role="img" aria-label="Two teams of five with two neutral players in purple who always play for whichever team has the ball, creating a seven against five advantage.">
+          <rect x="16" y="20" width="188" height="120" fill="none" stroke="#B9A275" stroke-width="2"/>
+          <circle cx="52" cy="48" r="10" fill="#7A3E0F"/><circle cx="52" cy="110" r="10" fill="#7A3E0F"/><circle cx="92" cy="78" r="10" fill="#7A3E0F"/>
+          <circle cx="140" cy="46" r="10" fill="#FBF6E8" stroke="#1F5A34" stroke-width="2.3"/>
+          <circle cx="150" cy="108" r="10" fill="#FBF6E8" stroke="#1F5A34" stroke-width="2.3"/>
+          <circle cx="118" cy="76" r="10" fill="#FBF6E8" stroke="#1F5A34" stroke-width="2.3"/>
+          <circle cx="80" cy="30" r="10" fill="#FBF6E8" stroke="#4A1A6A" stroke-width="2.5" stroke-dasharray="4 3"/><text x="80" y="34" font-size="9" font-weight="700" fill="#4A1A6A" text-anchor="middle" font-family="Verdana, sans-serif">N</text>
+          <circle cx="80" cy="128" r="10" fill="#FBF6E8" stroke="#4A1A6A" stroke-width="2.5" stroke-dasharray="4 3"/><text x="80" y="132" font-size="9" font-weight="700" fill="#4A1A6A" text-anchor="middle" font-family="Verdana, sans-serif">N</text>
+          <line x1="64" y1="52" x2="74" y2="40" stroke="#241608" stroke-width="2" stroke-dasharray="4 3" marker-end="url(#pas)"/>
+          <text x="110" y="154" font-size="8.5" fill="#4A1A6A" text-anchor="middle" font-family="Verdana, sans-serif">N always plays for whoever has the ball</text>
+        </svg>
+        <p class="diacap">The two purple girls are always on the attacking side.</p>
+      </div>
+      <div>
+        <div class="need"><b>You need</b> &mdash; 8 cones, 2 goals, a ball, and pinnies in a third colour for the neutrals if you have them</div>
+        <div class="sub-h">Set it up</div>
+        <ol class="steps">
+          <li>Five against five, plus <b>two neutral players</b>.</li>
+          <li>A neutral <b>always plays for whichever team currently has the ball</b>. She is never on defence.</li>
+          <li>Rotate who the neutrals are every few minutes.</li>
+        </ol>
+        <div class="sub-h">The rule</div>
+        <ol class="steps">
+          <li>Because the attacking side is effectively 7 against 5, passing succeeds constantly &mdash; which is the entire point in the week you introduce passing.</li>
+          <li>A goal counts <b>double if three different girls touched the ball</b> in the move.</li>
+        </ol>
+        <div class="why"><b>Point of it</b> Manufactured success. In an even game a beginner's pass gets intercepted and she stops trying; permanently numbers-up, her pass works and she learns that passing is a good idea.</div>
+        <div class="ramps">
+          <span class="ramp in"><b>Ramp in</b>Neutrals cannot be tackled at all &mdash; a completely safe, high-value job. <b>Start your newest girls there.</b></span>
+          <span class="ramp up"><b>Ramp up</b>Neutrals limited to two touches, so she has to think before it arrives.</span>
+        </div>
+      </div>
+    </div></div>
+  </article>
+
+  <article class="ex" id="widezones">
+    <div class="ex-hd"><h3>6v6 Wide Zones</h3><span class="when">Session 11</span></div>
+    <div class="ex-body"><div class="ex-grid">
+      <div>
+        <svg class="dia" viewBox="0 0 220 160" role="img" aria-label="A pitch with narrow shaded channels marked down both side lines; a girl standing in a channel is safe and goals count double if the ball went through one.">
+          <rect x="16" y="16" width="188" height="128" fill="none" stroke="#B9A275" stroke-width="2"/>
+          <rect x="16" y="16" width="30" height="128" fill="#7A3E0F" opacity=".14"/>
+          <rect x="174" y="16" width="30" height="128" fill="#7A3E0F" opacity=".14"/>
+          <text x="31" y="84" font-size="8" font-weight="700" fill="#7A3E0F" text-anchor="middle" font-family="Verdana, sans-serif" transform="rotate(-90 31 84)">WIDE ZONE</text>
+          <text x="189" y="84" font-size="8" font-weight="700" fill="#7A3E0F" text-anchor="middle" font-family="Verdana, sans-serif" transform="rotate(90 189 84)">WIDE ZONE</text>
+          <line x1="96" y1="16" x2="130" y2="16" stroke="#7A3E0F" stroke-width="6"/>
+          <line x1="96" y1="144" x2="130" y2="144" stroke="#7A3E0F" stroke-width="6"/>
+          <circle cx="31" cy="60" r="10" fill="#7A3E0F"/>
+          <circle cx="100" cy="96" r="10" fill="#7A3E0F"/>
+          <circle cx="130" cy="66" r="10" fill="#FBF6E8" stroke="#1F5A34" stroke-width="2.3"/>
+          <circle cx="92" cy="60" r="10" fill="#FBF6E8" stroke="#1F5A34" stroke-width="2.3"/>
+          <line x1="92" y1="90" x2="44" y2="66" stroke="#241608" stroke-width="2" stroke-dasharray="4 3" marker-end="url(#pas)"/>
+        </svg>
+        <p class="diacap">Use the edges and your goal is worth double.</p>
+      </div>
+      <div>
+        <div class="need"><b>You need</b> &mdash; 12 cones, 2 goals, a ball</div>
+        <div class="sub-h">Set it up</div>
+        <ol class="steps">
+          <li>A normal pitch, but mark a <b>channel about 5 steps wide down each long side</b> with cones.</li>
+        </ol>
+        <div class="sub-h">The rule</div>
+        <ol class="steps">
+          <li>A goal counts <b>double if the ball went through one of the wide channels first</b>.</li>
+          <li>Suddenly the edges of the field are the most valuable real estate on it, and the knot of girls in the middle unpicks itself.</li>
+        </ol>
+        <div class="say"><b>Say this &mdash;</b> "Only ONE of us goes to the ball. Everyone else, get big."</div>
+        <div class="why"><b>Point of it</b> Bunch-ball is <em>the</em> failure mode of 9v9 at eight years old &mdash; every girl chases the ball because it's the most interesting thing on the field. You can't fix it by shouting "spread out". You fix it by making the spread-out places worth points.</div>
+        <div class="ramps">
+          <span class="ramp in"><b>Ramp in</b>A girl standing in the wide channel <b>cannot be tackled</b>. It's a safe, useful job, and her teammates will start looking for her.</span>
+          <span class="ramp up"><b>Ramp up</b>She must switch the ball from one channel to the other before scoring.</span>
+        </div>
+      </div>
+    </div></div>
+  </article>
+
+  <article class="ex" id="worldcup">
+    <div class="ex-hd"><h3>World Cup</h3><span class="when">Session 15</span></div>
+    <div class="ex-body"><div class="ex-grid">
+      <div>
+        <svg class="dia" viewBox="0 0 220 160" role="img" aria-label="One goal with a keeper and four small teams of three waiting around the edge, two teams playing at a time.">
+          <line x1="82" y1="18" x2="138" y2="18" stroke="#7A3E0F" stroke-width="6"/>
+          <circle cx="110" cy="34" r="11" fill="#FBF6E8" stroke="#7A3E0F" stroke-width="3"/><text x="110" y="38" font-size="8.5" font-weight="700" fill="#7A3E0F" text-anchor="middle" font-family="Verdana, sans-serif">GK</text>
+          <g><circle cx="70" cy="76" r="9" fill="#7A3E0F"/><circle cx="52" cy="92" r="9" fill="#7A3E0F"/><circle cx="76" cy="100" r="9" fill="#7A3E0F"/><text x="60" y="120" font-size="8" fill="#46331C" text-anchor="middle" font-family="Verdana, sans-serif">team A</text></g>
+          <g><circle cx="150" cy="76" r="9" fill="#FBF6E8" stroke="#1F5A34" stroke-width="2.3"/><circle cx="168" cy="92" r="9" fill="#FBF6E8" stroke="#1F5A34" stroke-width="2.3"/><circle cx="144" cy="100" r="9" fill="#FBF6E8" stroke="#1F5A34" stroke-width="2.3"/><text x="158" y="120" font-size="8" fill="#46331C" text-anchor="middle" font-family="Verdana, sans-serif">team B</text></g>
+          <g opacity=".4"><circle cx="30" cy="145" r="8" fill="#7A3E0F"/><circle cx="48" cy="145" r="8" fill="#7A3E0F"/><circle cx="66" cy="145" r="8" fill="#7A3E0F"/></g>
+          <g opacity=".4"><circle cx="152" cy="145" r="8" fill="#7A3E0F"/><circle cx="170" cy="145" r="8" fill="#7A3E0F"/><circle cx="188" cy="145" r="8" fill="#7A3E0F"/></g>
+          <text x="110" y="152" font-size="8" fill="#6B5334" text-anchor="middle" font-family="Verdana, sans-serif">C &amp; D next</text>
+        </svg>
+        <p class="diacap">Four teams of three, one goal, everybody plays every round.</p>
+      </div>
+      <div>
+        <div class="need"><b>You need</b> &mdash; one goal, keeper gloves, a bag of balls. With 12 girls, <b>four teams of three</b>.</div>
+        <div class="sub-h">Set it up</div>
+        <ol class="steps">
+          <li>One goal with a keeper (rotate the keeper each round, volunteers only).</li>
+          <li>Four teams of three. <b>Balance them deliberately</b> by size and experience &mdash; don't let them pick.</li>
+        </ol>
+        <div class="sub-h">How it runs</div>
+        <ol class="steps">
+          <li>Two teams play at a time, two-minute matches, both attacking the same goal.</li>
+          <li>Whoever scores stays on; the other team swaps out for the next one.</li>
+          <li>Play a full round robin so <b>every team plays every other team</b>.</li>
+          <li><b>Nobody is ever eliminated.</b> Every team plays every round no matter what the results are.</li>
+        </ol>
+        <div class="why"><b>Point of it</b> Everything from the season, in a format that feels like a tournament and costs you nothing to run. Session 15 is the girls' session &mdash; set it up, then get out of the way.</div>
+        <div class="ramps">
+          <span class="ramp in"><b>Ramp in</b>Put her with a veteran whose stated job is to set her up for a goal.</span>
+          <span class="ramp up"><b>Ramp up</b>Her team plays two-touch while everyone else plays freely.</span>
+        </div>
+      </div>
+    </div></div>
+  </article>
+
+  <div class="sec-head" style="margin-top:44px">
+    <div class="eyebrow">Same setup, different rule</div>
+    <h2>Games that are a normal game plus one rule</h2>
+  </div>
+  <p class="sec-intro">These need no diagram, because the setup is just a small pitch with a goal at each end. What makes each one work is the single rule you add. Set up once and change the rule week to week.</p>
+
+  <div class="panel">
+    <h3>The rule for each session</h3>
+    <div class="gloss">
+      <div class="grow" id="shootingboxes"><span class="gt">2v2 Shooting Boxes<br><small style="font-weight:400;color:var(--muted)">Session 2</small></span><span class="gd">A small box with a goal each end, three games of 2v2 running at once. <b>Rule:</b> shots must be taken from inside the box. It drags them toward goal and produces far more scoring than letting them shoot from distance.</span></div>
+      <div class="grow" id="onevonestart"><span class="gt">3v3, 1v1 Restarts<br><small style="font-weight:400;color:var(--muted)">Session 5</small></span><span class="gd">Normal 3v3. <b>Rule:</b> every restart begins as a <b>1v1 from the halfway line</b> &mdash; everyone else waits behind their own line until the first touch is taken. Guarantees each girl gets repeated 1v1s in a live game.</span></div>
+      <div class="grow" id="winitback"><span class="gt">6v6 Win-It-Back<br><small style="font-weight:400;color:var(--muted)">Session 6</small></span><span class="gd">Normal game with <b>two scoreboards</b>. <b>Rule:</b> win the ball back within five seconds of losing it and your team gets a point, separate from goals. Count the five seconds out loud, theatrically. Run both totals and announce both at the end.</span></div>
+      <div class="grow" id="shootout"><span class="gt">6v6 Shootout<br><small style="font-weight:400;color:var(--muted)">Session 7</small></span><span class="gd">Small pitch. <b>Rule:</b> you must shoot within <b>eight seconds</b> of entering the attacking half. Kills over-passing and produces a shot roughly every twenty seconds, which is exactly what the scoring week needs.</span></div>
+      <div class="grow" id="rebound"><span class="gt">6v6 Rebound Rules<br><small style="font-weight:400;color:var(--muted)">Session 8</small></span><span class="gd">Keepers in. <b>Rule:</b> no ball is ever dead until it leaves the grid. Keep a bag of spares and <b>re-serve instantly</b> so the game never stops and nobody stands around waiting for a goal kick.</span></div>
+      <div class="grow" id="freezeframe"><span class="gt">3v3 Freeze Frame<br><small style="font-weight:400;color:var(--muted)">Session 10</small></span><span class="gd">Normal 3v3. <b>Rule:</b> twice per half you shout <b>FREEZE</b> and everyone stops dead. Fifteen seconds of questions &mdash; who's standing still? who has space? &mdash; then play on. <b>Use it to praise at least as often as to correct:</b> find a girl in a great position and name her.</span></div>
+      <div class="grow" id="switchbonus"><span class="gt">6v6 Switch Bonus<br><small style="font-weight:400;color:var(--muted)">Session 12</small></span><span class="gd">Goals are worth two. <b>Rule:</b> a pass that crosses from one side of the field to the other is worth one. A team that never scores can still win by moving the ball well &mdash; a genuinely useful thing for an eight-year-old to discover.</span></div>
+      <div class="grow" id="fivesecond"><span class="gt">6v6 Five-Second Rule<br><small style="font-weight:400;color:var(--muted)">Session 13</small></span><span class="gd">The moment your team loses the ball you have <b>five seconds to win it back</b>, and you count it down out loud. Winning it back in time is worth a point. This is the loudest, most fun game in the book &mdash; expect noise.</span></div>
+      <div class="grow" id="shapewalk"><span class="gt">6v6 Shape, Walk Then Live<br><small style="font-weight:400;color:var(--muted)">Session 14</small></span><span class="gd">Ten minutes <b>literally walking</b> in the 3&ndash;3&ndash;2 shape with the ball rolled by hand, stopping to look at the picture. Then ten minutes live. Put a <b>home cone</b> down for each girl; the only instruction is "go back to your cone."</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ TEAM CHALLENGES ============ -->
+<section id="chall">
+  <div class="sec-head">
+    <div class="eyebrow">The 5-minute water break</div>
+    <h2>Team challenges</h2>
+  </div>
+  <p class="sec-intro">Short, loud, silly competitions that double as a rest. Pick any one for the 0:45 block &mdash; they're interchangeable. The team competes against <b>a number</b>, not against each other, which keeps them on the same side.</p>
+
+  <div class="panel">
+    <div class="gloss">
+      <div class="grow"><span class="gt">Team Total</span><span class="gd">Sixty seconds, everyone touching their own ball, counting every touch out loud as one team number. Write it on your hand. Beat it later in the season and tell them the old score first &mdash; they will remember it.</span></div>
+      <div class="grow"><span class="gt">Beat the Coach</span><span class="gd">A coach dribbles, the whole team tries to win the ball off her. Lose eventually, and dramatically. Later in the season run it in pairs &mdash; two girls defending together, which rehearses Session 13.</span></div>
+      <div class="grow"><span class="gt">Bullseye</span><span class="gd">Stand a cone up as a target. Everyone passes at it from about 8 steps (15 later in the season). Count team hits.</span></div>
+      <div class="grow"><span class="gt">Golden Goal</span><span class="gd">One shot each from 8 steps, count the team total. Everyone shoots, nobody queues for long. In Session 14, take it from a corner delivery instead.</span></div>
+      <div class="grow"><span class="gt">Everyone Scores Relay</span><span class="gd">The team isn't finished until <b>every single girl</b> has scored once. Inclusive by construction &mdash; and watch the strong players start coaching the newer ones without being asked.</span></div>
+      <div class="grow"><span class="gt">Crossbar Challenge</span><span class="gd">Balance a cone on the goal line and try to knock it off from 10 steps. Harder than it sounds, which is the fun.</span></div>
+      <div class="grow"><span class="gt">60-Second Passes</span><span class="gd">How many completed passes can the whole team make in a minute? Keep it as a running season-long number and beat it.</span></div>
+      <div class="grow"><span class="gt">Keeper Gauntlet</span><span class="gd">A coach goes in goal, every girl takes one shot. Concede most of them, theatrically. Doubles as recruitment for the Keeper Club.</span></div>
+    </div>
+  </div>
+</section>
+
+<p class="foot">Companion to the 8U Practice Book &mdash; SBMSA 8U girls, 9v9, 12-player roster. All distances are in adult walking steps; nothing here needs measuring. If an activity feels crowded, make it bigger. If girls are standing still, make it smaller.</p>
+
+</div>
+</body>
+</html>

@@ -42,11 +42,8 @@
   --fs: 20px;
   --font: Verdana, Tahoma, "DejaVu Sans", "Bitstream Vera Sans", Geneva, sans-serif;
 }
-
 * { box-sizing: border-box; margin: 0; padding: 0; }
-
 html { -webkit-text-size-adjust: 100%; }
-
 body {
   background: var(--bg);
   color: var(--text);
@@ -55,9 +52,7 @@ body {
   line-height: 1.6;
   overflow-wrap: break-word;
 }
-
 .wrap { max-width: 1080px; margin: 0 auto; padding: 28px 22px 80px; }
-
 /* ---------- shared type ---------- */
 .eyebrow {
   font-size: .72em; font-weight: 700;
@@ -66,7 +61,6 @@ body {
 }
 h1, h2, h3, h4 { text-wrap: balance; line-height: 1.2; }
 [id] { scroll-margin-top: 72px; }
-
 /* ---------- masthead ---------- */
 .mast { border-bottom: 3px solid var(--rust); padding-bottom: 20px; margin-bottom: 24px; }
 .mast h1 {
@@ -83,7 +77,12 @@ h1, h2, h3, h4 { text-wrap: balance; line-height: 1.2; }
   border: 1px solid var(--rule); border-radius: 4px;
   padding: 6px 11px;
 }
-
+.tolib { display: inline-block; margin-top: 16px; font-size: .8em; font-weight: 700; color: var(--card); background: var(--rust); text-decoration: none; border-radius: 4px; padding: 10px 16px; }
+.tolib:hover, .tolib:focus-visible { background: var(--text); }
+.blk h4 a { color: inherit; text-decoration: none; border-bottom: 2px dotted var(--rust); }
+.blk h4 a:hover, .blk h4 a:focus-visible { color: var(--rust); border-bottom-style: solid; }
+.blk h4 a em { color: var(--muted); }
+.blk h4 a:hover em { color: var(--rust); }
 /* ---------- jump nav ---------- */
 .nav {
   position: sticky; top: 0; z-index: 20;
@@ -103,14 +102,12 @@ h1, h2, h3, h4 { text-wrap: balance; line-height: 1.2; }
 .nav a:hover { background: var(--rust); color: var(--card); border-color: var(--rust); }
 .nav a:focus-visible { outline: 3px solid var(--forest); outline-offset: 2px; }
 .nav a.wk { background: var(--tan); min-width: 44px; justify-content: center; }
-
 /* ---------- section heads ---------- */
 .sec-head { margin: 46px 0 18px; border-bottom: 2px solid var(--rule-hi); padding-bottom: 10px; }
 .sec-head h2 {
   font-size: 1.3em; font-weight: 700;
   text-transform: uppercase; color: var(--rust); margin-top: 6px;
 }
-
 /* ---------- generic panel ---------- */
 .panel {
   background: var(--card); border: 1px solid var(--rule);
@@ -124,23 +121,8 @@ h1, h2, h3, h4 { text-wrap: balance; line-height: 1.2; }
 .panel p { font-size: .95em; color: var(--sec); margin-bottom: 12px; max-width: 68ch; }
 .panel p:last-child { margin-bottom: 0; }
 .panel b, .panel strong { color: var(--text); }
-
-.g2 { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
-
 /* ---------- numbered principles ---------- */
 .moves { display: flex; flex-direction: column; }
-.move { display: flex; gap: 15px; padding: 15px 0; border-bottom: 1px solid var(--rule); }
-.move:last-child { border-bottom: none; padding-bottom: 0; }
-.move .n {
-  flex-shrink: 0; width: 30px; height: 30px; border-radius: 4px;
-  background: var(--rust); color: var(--card);
-  font-size: .7em; font-weight: 700;
-  display: flex; align-items: center; justify-content: center;
-  margin-top: 3px; font-variant-numeric: tabular-nums;
-}
-.move .t { font-size: .95em; color: var(--sec); }
-.move .t b { display: block; color: var(--text); font-size: 1em; font-weight: 700; margin-bottom: 4px; }
-
 /* ---------- callouts ---------- */
 .say {
   font-size: .9em; line-height: 1.55;
@@ -150,28 +132,8 @@ h1, h2, h3, h4 { text-wrap: balance; line-height: 1.2; }
   padding: 9px 14px; margin: 11px 0; border-radius: 0 4px 4px 0;
 }
 .say b { color: var(--forest); font-weight: 700; text-transform: uppercase; letter-spacing: .05em; font-size: .9em; }
-.heat {
-  border: 1px solid var(--warn); border-left: 6px solid var(--warn);
-  border-radius: 5px; background: #F8EFDC; color: var(--sec);
-  padding: 15px 20px; margin-bottom: 18px; font-size: .95em;
-}
-.heat b { color: var(--warn); text-transform: uppercase; letter-spacing: .05em; font-size: .85em; display: block; margin-bottom: 6px; }
-
 /* ---------- season arc table ---------- */
 .arc-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
-.arc { width: 100%; min-width: 640px; border-collapse: collapse; background: var(--card); border: 1px solid var(--rule); }
-.arc th {
-  background: var(--tan); color: var(--rust);
-  font-size: .72em; font-weight: 700;
-  letter-spacing: .06em; text-transform: uppercase;
-  text-align: left; padding: 11px 13px; border-bottom: 2px solid var(--rule-hi);
-}
-.arc td { padding: 12px 13px; border-bottom: 1px solid var(--rule); font-size: .9em; color: var(--sec); vertical-align: top; }
-.arc tr:last-child td { border-bottom: none; }
-.arc .w { font-weight: 700; color: var(--rust); white-space: nowrap; font-variant-numeric: tabular-nums; }
-.arc .th { color: var(--text); font-weight: 700; }
-.arc td.wr { min-width: 118px; height: 38px; border-left: 1px solid var(--rule); background: var(--bg); }
-
 /* ============================================================
    PRACTICE CARD
    ============================================================ */
@@ -200,7 +162,6 @@ h1, h2, h3, h4 { text-wrap: balance; line-height: 1.2; }
 .card-hd .focus { font-size: .95em; color: var(--sec); max-width: 66ch; }
 .kit { font-size: .8em; color: var(--muted); margin-top: 12px; }
 .kit b { color: var(--rust); font-weight: 700; text-transform: uppercase; letter-spacing: .05em; }
-
 /* --- the time rail --- */
 .blocks { padding: 6px 24px 20px; }
 .blk { display: flex; gap: 18px; padding: 16px 0; border-bottom: 1px solid var(--rule); }
@@ -213,7 +174,6 @@ h1, h2, h3, h4 { text-wrap: balance; line-height: 1.2; }
 .blk h4 em { font-style: normal; color: var(--muted); font-weight: 700; text-transform: none; }
 .blk p { font-size: .95em; color: var(--sec); max-width: 68ch; }
 .blk p + p { margin-top: 8px; }
-
 /* --- ramp in / ramp up --- */
 .ramps { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 11px; }
 .ramp {
@@ -227,39 +187,25 @@ h1, h2, h3, h4 { text-wrap: balance; line-height: 1.2; }
 .ramp.in b { color: var(--blue); }
 .ramp.up { border-left: 4px solid var(--purple); }
 .ramp.up b { color: var(--purple); }
-
 /* ---------- appendix reference lists ---------- */
 .ref { display: flex; flex-direction: column; }
-.ref-row { display: flex; gap: 16px; padding: 13px 0; border-bottom: 1px solid var(--rule); }
-.ref-row:last-child { border-bottom: none; padding-bottom: 0; }
-.ref-row .k { flex-shrink: 0; width: 180px; font-size: .85em; font-weight: 700; color: var(--rust); padding-top: 1px; }
-.ref-row .v { font-size: .92em; color: var(--sec); }
-
 /* ---------- formation diagram ---------- */
 .pitch-fig { background: var(--tan); border: 1px solid var(--rule); border-radius: 6px; padding: 14px; display: block; width: 100%; max-width: 340px; height: auto; margin: 0 auto; }
-
 .foot { margin-top: 42px; padding-top: 20px; border-top: 2px solid var(--rule); font-size: .85em; color: var(--muted); }
-
 /* ============================================================
    MOBILE
    ============================================================ */
 @media (max-width: 860px) {
-  .g2 { grid-template-columns: 1fr; }
 }
-
 @media (max-width: 760px) {
   :root { --fs: 19px; }
   .wrap { padding: 18px 15px 60px; }
-
   .mast h1 { font-size: 1.6em; }
-
   /* nav becomes a single scrolling strip, not a wrapping block */
   .nav { flex-wrap: nowrap; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: thin; }
-
   .panel { padding: 17px 17px; }
   .card-hd { padding: 17px 17px 14px; }
   .blocks { padding: 4px 17px 16px; }
-
   /* time rail becomes a chip above the content */
   .blk { flex-direction: column; gap: 9px; }
   .clock {
@@ -268,22 +214,15 @@ h1, h2, h3, h4 { text-wrap: balance; line-height: 1.2; }
     background: var(--tan); border-radius: 5px; padding: 5px 12px;
   }
   .clock .d { margin-top: 0; }
-
   .ramps { grid-template-columns: 1fr; }
-  .ref-row { flex-direction: column; gap: 4px; }
-  .ref-row .k { width: 100%; }
-  .move { gap: 12px; }
 }
-
 @media (max-width: 420px) {
   :root { --fs: 18px; }
   .card-hd h3 { font-size: 1.35em; }
 }
-
 @media (prefers-reduced-motion: reduce) {
   * { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
 }
-
 /* ============================================================
    PRINT — one session per sheet, white ground to save toner
    ============================================================ */
@@ -305,8 +244,7 @@ h1, h2, h3, h4 { text-wrap: balance; line-height: 1.2; }
   .blocks { padding: 0; }
   .blk { padding: 10px 0; }
   .say { background: none; }
-  .panel, .arc, .heat { break-inside: avoid; }
-  .arc { min-width: 0; }
+  .panel { break-inside: avoid; }
   .sec-head { break-before: page; }
   .mast { margin-bottom: 16px; }
   a { color: inherit; text-decoration: none; }
@@ -321,7 +259,8 @@ h1, h2, h3, h4 { text-wrap: balance; line-height: 1.2; }
 <header class="mast">
   <div class="eyebrow">Spring Branch Memorial Sports Association &middot; 8U Girls</div>
   <h1>The 8U<br>Practice Book</h1>
-  <p class="sub">Sixteen ninety-minute sessions across an eight-week season, built for a roster where some girls have played for years and some have never kicked a ball. Every session prints to a single sheet. Take the sheet to the field; leave the book at home.</p>
+  <p class="sub">Sixteen ninety-minute sessions. Each one prints to a single sheet &mdash; take the sheet to the field.</p>
+  <p class="sub" style="margin-top:10px">Every activity name below is a link. Tap it and you get the full explanation: a diagram of where the cones go, numbered setup and run steps, and what the activity is for.</p>
   <div class="facts">
     <span class="fact">9v9 &middot; keeper included</span>
     <span class="fact">12 rostered &middot; 9 on, 3 off</span>
@@ -332,361 +271,16 @@ h1, h2, h3, h4 { text-wrap: balance; line-height: 1.2; }
     <span class="fact">Equal playing time</span>
     <span class="fact">No heading</span>
   </div>
+  <a class="tolib" href="library.html">Open the Coaching Library &rarr;</a>
 </header>
 
-<nav class="nav" aria-label="Jump to section">
-  <a href="#how">How to use this</a>
-  <a href="#mixed">Mixed ability</a>
-  <a href="#nine">9v9 &amp; shape</a>
-  <a href="#twelve">12-player plan</a>
-&
-  <a href="#heat">Heat</a>
-  <a href="#arc">Season arc</a>
-  <a class="wk" href="#s1">1</a>
-  <a class="wk" href="#s2">2</a>
-  <a class="wk" href="#s3">3</a>
-  <a class="wk" href="#s4">4</a>
-  <a class="wk" href="#s5">5</a>
-  <a class="wk" href="#s6">6</a>
-  <a class="wk" href="#s7">7</a>
-  <a class="wk" href="#s8">8</a>
-  <a class="wk" href="#s9">9</a>
-  <a class="wk" href="#s10">10</a>
-  <a class="wk" href="#s11">11</a>
-  <a class="wk" href="#s12">12</a>
-  <a class="wk" href="#s13">13</a>
-  <a class="wk" href="#s14">14</a>
-  <a class="wk" href="#s15">15</a>
-  <a class="wk" href="#s16">16</a>
-  <a href="#games">Game bank</a>
+<nav class="nav" aria-label="Jump to a session">
+  <a href="library.html">Library</a>
+  <a class="wk" href="#s1">1</a><a class="wk" href="#s2">2</a><a class="wk" href="#s3">3</a><a class="wk" href="#s4">4</a>
+  <a class="wk" href="#s5">5</a><a class="wk" href="#s6">6</a><a class="wk" href="#s7">7</a><a class="wk" href="#s8">8</a>
+  <a class="wk" href="#s9">9</a><a class="wk" href="#s10">10</a><a class="wk" href="#s11">11</a><a class="wk" href="#s12">12</a>
+  <a class="wk" href="#s13">13</a><a class="wk" href="#s14">14</a><a class="wk" href="#s15">15</a><a class="wk" href="#s16">16</a>
 </nav>
-
-<!-- ============ HOW TO USE ============ -->
-<section id="how">
-  <div class="sec-head">
-    <div class="eyebrow">Section one</div>
-    <h2>How this book works</h2>
-  </div>
-
-  <div class="panel">
-    <h3>The weekly loop</h3>
-    <p>Your schedule is unstable on purpose &mdash; a random weekday game will occasionally eat a practice. So the week is built so that the session you might lose is never the session that carries new material.</p>
-    <p><b>Sunday &rarr; teach.</b> It lands the day after Saturday's game, so you coach what you just watched. Every new concept in this book lives in a Sunday session.</p>
-    <p><b>Weeknight &rarr; sharpen.</b> It sits between Sunday and the next Saturday, so it rehearses and applies. When a Tuesday game wipes it out, you lose reinforcement, not curriculum. <b>Never move a Sunday session's content into a weeknight slot.</b></p>
-    <p><b>Saturday &rarr; play.</b> Coach almost nothing on game day. Two instructions, maximum, for the whole match.</p>
-  </div>
-
-  <div class="panel">
-    <h3>The 90-minute template, every single time</h3>
-    <p>The block structure never changes across all sixteen sessions. Eight-year-olds settle faster when the shape of the hour is predictable, and your assistant coaches can run a station off the card without a briefing. Only the <em>content</em> of each block changes.</p>
-    <div class="moves">
-      <div class="move"><span class="n">1</span><span class="t"><b>0:00 &middot; Arrival Game &middot; 10 min</b>Starts the second the first girl arrives. Ball at her feet before her bag hits the ground. Nobody ever waits for practice to "start," and late arrivals just fold in.</span></div>
-      <div class="move"><span class="n">2</span><span class="t"><b>0:10 &middot; Ball Mastery &middot; 12 min</b>Every girl, her own ball, the move of the week. This is the block that closes the skill gap over eight weeks &mdash; it is the one thing a beginner can practise alone in a driveway.</span></div>
-      <div class="move"><span class="n">3</span><span class="t"><b>0:22 &middot; Water &middot; 3 min</b>Non-negotiable. See the heat section.</span></div>
-      <div class="move"><span class="n">4</span><span class="t"><b>0:25 &middot; Skill Block &middot; 20 min</b>The teaching block. Two stations run in parallel &mdash; you take one, your assistant takes the other, and they swap at the ten-minute mark.</span></div>
-      <div class="move"><span class="n">5</span><span class="t"><b>0:45 &middot; Water + Team Challenge &middot; 5 min</b>A short, loud, silly competition that doubles as a rest. Pick any from the game bank.</span></div>
-      <div class="move"><span class="n">6</span><span class="t"><b>0:50 &middot; Small-Sided Game &middot; 20 min</b>The skill under real pressure, with one constraint that forces it to show up. This is where learning actually sticks.</span></div>
-      <div class="move"><span class="n">7</span><span class="t"><b>1:10 &middot; Scrimmage &amp; Keeper Club &middot; 15 min</b>The closest thing to Saturday. Keeper rotation happens here.</span></div>
-      <div class="move"><span class="n">8</span><span class="t"><b>1:25 &middot; Huddle &middot; 5 min</b>One thing we did well, one thing for next time, the question of the week, the cheer. Under three minutes of talking.</span></div>
-    </div>
-  </div>
-
-  <div class="panel">
-    <h3>The three things you never do</h3>
-    <p><b>Lines.</b> A girl standing in a queue is learning nothing. If an activity has a line of more than two, redesign it or split it into two stations.</p>
-    <p><b>Laps.</b> There is no fitness problem at eight years old that a game does not solve better. Never run without a ball, and never run as punishment.</p>
-    <p><b>Lectures.</b> Two coaching points per activity, thirty seconds maximum. Ask more than you tell &mdash; "where's the space?" beats "go wide" every time, because she has to look to answer.</p>
-  </div>
-</section>
-
-<!-- ============ MIXED ABILITY ============ -->
-<section id="mixed">
-  <div class="sec-head">
-    <div class="eyebrow">Section two</div>
-    <h2>Coaching a roster this wide</h2>
-  </div>
-
-  <div class="panel">
-    <p>This is the hardest thing you're being asked to do, and it has a real answer. The trap is thinking you must choose between boring your experienced players and drowning your new ones. You don't &mdash; you change what each girl is being asked to do <em>inside the same activity</em>. Every session card in this book carries two coloured strips on each block for exactly this.</p>
-    <div class="ramps" style="margin-top:14px">
-      <span class="ramp in"><b>Ramp in</b>How to make this work for a girl who is brand new &mdash; so she succeeds at something today.</span>
-      <span class="ramp up"><b>Ramp up</b>How to make this genuinely hard for a girl who's played for years &mdash; so she's still trying at 7:15.</span>
-    </div>
-    <p style="margin-top:14px"><b>Note the wording.</b> They're "ramp in" and "ramp up," not "easy version" and "hard version, " because eight-year-olds hear everything. You can say these out loud on the field without labelling a child.</p>
-  </div>
-
-  <div class="panel">
-    <h3>Seven moves that actually work</h3>
-    <div class="moves">
-      <div class="move"><span class="n">1</span><span class="t"><b>Never split by ability</b>Split by shoe colour, birthday month, or who had cereal for breakfast. The moment you make an "A group," every girl in the room knows which one she's in &mdash; including the ones you thought weren't paying attention. Ability differences get handled by the ramps, inside a mixed group.</span></div>
-      <div class="move"><span class="n">2</span><span class="t"><b>Handicap the game, not the child</b>This is the single best trick you have. "A goal only counts if a girl who hasn't scored yet touched the ball first." Now your best player is <em>hunting</em> for your newest player, of her own accord, and you never had to ask her to share.</span></div>
-      <div class="move"><span class="n">3</span><span class="t"><b>Give strong players a job, not a bigger role</b>"Your job this game is three good passes to Maya &mdash; passes she can actually control." A bored eight-year-old with a leadership task stops being bored. She's now solving a harder problem than scoring.</span></div>
-      <div class="move"><span class="n">4</span><span class="t"><b>Start beginners numbers-up</b>3v1 and 4v2 build confidence fast because success is nearly guaranteed. Put the newest girls on the overloaded side for the first repetitions, then even it out once they've had a few wins.</span></div>
-      <div class="move"><span class="n">5</span><span class="t"><b>Many small goals, not one big one</b>Four cone-goals in a grid means more scoring, more celebration, and more angles to find. Scoring is the drug that brings eight-year-olds back next season. Manufacture as much of it as you can.</span></div>
-      <div class="move"><span class="n">6</span><span class="t"><b>Never eliminate anyone</b>No knockout games, ever. The girl who most needs the repetitions is the first one out and then stands watching for six minutes. Replace every elimination mechanic with a re-entry one &mdash; three toe-taps and you're back in.</span></div>
-      <div class="move"><span class="n">7</span><span class="t"><b>Praise the attempt, not the outcome</b>"Great decision to take her on" matters more than "great goal," because the attempt is the thing she controls and can repeat. This is the difference between a girl who tries things and a girl who passes it away the moment it arrives.</span></div>
-    </div>
-  </div>
-
-  <div class="panel">
-    <h3>The size range</h3>
-    <p>You flagged a wide physical range, and at this age that gap is as big as the skill gap. Two adjustments handle most of it:</p>
-    <p><b>Design activities that reward change of direction, not strength.</b> Tight grids, gates, and turning games let a small quick girl win. Long open channels and shoulder-to-shoulder duels let the biggest girl win by being biggest, which teaches nobody anything.</p>
-    <p><b>Balance small-sided teams by size as well as skill.</b> Two big girls on the same side in a 4v4 makes a game nobody enjoys, including them.</p>
-  </div>
-</section>
-
-<!-- ============ 9v9 ============ -->
-<section id="nine">
-  <div class="sec-head">
-    <div class="eyebrow">Section three</div>
-    <h2>What 9v9 changes</h2>
-  </div>
-
-  <div class="panel">
-    <p>Nine-a-side is a big format for eight-year-olds, and it creates three problems this book is deliberately built around.</p>
-    <p><b>A new girl can disappear.</b> On a field this size she can genuinely go twenty minutes without a touch, and that is precisely how you lose her for next season. The countermeasure is that practice must be the <em>opposite</em> of game day: tiny grids, 3v3 and 4v4, where nobody can hide and everybody touches the ball constantly. If Saturday is her only experience of soccer, Saturday will decide whether she comes back.</p>
-    <p><b>You have about three subs.</b> With twelve rostered and nine on the field, equal playing time gets easier to satisfy but heat and fatigue get much harder. Read the heat section as an operational requirement, not a caution.</p>
-    <p><b>You will never scrimmage 9v9 at practice.</b> With a dozen girls at training, real shape gets taught by cone walkthrough and numbers-up phase play &mdash; 6v4 attacking, 6v6 with target zones &mdash; not by playing the game format. Sessions 11 through 14 do this work.</p>
-    <p><b>And bunch-ball is the default failure mode.</b> Every eight-year-old chases the ball; it's the most interesting object on the field. On a 9v9 pitch that produces a writhing knot of eighteen girls and nobody in space. "Make the field big" is therefore not a nice idea in this book &mdash; it's the season's spine, introduced in Week 6 and reinforced every week after.</p>
-  </div>
-
-  <div class="panel">
-    <h3>The shape: three at the back, three in the middle, two up top</h3>
-    <div class="g2" style="align-items:start">
-      <div>
-        <p>A 3&ndash;3&ndash;2 with the keeper makes nine. Use it because it produces three clean horizontal lines a child can actually picture and repeat back to you, and because it keeps a defender home when everyone else abandons their post.</p>
-        <p><b>Teach it with cones.</b> Put a disc down at each girl's home spot for the first few sessions. The instruction isn't a lecture about shape, it's four words: <em>"go back to your cone."</em> Remove the cones in Week 7 and see if the shape survives.</p>
-        <p><b>The one rule that fixes bunch-ball:</b> only <em>one</em> of us goes to the ball. Everybody else gets big. Say it fifty times this season.</p>
-        <p>Once they can hold 3&ndash;3&ndash;2 without cones, 3&ndash;2&ndash;3 is the more attacking version &mdash; but don't reach for it until the shape holds.</p>
-      </div>
-      <svg class="pitch-fig" viewBox="0 0 260 320" role="img" aria-label="A 3-3-2 formation with goalkeeper on a 9v9 pitch: keeper in goal, three defenders across the back, three midfielders across the middle, two forwards up top.">
-        <rect x="14" y="14" width="232" height="292" fill="none" stroke="var(--rule-hi)" stroke-width="1.6"/>
-        <line x1="14" y1="160" x2="246" y2="160" stroke="var(--rule-hi)" stroke-width="1.2" stroke-dasharray="5 5"/>
-        <circle cx="130" cy="160" r="26" fill="none" stroke="var(--rule-hi)" stroke-width="1.2"/>
-        <rect x="82" y="14" width="96" height="34" fill="none" stroke="var(--rule-hi)" stroke-width="1.2"/>
-        <rect x="82" y="272" width="96" height="34" fill="none" stroke="var(--rule-hi)" stroke-width="1.2"/>
-        <line x1="14" y1="238" x2="246" y2="238" stroke="var(--bib)" stroke-width="1.4" stroke-dasharray="3 4"/>
-        <text x="20" y="234" font-family="ui-sans-serif, sans-serif" font-size="8.5" font-weight="700" fill="var(--bib)" letter-spacing="0.6">BUILD-OUT LINE</text>
-        <g font-family="ui-sans-serif, sans-serif" font-size="9" font-weight="800" fill="var(--card)" text-anchor="middle">
-          <circle cx="130" cy="288" r="11" fill="var(--bib)"/><text x="130" y="291.5">GK</text>
-          <circle cx="62"  cy="248" r="11" fill="var(--pitch)"/><text x="62"  y="251.5">D</text>
-          <circle cx="130" cy="256" r="11" fill="var(--pitch)"/><text x="130" y="259.5">D</text>
-          <circle cx="198" cy="248" r="11" fill="var(--pitch)"/><text x="198" y="251.5">D</text>
-          <circle cx="52"  cy="168" r="11" fill="var(--pitch)"/><text x="52"  y="171.5">M</text>
-          <circle cx="130" cy="182" r="11" fill="var(--pitch)"/><text x="130" y="185.5">M</text>
-          <circle cx="208" cy="168" r="11" fill="var(--pitch)"/><text x="208" y="171.5">M</text>
-          <circle cx="92"  cy="86"  r="11" fill="var(--pitch)"/><text x="92"  y="89.5">F</text>
-          <circle cx="168" cy="86"  r="11" fill="var(--pitch)"/><text x="168" y="89.5">F</text>
-        </g>
-      </svg>
-    </div>
-  </div>
-</section>
-
-<!-- ============ TWELVE ============ -->
-<section id="twelve">
-  <div class="sec-head">
-    <div class="eyebrow">Section four</div>
-    <h2>The 12-player plan</h2>
-  </div>
-
-  <div class="panel">
-    <h3>The arithmetic, and why it works out perfectly</h3>
-    <p>Twelve rostered, nine on the field, three off at any moment. Over four ten-minute quarters that is <b>9 &times; 40 = 360 player-minutes</b> to share among twelve girls &mdash; <b>30 minutes each</b>.</p>
-    <p>Three girls sit each quarter. Four quarters gives <b>twelve sit-slots for exactly twelve girls</b>. So every girl sits exactly one quarter, and nobody sits twice.</p>
-    <p><b>Split the roster into four groups of three. Each group takes one quarter off.</b> That is the entire substitution system. No stopwatch, no running tally, and any parent on the sideline can verify it &mdash; which is worth more than you would think in a league with a mandatory equal-time rule.</p>
-    <p><em>If your games run two 20-minute halves instead:</em> same four groups, but split each half at the 10-minute mark and sub there. The maths is identical.</p>
-  </div>
-
-  <div class="panel">
-    <h3>Build the four groups &mdash; and do not build them by ability</h3>
-    <p>Group A sits the first quarter. So if Group A is your three strongest players, <b>you have just made Q1 your weakest lineup of the game</b>. Every group of three needs one experienced girl, one in the middle, and one newer girl.</p>
-    <p>Balance for size too. Three of your biggest in one group means one quarter where the team is physical and three where it is not.</p>
-    <p>Write the names in once, in pen, at the start of the season. Keep the groups stable &mdash; girls learn who they come off with, and it stops the sideline negotiation before it starts.</p>
-    <div class="arc-scroll">
-    <table class="arc">
-      <thead><tr><th>Group</th><th>Sits</th><th>Player</th><th>Player</th><th>Player</th></tr></thead>
-      <tbody>
-        <tr><td class="w">A</td><td class="th">Quarter 1</td><td class="wr"></td><td class="wr"></td><td class="wr"></td></tr>
-        <tr><td class="w">B</td><td class="th">Quarter 2</td><td class="wr"></td><td class="wr"></td><td class="wr"></td></tr>
-        <tr><td class="w">C</td><td class="th">Quarter 3</td><td class="wr"></td><td class="wr"></td><td class="wr"></td></tr>
-        <tr><td class="w">D</td><td class="th">Quarter 4</td><td class="wr"></td><td class="wr"></td><td class="wr"></td></tr>
-      </tbody>
-    </table>
-    </div>
-    <p style="margin-top:12px"><b>One refinement worth making:</b> rotate which group sits <em>first</em> from game to game &mdash; A, then B, then C, then D as the opening sitters. Sitting the first quarter every single week gets noticed by an eight-year-old, even though the total minutes are identical.</p>
-  </div>
-
-  <div class="panel">
-    <h3>Where the keeper fits</h3>
-    <p>The keeper is one of the nine, so <b>keeper minutes are playing minutes</b> and the grid above already accounts for them. A girl who keeps a quarter still takes her sit-quarter like everyone else.</p>
-    <p>Rotate the keeper by quarter among your volunteers, never by assignment. With four quarters you need at most four keeper stints, and by Week 5 the Keeper Club should be giving you four or five willing names &mdash; more than enough. If only two girls volunteer, they take two quarters each; do not fill the gap by drafting someone who does not want it.</p>
-    <div class="say"><b>Say this &mdash;</b> "Who wants the next quarter in goal?" Never: "You're in goal this quarter."</div>
-  </div>
-
-  <div class="panel">
-    <h3>When fewer than twelve turn up</h3>
-    <p>It will happen most weeks. The grid degrades gracefully &mdash; work down this table.</p>
-    <div class="arc-scroll">
-    <table class="arc">
-      <thead><tr><th>Present</th><th>Off at a time</th><th>What to do</th></tr></thead>
-      <tbody>
-        <tr><td class="w">12</td><td class="th">3</td><td>The grid as written. Every girl sits exactly one quarter.</td></tr>
-        <tr><td class="w">11</td><td class="th">2</td><td>Eight sit-slots for eleven girls, so <b>three play the whole game</b>. Pick those three, write them down, and make sure they are different girls next week &mdash; this is the number one place equal time quietly breaks.</td></tr>
-        <tr><td class="w">10</td><td class="th">1</td><td>Four sit-slots, so six play the full game. Give the four sit-slots to whoever played most last week.</td></tr>
-        <tr><td class="w">9</td><td class="th">0</td><td>Everyone plays the whole game. Add an extra water break instead &mdash; nobody is getting a rest on the bench.</td></tr>
-        <tr><td class="w">8 or fewer</td><td class="th">&mdash;</td><td>Ask the opposing coach to drop a player and play 8v8. At 8U almost every coach says yes; ask before kickoff, not at half time.</td></tr>
-      </tbody>
-    </table>
-    </div>
-  </div>
-
-  <div class="panel">
-    <h3>Twelve at practice: how the numbers divide</h3>
-    <p>Twelve is the best number you could have been given &mdash; it divides cleanly into almost everything, so nobody ever stands out of a game waiting for an even side.</p>
-    <div class="arc-scroll">
-    <table class="arc">
-      <thead><tr><th>You need</th><th>With 12 present</th><th>Notes</th></tr></thead>
-      <tbody>
-        <tr><td class="w">Pairs</td><td class="th">6 pairs</td><td>Pair a veteran with a newer girl and give the veteran a job.</td></tr>
-        <tr><td class="w">Threes</td><td class="th">4 groups</td><td>Same four groups as the game-day grid, if you want the reinforcement.</td></tr>
-        <tr><td class="w">Fours</td><td class="th">3 groups</td><td></td></tr>
-        <tr><td class="w">Sixes</td><td class="th">2 groups</td><td>One per coach.</td></tr>
-        <tr><td class="w">1v1 duels</td><td class="th">6 at once</td><td>Six simultaneous grids &mdash; no queue at all.</td></tr>
-        <tr><td class="w">2v2 games</td><td class="th">3 games</td><td></td></tr>
-        <tr><td class="w">3v3 games</td><td class="th">2 games</td><td>The workhorse. Maximum touches, nobody hides.</td></tr>
-        <tr><td class="w">6v6 game</td><td class="th">1 game</td><td>Use whenever the book calls for 4v4 or 5v5 and all twelve are there.</td></tr>
-        <tr><td class="w">5v5 + neutrals</td><td class="th">5v5 + 2</td><td>The two neutrals always play for whoever has the ball.</td></tr>
-        <tr><td class="w">Stations, 2 coaches</td><td class="th">6 + 6</td><td>Swap at the ten-minute mark.</td></tr>
-        <tr><td class="w">Stations, 3 coaches</td><td class="th">4 + 4 + 4</td><td>Third coach takes your three newest girls &mdash; see below.</td></tr>
-      </tbody>
-    </table>
-    </div>
-    <p style="margin-top:12px"><b>Split them by anything except ability.</b> Shoe colour, birthday month, who had cereal. The moment you make an "A group" every girl in the squad knows which one she is in.</p>
-  </div>
-
-  <div class="panel">
-    <h3>What each session runs with twelve</h3>
-    <p>The small-sided game on each card is written generically. This is the configuration to use when all twelve are there &mdash; a few sessions bump from 4v4 or 5v5 up to 6v6 so nobody is left spare.</p>
-    <div class="arc-scroll">
-    <table class="arc">
-      <thead><tr><th>Session</th><th>Skill block</th><th>Small-sided game</th></tr></thead>
-      <tbody>
-        <tr><td class="w">1</td><td>4 zones, free roam</td><td class="th">2 &times; 3v3 to four goals</td></tr>
-        <tr><td class="w">2</td><td>2 lanes of 6</td><td class="th">3 &times; 2v2 shooting boxes</td></tr>
-        <tr><td class="w">3</td><td>6 gate duels</td><td class="th">2 &times; 3v3 endzone dribble</td></tr>
-        <tr><td class="w">4</td><td>2 channels of 6</td><td class="th">6v6 long field <em>(up from 4v4)</em></td></tr>
-        <tr><td class="w">5</td><td>6 grids, 1v1 ladder</td><td class="th">2 &times; 3v3, 1v1 restarts</td></tr>
-        <tr><td class="w">6</td><td>6 shadow pairs</td><td class="th">6v6 win-it-back <em>(up from 4v4)</em></td></tr>
-        <tr><td class="w">7</td><td>2 stations of 6</td><td class="th">6v6 shootout <em>(up from 4v4)</em></td></tr>
-        <tr><td class="w">8</td><td>6 finishing + 6 keeper</td><td class="th">6v6 rebound rules <em>(up from 4v4)</em></td></tr>
-        <tr><td class="w">9</td><td>6 passing pairs</td><td class="th">5v5 + 2 neutrals</td></tr>
-        <tr><td class="w">10</td><td>2 give-and-go lanes</td><td class="th">2 &times; 3v3 freeze frame</td></tr>
-        <tr><td class="w">11</td><td>Whole squad, build-out</td><td class="th">6v6 wide zones <em>(up from 5v5)</em></td></tr>
-        <tr><td class="w">12</td><td>3 grids of 3v1</td><td class="th">6v6 switch bonus <em>(up from 5v5)</em></td></tr>
-        <tr><td class="w">13</td><td>3 grids of 2v2</td><td class="th">6v6 five-second rule <em>(up from 5v5)</em></td></tr>
-        <tr><td class="w">14</td><td>3 restart stations of 4</td><td class="th">6v6 shape, walk then live</td></tr>
-        <tr><td class="w">15</td><td>Girls' choice</td><td class="th">World Cup &mdash; 4 teams of 3</td></tr>
-        <tr><td class="w">16</td><td>Skills showcase, all 12</td><td class="th">Coaches vs. all 12</td></tr>
-      </tbody>
-    </table>
-    </div>
-    <p style="margin-top:12px"><b>If only eight or ten show up to practice, do not improvise.</b> Run the same card: keep the arrival game and ball mastery exactly as written since they are individual anyway, drop to one station instead of two, and take the small-sided game down to 3v3 or 2v2. Fewer girls means more touches each, which is the whole objective &mdash; a small session is a gift.</p>
-  </div>
-
-  <div class="panel">
-    <h3>The third coach, when you have one</h3>
-    <p>With twelve girls and three coaches the obvious split is 4 + 4 + 4. Do not do it.</p>
-    <p>Run two stations of six as normal, and give your third coach <b>three names</b> &mdash; your three newest girls &mdash; with one job: make sure those three touch the ball constantly and each hear something specific they did well before they go home. On a 9v9 field, disappearing on Saturday is the main way you lose a player, and this is the highest-leverage assignment available to you.</p>
-  </div>
-</section>
-
-<!-- ============ RULES ============ -->
-<section id="rules">
-  <div class="sec-head">
-    <div class="eyebrow">Section five</div>
-    <h2>Your league rules, turned into coaching</h2>
-  </div>
-
-  <div class="panel">
-    <h3>The build-out line is a gift &mdash; use it</h3>
-    <p>When your keeper has the ball or you have a goal kick, the opposition must retreat behind the build-out line. That means your team gets roughly <b>ten free seconds with nobody near them</b>, several times a game. Most 8U teams waste it by booting the ball straight back to the other team.</p>
-    <p><b>Teach it as a picture, not a tactic.</b> On a goal kick: two girls sprint to the <em>corners of the box</em>, wide as they can get; one girl goes long. The keeper rolls it to whoever has the most grass around her. She takes one touch forward and looks up.</p>
-    <div class="say"><b>Say this &mdash;</b> "When we have it at our goal, we get BIG. Corners and far away."</div>
-  </div>
-
-  <div class="panel">
-    <h3>No punting means your keeper needs a skill, not a leg</h3>
-    <p>Because she can't punt or drop-kick, distribution is a technique you can actually teach in one session: the <b>bowling roll</b>. Step forward, low, roll it along the ground to a girl's feet. It's accurate, it's easy, and eight-year-olds are good at it immediately &mdash; which makes it a confidence builder rather than a chore. Introduced Session 8, drilled Session 11.</p>
-  </div>
-
-  <div class="panel">
-    <h3>Equal playing time + a goalkeeper</h3>
-    <p>These two rules interact badly if you're not deliberate, and getting it wrong costs you a player.</p>
-    <p><b>Count keeper minutes as playing time.</b> Otherwise whoever volunteers quietly gets shortchanged, and volunteering stops.</p>
-    <p><b>Never assign a nervous girl to goal to be "fair."</b> That's the afternoon she decides soccer isn't for her. Fair means everyone gets the <em>offer</em>, not that everyone gets the assignment.</p>
-    <p><b>Run a Keeper Club instead.</b> Every girl tries keeper in practice, in low-stakes games where saves are celebrated and goals conceded are ignored. Keep a running list of who has volunteered for Saturday and rotate through it. By Week 5 you will typically have four or five willing keepers, which is more than you need.</p>
-    <div class="say"><b>Say this &mdash;</b> "Who wants to go in goal?" Never: "Ella, you're in goal."</div>
-  </div>
-
-  <div class="panel">
-    <h3>No heading</h3>
-    <p>Heading is out at this age. Coach the alternative from day one so it becomes a habit rather than a correction: <b>chest it, thigh it, or let it bounce and take it on the ground.</b> If a ball is above shoulder height, the right answer is always to let it land.</p>
-  </div>
-</section>
-
-<!-- ============ HEAT ============ -->
-<section id="heat">
-  <div class="sec-head">
-    <div class="eyebrow">Section six</div>
-    <h2>Houston heat</h2>
-  </div>
-
-  <div class="heat">
-    <b>This is an operational requirement, not a caution</b>
-    A Sunday afternoon in Houston in late spring, on a 9v9 field, with three subs, is the highest-risk combination on your calendar. Treat the water breaks in the template as fixed points that never get skipped because an activity is going well.
-  </div>
-
-  <div class="panel">
-    <div class="moves">
-      <div class="move"><span class="n">1</span><span class="t"><b>Water is built in, not asked for</b>The template has breaks at 0:22 and 0:45, and the Team Challenge block is a rest disguised as a competition. Add a third break in the scrimmage if it's above about 88&deg;F.</span></div>
-      <div class="move"><span class="n">2</span><span class="t"><b>Huddle in shade, always</b>Any time you're talking, move them to shade. It costs thirty seconds and buys you real recovery.</span></div>
-      <div class="move"><span class="n">3</span><span class="t"><b>Cut the scrimmage before you cut the water</b>If you're running behind, the block that gets shortened is the last one. Never the breaks.</span></div>
-      <div class="move"><span class="n">4</span><span class="t"><b>Watch for the quiet one</b>An overheating eight-year-old goes quiet and stops competing &mdash; she doesn't complain. The girl who suddenly drifts to the back of a game she was enjoying gets sat down with water immediately, no questions.</span></div>
-      <div class="move"><span class="n">5</span><span class="t"><b>Push the Sunday session later if you can</b>A 5:00 start in May is a materially different session from a 2:00 start. If the league gives you the choice, take the later slot every time.</span></div>
-      <div class="move"><span class="n">6</span><span class="t"><b>Ice and wet towels in the bag</b>Cheap, and the difference between a girl sitting out ten minutes and a girl going home.</span></div>
-    </div>
-  </div>
-</section>
-
-<!-- ============ SEASON ARC ============ -->
-<section id="arc">
-  <div class="sec-head">
-    <div class="eyebrow">Section seven</div>
-    <h2>The eight-week arc</h2>
-  </div>
-
-  <div class="panel" style="padding-bottom:6px">
-    <p style="margin-bottom:14px">The progression runs <b>individual &rarr; individual against an opponent &rarr; scoring &rarr; with a teammate &rarr; team shape &rarr; winning it back &rarr; play.</b> Ball mastery comes first and passing comes late, which is deliberate: at eight, a girl who can keep the ball is more useful than a girl who can pass it away, and technical confidence is what makes everything after it possible.</p>
-  </div>
-
-  <div class="arc-scroll">
-  <table class="arc">
-    <thead><tr><th>Week</th><th>Theme</th><th>Sunday &mdash; teach</th><th>Weeknight &mdash; sharpen</th><th>Move of the week</th></tr></thead>
-    <tbody>
-      <tr><td class="w">1</td><td class="th">Belonging &amp; ball comfort</td><td>1 &middot; Everybody's First Touch</td><td>2 &middot; First Shot</td><td>Toe taps &amp; sole rolls</td></tr>
-      <tr><td class="w">2</td><td class="th">Dribbling to escape</td><td>3 &middot; Stop &amp; Go</td><td>4 &middot; Run With It</td><td>The pullback</td></tr>
-      <tr><td class="w">3</td><td class="th">1v1, both ways</td><td>5 &middot; Take Her On</td><td>6 &middot; Slow Her Down</td><td>The inside cut</td></tr>
-      <tr><td class="w">4</td><td class="th">Scoring</td><td>7 &middot; Shoot!</td><td>8 &middot; Second Chances</td><td>Foundations &amp; strike shape</td></tr>
-      <tr><td class="w">5</td><td class="th">Playing with a friend</td><td>9 &middot; Find a Friend</td><td>10 &middot; Pass and Move</td><td>Push pass &amp; first touch</td></tr>
-      <tr><td class="w">6</td><td class="th">Making the field big</td><td>11 &middot; Make the Field BIG</td><td>12 &middot; The Other Side</td><td>Open up across your body</td></tr>
-      <tr><td class="w">7</td><td class="th">Winning it back</td><td>13 &middot; Win It Back</td><td>14 &middot; Restarts &amp; Shape</td><td>The step-over</td></tr>
-      <tr><td class="w">8</td><td class="th">Play</td><td>15 &middot; Their Game</td><td>16 &middot; Finale</td><td>Free choice &mdash; they teach</td></tr>
-    </tbody>
-  </table>
-  </div>
-</section>
 
 <!-- ============ THE CARDS ============ -->
 <div class="sec-head">
@@ -705,13 +299,13 @@ h1, h2, h3, h4 { text-wrap: balance; line-height: 1.2; }
   <div class="blocks">
 
     <div class="blk"><div class="clock"><span class="t">0:00</span><span class="d">10 min</span></div><div class="body">
-      <h4>Arrival &mdash; <em>Sharks &amp; Minnows (no-out version)</em></h4>
+      <h4>Arrival &mdash; <a href="library.html#sharks"><em>Sharks &amp; Minnows (no-out version)</em></a></h4>
       <p>Everyone dribbles in a grid; two coaches are sharks trying to kick balls out. If your ball goes out, three toe-taps and you're straight back in. Nobody ever stands watching. Learn a name out loud every time you take a ball.</p>
       <div class="ramps"><span class="ramp in"><b>Ramp in</b>Sharks visibly avoid the newest girls for the first minute. Let them get away with it.</span><span class="ramp up"><b>Ramp up</b>These girls protect a partner's ball as well as their own.</span></div>
     </div></div>
 
     <div class="blk"><div class="clock"><span class="t">0:10</span><span class="d">12 min</span></div><div class="body">
-      <h4>Ball Mastery &mdash; <em>Toe taps &amp; sole rolls</em></h4>
+      <h4>Ball Mastery &mdash; <a href="library.html#toetaps"><em>Toe taps &amp; sole rolls</em></a></h4>
       <p>Own ball, own space. Toe taps, sole rolls side to side, pull the ball back, stop it dead with the sole. Twenty seconds on, ten off. Count out loud as a team so nobody's counting alone.</p>
       <div class="ramps"><span class="ramp in"><b>Ramp in</b>Any contact with the ball counts. Praise the tenth touch as loudly as the hundredth.</span><span class="ramp up"><b>Ramp up</b>Eyes up the whole time &mdash; call out how many fingers you're holding up.</span></div>
     </div></div>
@@ -722,19 +316,19 @@ h1, h2, h3, h4 { text-wrap: balance; line-height: 1.2; }
     </div></div>
 
     <div class="blk"><div class="clock"><span class="t">0:25</span><span class="d">20 min</span></div><div class="body">
-      <h4>Skill Block &mdash; <em>The Toy Box</em></h4>
+      <h4>Skill Block &mdash; <a href="library.html#toybox"><em>The Toy Box</em></a></h4>
       <p>Four small zones marked by cone colour, each with one task: toe taps, sole rolls, inside-outside touches, stop-it-dead. Girls roam freely with their own ball; you call the switch every three minutes. No lines, no waiting, no turns.</p>
       <div class="say"><b>Say this &mdash;</b> "Ball close enough to touch every step." &nbsp;&middot;&nbsp; "Find me and tell me how many fingers."</div>
       <div class="ramps"><span class="ramp in"><b>Ramp in</b>Bigger zone, slower pace, just push-and-run is a win. Stand with her and count her reps out loud.</span><span class="ramp up"><b>Ramp up</b>Weak foot only, or ten clean reps before she's allowed to switch zones.</span></div>
     </div></div>
 
     <div class="blk"><div class="clock"><span class="t">0:45</span><span class="d">5 min</span></div><div class="body">
-      <h4>Water + Team Challenge &mdash; <em>Team Total</em></h4>
+      <h4>Water + Team Challenge &mdash; <a href="library.html#chall"><em>Team Total</em></a></h4>
       <p>Sixty seconds, whole team, count every touch out loud as one number. Write it on your hand. You'll beat it in Week 3 and they will remember.</p>
     </div></div>
 
     <div class="blk"><div class="clock"><span class="t">0:50</span><span class="d">20 min</span></div><div class="body">
-      <h4>Small-Sided &mdash; <em>3v3 to Four Goals</em></h4>
+      <h4>Small-Sided &mdash; <a href="library.html#fourgoals"><em>3v3 to Four Goals</em></a></h4>
       <p>Four cone-goals around a small grid, no keepers, three games running at once. Score in any goal. <b>Constraint:</b> after you score, your next goal has to be a different one &mdash; which forces heads up and finds the empty space.</p>
       <div class="say"><b>Say this &mdash;</b> "If a goal is busy, go find an empty one."</div>
       <div class="ramps"><span class="ramp in"><b>Ramp in</b>Make it 4v3 for the side with more new players, and widen their goals.</span><span class="ramp up"><b>Ramp up</b>Must beat one defender before scoring &mdash; no tap-ins.</span></div>
@@ -764,13 +358,13 @@ h1, h2, h3, h4 { text-wrap: balance; line-height: 1.2; }
   <div class="blocks">
 
     <div class="blk"><div class="clock"><span class="t">0:00</span><span class="d">10 min</span></div><div class="body">
-      <h4>Arrival &mdash; <em>Traffic Lights</em></h4>
+      <h4>Arrival &mdash; <a href="library.html#traffic"><em>Traffic Lights</em></a></h4>
       <p>Dribble on green, slow on yellow, stop the ball dead on red. Speed control disguised as a game, and it teaches the stop you'll need all season.</p>
       <div class="ramps"><span class="ramp in"><b>Ramp in</b>Bigger space, calls come slower, any stop counts.</span><span class="ramp up"><b>Ramp up</b>Red means stop it with the sole and pull it back one yard.</span></div>
     </div></div>
 
     <div class="blk"><div class="clock"><span class="t">0:10</span><span class="d">12 min</span></div><div class="body">
-      <h4>Ball Mastery &mdash; <em>Toe taps &amp; sole rolls</em></h4>
+      <h4>Ball Mastery &mdash; <a href="library.html#toetaps"><em>Toe taps &amp; sole rolls</em></a></h4>
       <p>Same as Session 1 &mdash; repetition is the point. Add "stop it with the bottom of your foot when I shout."</p>
       <div class="ramps"><span class="ramp in"><b>Ramp in</b>Count her reps beside her; name the number she beat.</span><span class="ramp up"><b>Ramp up</b>Weak foot only for the second half of the block.</span></div>
     </div></div>
@@ -780,19 +374,19 @@ h1, h2, h3, h4 { text-wrap: balance; line-height: 1.2; }
     </div></div>
 
     <div class="blk"><div class="clock"><span class="t">0:25</span><span class="d">20 min</span></div><div class="body">
-      <h4>Skill Block &mdash; <em>Dribble&ndash;Shoot Gates</em></h4>
+      <h4>Skill Block &mdash; <a href="library.html#dribbleshoot"><em>Dribble&ndash;Shoot Gates</em></a></h4>
       <p>Two parallel lanes, one per coach. Dribble through two gates, then shoot at an empty pop-up goal. Girls collect their own ball and rejoin &mdash; keep it continuous so the queue never exceeds two.</p>
       <div class="say"><b>Say this &mdash;</b> "Standing foot beside the ball." &nbsp;&middot;&nbsp; "Look down when you hit it, then look up."</div>
       <div class="ramps"><span class="ramp in"><b>Ramp in</b>Shoot from six yards, side-foot, from a stationary ball. A goal is a goal.</span><span class="ramp up"><b>Ramp up</b>Twelve yards, laces, and beat a passive coach-defender on the way in.</span></div>
     </div></div>
 
     <div class="blk"><div class="clock"><span class="t">0:45</span><span class="d">5 min</span></div><div class="body">
-      <h4>Water + Team Challenge &mdash; <em>Golden Goal</em></h4>
+      <h4>Water + Team Challenge &mdash; <a href="library.html#chall"><em>Golden Goal</em></a></h4>
       <p>One shot each from eight yards. Count the team total. Everyone shoots, nobody waits long.</p>
     </div></div>
 
     <div class="blk"><div class="clock"><span class="t">0:50</span><span class="d">20 min</span></div><div class="body">
-      <h4>Small-Sided &mdash; <em>2v2 Shooting Boxes</em></h4>
+      <h4>Small-Sided &mdash; <a href="library.html#shootingboxes"><em>2v2 Shooting Boxes</em></a></h4>
       <p>Small box, goal at each end, 2v2. <b>Constraint:</b> shots must be taken inside the box &mdash; which drags them toward goal and produces far more scoring than shooting from distance ever will.</p>
       <div class="ramps"><span class="ramp in"><b>Ramp in</b>No keepers, wider goals, and pair her with a girl told to set her up.</span><span class="ramp up"><b>Ramp up</b>Two touches maximum before the shot.</span></div>
     </div></div>
@@ -821,12 +415,12 @@ h1, h2, h3, h4 { text-wrap: balance; line-height: 1.2; }
   <div class="blocks">
 
     <div class="blk"><div class="clock"><span class="t">0:00</span><span class="d">10 min</span></div><div class="body">
-      <h4>Arrival &mdash; <em>Body Part Stop</em></h4>
+      <h4>Arrival &mdash; <a href="library.html#bodypart"><em>Body Part Stop</em></a></h4>
       <p>Dribble freely; when you call a body part, stop the ball with it. Sole, knee, elbow, forehead-that-isn't-heading. Silly on purpose.</p>
     </div></div>
 
     <div class="blk"><div class="clock"><span class="t">0:10</span><span class="d">12 min</span></div><div class="body">
-      <h4>Ball Mastery &mdash; <em>The pullback</em></h4>
+      <h4>Ball Mastery &mdash; <a href="library.html#pullback"><em>The pullback</em></a></h4>
       <p>Sole on top of the ball, drag it back, turn the body, go the other way. Demonstrate once, badly and slowly, then let them try fifty times. Do not correct technique for the first two minutes.</p>
       <div class="say"><b>Say this &mdash;</b> "Foot on top, drag it back, turn and go."</div>
       <div class="ramps"><span class="ramp in"><b>Ramp in</b>Walking pace, ball already stopped. The drag alone is the win.</span><span class="ramp up"><b>Ramp up</b>Pullback and accelerate five yards. Both feet.</span></div>
@@ -835,19 +429,19 @@ h1, h2, h3, h4 { text-wrap: balance; line-height: 1.2; }
     <div class="blk"><div class="clock"><span class="t">0:22</span><span class="d">3 min</span></div><div class="body"><h4>Water <em>&mdash; in shade</em></h4><p>&nbsp;</p></div></div>
 
     <div class="blk"><div class="clock"><span class="t">0:25</span><span class="d">20 min</span></div><div class="body">
-      <h4>Skill Block &mdash; <em>Red Light Corner &rarr; Gate Duel</em></h4>
+      <h4>Skill Block &mdash; <a href="library.html#gateduel"><em>Red Light Corner &rarr; Gate Duel</em></a></h4>
       <p><b>First ten:</b> grid with four cone corners; on the whistle everyone pullbacks and heads the other way. <b>Second ten:</b> pairs at a single gate, both trying to dribble through, using the pullback to escape.</p>
       <div class="say"><b>Say this &mdash;</b> "The move is for when someone's in front of you &mdash; not for showing off in space." (Though showing off in space is also fine.)</div>
       <div class="ramps"><span class="ramp in"><b>Ramp in</b>She duels a coach who defends at half speed and lets her win the first three.</span><span class="ramp up"><b>Ramp up</b>Live defender, and she must complete the pullback before she's allowed through the gate.</span></div>
     </div></div>
 
     <div class="blk"><div class="clock"><span class="t">0:45</span><span class="d">5 min</span></div><div class="body">
-      <h4>Water + Team Challenge &mdash; <em>Beat the Coach</em></h4>
+      <h4>Water + Team Challenge &mdash; <a href="library.html#chall"><em>Beat the Coach</em></a></h4>
       <p>Coach dribbles, whole team tries to win it. Coach should lose eventually, dramatically.</p>
     </div></div>
 
     <div class="blk"><div class="clock"><span class="t">0:50</span><span class="d">20 min</span></div><div class="body">
-      <h4>Small-Sided &mdash; <em>3v3 Endzone Dribble</em></h4>
+      <h4>Small-Sided &mdash; <a href="library.html#endzone"><em>3v3 Endzone Dribble</em></a></h4>
       <p>No goals. You score by dribbling under control across the opponent's end line. <b>Why:</b> this rewards exactly the skill you just taught, with none of the noise a goal introduces.</p>
       <div class="ramps"><span class="ramp in"><b>Ramp in</b>Her end zone is the entire line, and she gets a two-yard head start on every restart.</span><span class="ramp up"><b>Ramp up</b>Must use a change of direction inside the last five yards for it to count.</span></div>
     </div></div>
@@ -876,12 +470,12 @@ h1, h2, h3, h4 { text-wrap: balance; line-height: 1.2; }
   <div class="blocks">
 
     <div class="blk"><div class="clock"><span class="t">0:00</span><span class="d">10 min</span></div><div class="body">
-      <h4>Arrival &mdash; <em>Number Freeze</em></h4>
+      <h4>Arrival &mdash; <a href="library.html#freeze"><em>Number Freeze</em></a></h4>
       <p>Dribble; call a number; girls get into groups of that many with their balls, fast. Mixes the group up without you ever choosing partners.</p>
     </div></div>
 
     <div class="blk"><div class="clock"><span class="t">0:10</span><span class="d">12 min</span></div><div class="body">
-      <h4>Ball Mastery &mdash; <em>The pullback</em></h4>
+      <h4>Ball Mastery &mdash; <a href="library.html#pullback"><em>The pullback</em></a></h4>
       <p>Repeat Session 3. Add: pullback, then one big touch and sprint five yards.</p>
       <div class="ramps"><span class="ramp in"><b>Ramp in</b>Just the drag, at walking pace, then a jog.</span><span class="ramp up"><b>Ramp up</b>Weak foot, then pullback into a change of speed.</span></div>
     </div></div>
@@ -889,19 +483,19 @@ h1, h2, h3, h4 { text-wrap: balance; line-height: 1.2; }
     <div class="blk"><div class="clock"><span class="t">0:22</span><span class="d">3 min</span></div><div class="body"><h4>Water <em>&mdash; in shade</em></h4><p>&nbsp;</p></div></div>
 
     <div class="blk"><div class="clock"><span class="t">0:25</span><span class="d">20 min</span></div><div class="body">
-      <h4>Skill Block &mdash; <em>The Highway</em></h4>
+      <h4>Skill Block &mdash; <a href="library.html#highway"><em>The Highway</em></a></h4>
       <p>Long channels, 25 yards. One big touch, sprint, catch it, again. Two lanes so nobody queues. Race a coach; let them win about half.</p>
       <div class="say"><b>Say this &mdash;</b> "Nobody near you? Push it and RUN." &nbsp;&middot;&nbsp; "One big touch, then look up."</div>
       <div class="ramps"><span class="ramp in"><b>Ramp in</b>Shorter channel, jog pace. She's racing her own last time, not another girl.</span><span class="ramp up"><b>Ramp up</b>Timed, and she has to beat her own previous run. Add a turn at the far cone.</span></div>
     </div></div>
 
     <div class="blk"><div class="clock"><span class="t">0:45</span><span class="d">5 min</span></div><div class="body">
-      <h4>Water + Team Challenge &mdash; <em>Everyone Scores Relay</em></h4>
+      <h4>Water + Team Challenge &mdash; <a href="library.html#chall"><em>Everyone Scores Relay</em></a></h4>
       <p>Team isn't finished until every girl has scored once. Loud, fast, inclusive by construction.</p>
     </div></div>
 
     <div class="blk"><div class="clock"><span class="t">0:50</span><span class="d">20 min</span></div><div class="body">
-      <h4>Small-Sided &mdash; <em>4v4 Long Field</em></h4>
+      <h4>Small-Sided &mdash; <a href="library.html#longfield"><em>4v4 Long Field</em></a></h4>
       <p>Deliberately long and narrow, so space keeps appearing behind. <b>Constraint:</b> a goal scored after a run of ten-plus yards with the ball counts double.</p>
       <div class="ramps"><span class="ramp in"><b>Ramp in</b>Play her side 5v4 and let the extra girl be a free runner nobody tackles.</span><span class="ramp up"><b>Ramp up</b>Two-touch limit in her own half; unlimited once she's over halfway.</span></div>
     </div></div>
@@ -930,12 +524,12 @@ h1, h2, h3, h4 { text-wrap: balance; line-height: 1.2; }
   <div class="blocks">
 
     <div class="blk"><div class="clock"><span class="t">0:00</span><span class="d">10 min</span></div><div class="body">
-      <h4>Arrival &mdash; <em>Rescue Tag</em></h4>
+      <h4>Arrival &mdash; <a href="library.html#rescue"><em>Rescue Tag</em></a></h4>
       <p>Two taggers, everyone dribbles. Tagged girls freeze with the ball on their foot; a teammate frees them by passing through their legs. Nobody sits out.</p>
     </div></div>
 
     <div class="blk"><div class="clock"><span class="t">0:10</span><span class="d">12 min</span></div><div class="body">
-      <h4>Ball Mastery &mdash; <em>The inside cut</em></h4>
+      <h4>Ball Mastery &mdash; <a href="library.html#insidecut"><em>The inside cut</em></a></h4>
       <p>Push across the body with the inside of the foot, change direction sharply, accelerate away. Pair it with last week's pullback so they have two answers.</p>
       <div class="ramps"><span class="ramp in"><b>Ramp in</b>Walking, no defender, exaggerated and slow.</span><span class="ramp up"><b>Ramp up</b>Cut, then explode three steps. Both feet, alternating.</span></div>
     </div></div>
@@ -943,19 +537,19 @@ h1, h2, h3, h4 { text-wrap: balance; line-height: 1.2; }
     <div class="blk"><div class="clock"><span class="t">0:22</span><span class="d">3 min</span></div><div class="body"><h4>Water <em>&mdash; in shade</em></h4><p>&nbsp;</p></div></div>
 
     <div class="blk"><div class="clock"><span class="t">0:25</span><span class="d">20 min</span></div><div class="body">
-      <h4>Skill Block &mdash; <em>The 1v1 Ladder</em></h4>
+      <h4>Skill Block &mdash; <a href="library.html#ladder"><em>The 1v1 Ladder</em></a></h4>
       <p>Four small grids side by side, continuous twenty-second duels, new opponent every duel. Winner moves up a grid, loser moves down &mdash; <b>but nobody is ever out</b>, so the girl who loses six in a row is still playing and has found the grid where she can compete.</p>
       <div class="say"><b>Say this &mdash;</b> "Attack her front foot." &nbsp;&middot;&nbsp; "Slow&hellip; then GO."</div>
       <div class="ramps"><span class="ramp in"><b>Ramp in</b>Three-yard head start, defender starts passive. Praise every attempt, loudly, regardless of what happens.</span><span class="ramp up"><b>Ramp up</b>Defender starts live and goal-side; ten seconds to get past.</span></div>
     </div></div>
 
     <div class="blk"><div class="clock"><span class="t">0:45</span><span class="d">5 min</span></div><div class="body">
-      <h4>Water + Team Challenge &mdash; <em>Coach's Gauntlet</em></h4>
+      <h4>Water + Team Challenge &mdash; <a href="library.html#chall"><em>Coach's Gauntlet</em></a></h4>
       <p>Every girl gets one attempt to dribble past a coach. Cheer for all twelve.</p>
     </div></div>
 
     <div class="blk"><div class="clock"><span class="t">0:50</span><span class="d">20 min</span></div><div class="body">
-      <h4>Small-Sided &mdash; <em>3v3, Every Restart Is a 1v1</em></h4>
+      <h4>Small-Sided &mdash; <a href="library.html#onevonestart"><em>3v3, Every Restart Is a 1v1</em></a></h4>
       <p>Normal 3v3 to two goals, but every restart begins as a 1v1 from halfway, everyone else waiting behind their line until the first touch.</p>
       <div class="ramps"><span class="ramp in"><b>Ramp in</b>Her 1v1 starts two yards ahead of the defender.</span><span class="ramp up"><b>Ramp up</b>No advantage, and she has to beat her opponent before she's allowed to shoot.</span></div>
     </div></div>
@@ -984,12 +578,12 @@ h1, h2, h3, h4 { text-wrap: balance; line-height: 1.2; }
   <div class="blocks">
 
     <div class="blk"><div class="clock"><span class="t">0:00</span><span class="d">10 min</span></div><div class="body">
-      <h4>Arrival &mdash; <em>Follow the Leader (pairs)</em></h4>
+      <h4>Arrival &mdash; <a href="library.html#follow"><em>Follow the Leader (pairs)</em></a></h4>
       <p>Pairs, both with balls, one leads and one copies for 45 seconds, then swap. <b>Deliberately pair a veteran with a newcomer</b> and give the veteran a job: "make it something she can copy."</p>
     </div></div>
 
     <div class="blk"><div class="clock"><span class="t">0:10</span><span class="d">12 min</span></div><div class="body">
-      <h4>Ball Mastery &mdash; <em>The inside cut</em></h4>
+      <h4>Ball Mastery &mdash; <a href="library.html#insidecut"><em>The inside cut</em></a></h4>
       <p>Repeat, both feet. Add pullback-then-cut as a two-move combination for anyone ready.</p>
       <div class="ramps"><span class="ramp in"><b>Ramp in</b>One move only, slowly, with you counting beside her.</span><span class="ramp up"><b>Ramp up</b>Two-move combination at speed.</span></div>
     </div></div>
@@ -997,19 +591,19 @@ h1, h2, h3, h4 { text-wrap: balance; line-height: 1.2; }
     <div class="blk"><div class="clock"><span class="t">0:22</span><span class="d">3 min</span></div><div class="body"><h4>Water <em>&mdash; in shade</em></h4><p>&nbsp;</p></div></div>
 
     <div class="blk"><div class="clock"><span class="t">0:25</span><span class="d">20 min</span></div><div class="body">
-      <h4>Skill Block &mdash; <em>The Shadow</em></h4>
+      <h4>Skill Block &mdash; <a href="library.html#shadow"><em>The Shadow</em></a></h4>
       <p><b>First ten &mdash; no tackling permitted.</b> The defender's entire job is to stay in front of the attacker for fifteen seconds. That's the whole exercise, and it removes the fear completely. <b>Second ten:</b> one tackle attempt allowed per rep.</p>
       <div class="say"><b>Say this &mdash;</b> "Get there fast, then slow down and get small." &nbsp;&middot;&nbsp; "Stay on your feet &mdash; don't dive in."</div>
       <div class="ramps"><span class="ramp in"><b>Ramp in</b>Shadow only, for the whole block. Staying in front <em>is</em> the success &mdash; tell her so by name.</span><span class="ramp up"><b>Ramp up</b>Win it and dribble out through a gate to finish the rep.</span></div>
     </div></div>
 
     <div class="blk"><div class="clock"><span class="t">0:45</span><span class="d">5 min</span></div><div class="body">
-      <h4>Water + Team Challenge &mdash; <em>Bullseye</em></h4>
+      <h4>Water + Team Challenge &mdash; <a href="library.html#chall"><em>Bullseye</em></a></h4>
       <p>Pass at a cone from eight yards. Team counts hits.</p>
     </div></div>
 
     <div class="blk"><div class="clock"><span class="t">0:50</span><span class="d">20 min</span></div><div class="body">
-      <h4>Small-Sided &mdash; <em>4v4 Win-It-Back</em></h4>
+      <h4>Small-Sided &mdash; <a href="library.html#winitback"><em>4v4 Win-It-Back</em></a></h4>
       <p>Normal game, but a second scoreboard: win the ball back within five seconds of losing it and your team gets a point. Count it down out loud. Goals still count too &mdash; run both totals.</p>
       <div class="ramps"><span class="ramp in"><b>Ramp in</b>Six seconds, counted generously, and any touch counts as a win-back.</span><span class="ramp up"><b>Ramp up</b>It only counts if won inside the opponent's half.</span></div>
     </div></div>
@@ -1038,12 +632,12 @@ h1, h2, h3, h4 { text-wrap: balance; line-height: 1.2; }
   <div class="blocks">
 
     <div class="blk"><div class="clock"><span class="t">0:00</span><span class="d">10 min</span></div><div class="body">
-      <h4>Arrival &mdash; <em>Sharks &amp; Minnows (no-out version)</em></h4>
+      <h4>Arrival &mdash; <a href="library.html#sharks"><em>Sharks &amp; Minnows (no-out version)</em></a></h4>
       <p>They know it now. Let two of the girls be the sharks.</p>
     </div></div>
 
     <div class="blk"><div class="clock"><span class="t">0:10</span><span class="d">12 min</span></div><div class="body">
-      <h4>Ball Mastery &mdash; <em>Foundations &amp; strike shape</em></h4>
+      <h4>Ball Mastery &mdash; <a href="library.html#foundations"><em>Foundations &amp; strike shape</em></a></h4>
       <p>Inside-inside touches between the feet, then set the ball and practise the striking position without a full swing: standing foot beside the ball, ankle locked, toe down.</p>
       <div class="ramps"><span class="ramp in"><b>Ramp in</b>Just the standing-foot placement, walked through, ten times.</span><span class="ramp up"><b>Ramp up</b>Foundations at speed, then strike into a net from a moving ball.</span></div>
     </div></div>
@@ -1051,19 +645,19 @@ h1, h2, h3, h4 { text-wrap: balance; line-height: 1.2; }
     <div class="blk"><div class="clock"><span class="t">0:22</span><span class="d">3 min</span></div><div class="body"><h4>Water <em>&mdash; in shade</em></h4><p>&nbsp;</p></div></div>
 
     <div class="blk"><div class="clock"><span class="t">0:25</span><span class="d">20 min</span></div><div class="body">
-      <h4>Skill Block &mdash; <em>Two stations, swap at ten</em></h4>
+      <h4>Skill Block &mdash; <a href="library.html#shooting"><em>Two stations, swap at ten</em></a></h4>
       <p><b>A &mdash; Laces Lab:</b> stationary ball, empty goal, ten strikes each, pure technique. <b>B &mdash; Rolling Finish:</b> coach rolls a ball in, one touch to set it, then finish.</p>
       <div class="say"><b>Say this &mdash;</b> "Ankle locked, toe pointed down." &nbsp;&middot;&nbsp; "Watch the ball hit your foot."</div>
       <div class="ramps"><span class="ramp in"><b>Ramp in</b>Side-foot from six yards into an empty goal. It counts, it's a goal, celebrate it.</span><span class="ramp up"><b>Ramp up</b>Weak-foot round, first-time finishes, or call a corner she has to hit.</span></div>
     </div></div>
 
     <div class="blk"><div class="clock"><span class="t">0:45</span><span class="d">5 min</span></div><div class="body">
-      <h4>Water + Team Challenge &mdash; <em>Crossbar (cone) Challenge</em></h4>
+      <h4>Water + Team Challenge &mdash; <a href="library.html#chall"><em>Crossbar (cone) Challenge</em></a></h4>
       <p>Cone on the goal line; knock it over from ten yards. Team total.</p>
     </div></div>
 
     <div class="blk"><div class="clock"><span class="t">0:50</span><span class="d">20 min</span></div><div class="body">
-      <h4>Small-Sided &mdash; <em>4v4 Shootout</em></h4>
+      <h4>Small-Sided &mdash; <a href="library.html#shootout"><em>4v4 Shootout</em></a></h4>
       <p>Small pitch, goal at each end. <b>Constraint:</b> you must shoot within eight seconds of entering the attacking half. Removes over-passing, produces a shot every twenty seconds.</p>
       <div class="ramps"><span class="ramp in"><b>Ramp in</b>No keepers, wider goals, and a teammate assigned to set her up.</span><span class="ramp up"><b>Ramp up</b>Keeper in, and goals from outside the box count double.</span></div>
     </div></div>
@@ -1092,12 +686,12 @@ h1, h2, h3, h4 { text-wrap: balance; line-height: 1.2; }
   <div class="blocks">
 
     <div class="blk"><div class="clock"><span class="t">0:00</span><span class="d">10 min</span></div><div class="body">
-      <h4>Arrival &mdash; <em>Traffic Lights</em></h4>
+      <h4>Arrival &mdash; <a href="library.html#traffic"><em>Traffic Lights</em></a></h4>
       <p>Add a fourth call: "shoot" &mdash; everyone finishes into the nearest cone-goal.</p>
     </div></div>
 
     <div class="blk"><div class="clock"><span class="t">0:10</span><span class="d">12 min</span></div><div class="body">
-      <h4>Ball Mastery &mdash; <em>Foundations &amp; strike shape</em></h4>
+      <h4>Ball Mastery &mdash; <a href="library.html#foundations"><em>Foundations &amp; strike shape</em></a></h4>
       <p>As Session 7, plus one-touch finishes into a net from a rolled ball.</p>
       <div class="ramps"><span class="ramp in"><b>Ramp in</b>Ball stationary, side-foot, close range.</span><span class="ramp up"><b>Ramp up</b>Weak foot, first time, from a moving ball.</span></div>
     </div></div>
@@ -1105,19 +699,19 @@ h1, h2, h3, h4 { text-wrap: balance; line-height: 1.2; }
     <div class="blk"><div class="clock"><span class="t">0:22</span><span class="d">3 min</span></div><div class="body"><h4>Water <em>&mdash; in shade</em></h4><p>&nbsp;</p></div></div>
 
     <div class="blk"><div class="clock"><span class="t">0:25</span><span class="d">20 min</span></div><div class="body">
-      <h4>Skill Block &mdash; <em>Two-Ball Finishing + Keeper Club proper</em></h4>
+      <h4>Skill Block &mdash; <a href="library.html#twoball"><em>Two-Ball Finishing + Keeper Club proper</em></a></h4>
       <p><b>Station A:</b> she finishes, and the coach instantly serves a second ball &mdash; she has to react and finish again. <b>Station B &mdash; Keeper Club:</b> the set position (hands in a W, body behind the ball), the scoop, and the <b>bowling roll</b> distribution. Every girl rotates through B; nobody is assigned, everybody tries.</p>
       <div class="say"><b>Say this &mdash;</b> "After you shoot, keep running &mdash; the rebound is a goal waiting." &nbsp;&middot;&nbsp; Keeper: "Get your body behind it, not just your hands."</div>
       <div class="ramps"><span class="ramp in"><b>Ramp in</b>Second ball served slowly by hand. In goal, she faces only rolled balls, and every save gets a cheer.</span><span class="ramp up"><b>Ramp up</b>Two attackers competing for the same rebound; in goal, live shots from eight yards.</span></div>
     </div></div>
 
     <div class="blk"><div class="clock"><span class="t">0:45</span><span class="d">5 min</span></div><div class="body">
-      <h4>Water + Team Challenge &mdash; <em>Keeper Gauntlet</em></h4>
+      <h4>Water + Team Challenge &mdash; <a href="library.html#chall"><em>Keeper Gauntlet</em></a></h4>
       <p>A coach goes in goal. Every girl takes one shot. Coach should concede most of them, theatrically.</p>
     </div></div>
 
     <div class="blk"><div class="clock"><span class="t">0:50</span><span class="d">20 min</span></div><div class="body">
-      <h4>Small-Sided &mdash; <em>4v4 Rebound Rules</em></h4>
+      <h4>Small-Sided &mdash; <a href="library.html#rebound"><em>4v4 Rebound Rules</em></a></h4>
       <p>Keepers in. <b>Constraint:</b> no ball is ever dead until it leaves the grid &mdash; keep a bag of spares and re-serve instantly so the game never stops and nobody stands around.</p>
       <div class="ramps"><span class="ramp in"><b>Ramp in</b>No keeper against her team; wider goal.</span><span class="ramp up"><b>Ramp up</b>Only rebound goals count.</span></div>
     </div></div>
@@ -1146,12 +740,12 @@ h1, h2, h3, h4 { text-wrap: balance; line-height: 1.2; }
   <div class="blocks">
 
     <div class="blk"><div class="clock"><span class="t">0:00</span><span class="d">10 min</span></div><div class="body">
-      <h4>Arrival &mdash; <em>Number Freeze</em></h4>
+      <h4>Arrival &mdash; <a href="library.html#freeze"><em>Number Freeze</em></a></h4>
       <p>Groups of that many, but now each group must complete that many passes before you call the next number.</p>
     </div></div>
 
     <div class="blk"><div class="clock"><span class="t">0:10</span><span class="d">12 min</span></div><div class="body">
-      <h4>Ball Mastery &mdash; <em>Push pass &amp; first touch</em></h4>
+      <h4>Ball Mastery &mdash; <a href="library.html#pushpass"><em>Push pass &amp; first touch</em></a></h4>
       <p>Inside of the foot, "like a door swinging." Then receiving: one touch that moves the ball out of your feet and into space, not one that stops it dead on your toes.</p>
       <div class="ramps"><span class="ramp in"><b>Ramp in</b>Pass against a wall or a coach from five yards. Accuracy over power, always.</span><span class="ramp up"><b>Ramp up</b>Receive across the body and away from an imagined defender, weak foot.</span></div>
     </div></div>
@@ -1159,19 +753,19 @@ h1, h2, h3, h4 { text-wrap: balance; line-height: 1.2; }
     <div class="blk"><div class="clock"><span class="t">0:22</span><span class="d">3 min</span></div><div class="body"><h4>Water <em>&mdash; in shade</em></h4><p>&nbsp;</p></div></div>
 
     <div class="blk"><div class="clock"><span class="t">0:25</span><span class="d">20 min</span></div><div class="body">
-      <h4>Skill Block &mdash; <em>Passing Gates</em></h4>
+      <h4>Skill Block &mdash; <a href="library.html#passgates"><em>Passing Gates</em></a></h4>
       <p>Scatter gates across a grid. Pairs pass through as many as they can in ninety seconds, then rotate partners. <b>Pair a veteran with a newcomer and give the veteran the job:</b> "your passes have to be easy for her to control." That reframes the strong player's task from scoring to serving, which is harder and holds her attention.</p>
       <div class="say"><b>Say this &mdash;</b> "Look at your friend BEFORE you pass, not after."</div>
       <div class="ramps"><span class="ramp in"><b>Ramp in</b>Wider gates, five-yard passes, and the ball may be rolling slowly.</span><span class="ramp up"><b>Ramp up</b>One touch through the gate; weak foot only.</span></div>
     </div></div>
 
     <div class="blk"><div class="clock"><span class="t">0:45</span><span class="d">5 min</span></div><div class="body">
-      <h4>Water + Team Challenge &mdash; <em>60-Second Passes</em></h4>
+      <h4>Water + Team Challenge &mdash; <a href="library.html#chall"><em>60-Second Passes</em></a></h4>
       <p>How many completed passes can the whole team make in a minute? Beat it next week.</p>
     </div></div>
 
     <div class="blk"><div class="clock"><span class="t">0:50</span><span class="d">20 min</span></div><div class="body">
-      <h4>Small-Sided &mdash; <em>4v4 + 2 Neutrals</em></h4>
+      <h4>Small-Sided &mdash; <a href="library.html#neutrals"><em>4v4 + 2 Neutrals</em></a></h4>
       <p>Two neutral players always play for whichever team has the ball, so the side in possession is permanently 6v4 &mdash; passing succeeds constantly, which is the point. <b>Constraint:</b> a goal counts double if three different girls touched the ball first.</p>
       <div class="ramps"><span class="ramp in"><b>Ramp in</b>Neutrals can't be tackled at all, so a new player in that role always succeeds. Start her there.</span><span class="ramp up"><b>Ramp up</b>Neutrals limited to two touches.</span></div>
     </div></div>
@@ -1200,12 +794,12 @@ h1, h2, h3, h4 { text-wrap: balance; line-height: 1.2; }
   <div class="blocks">
 
     <div class="blk"><div class="clock"><span class="t">0:00</span><span class="d">10 min</span></div><div class="body">
-      <h4>Arrival &mdash; <em>Follow the Leader (pairs)</em></h4>
+      <h4>Arrival &mdash; <a href="library.html#follow"><em>Follow the Leader (pairs)</em></a></h4>
       <p>Swap the pairings from Session 6 so different girls work together.</p>
     </div></div>
 
     <div class="blk"><div class="clock"><span class="t">0:10</span><span class="d">12 min</span></div><div class="body">
-      <h4>Ball Mastery &mdash; <em>Push pass &amp; first touch</em></h4>
+      <h4>Ball Mastery &mdash; <a href="library.html#pushpass"><em>Push pass &amp; first touch</em></a></h4>
       <p>As Session 9, but every pass is followed by a five-yard sprint to a new spot. Build the habit into the muscle.</p>
       <div class="ramps"><span class="ramp in"><b>Ramp in</b>Pass, then simply take three steps. Any movement counts.</span><span class="ramp up"><b>Ramp up</b>Pass, sprint, receive the return one-touch.</span></div>
     </div></div>
@@ -1213,19 +807,19 @@ h1, h2, h3, h4 { text-wrap: balance; line-height: 1.2; }
     <div class="blk"><div class="clock"><span class="t">0:22</span><span class="d">3 min</span></div><div class="body"><h4>Water <em>&mdash; in shade</em></h4><p>&nbsp;</p></div></div>
 
     <div class="blk"><div class="clock"><span class="t">0:25</span><span class="d">20 min</span></div><div class="body">
-      <h4>Skill Block &mdash; <em>Give-and-Go Gates</em></h4>
+      <h4>Skill Block &mdash; <a href="library.html#givego"><em>Give-and-Go Gates</em></a></h4>
       <p>Pass to a coach, sprint <em>past</em> the cone, receive it back in stride, dribble to a target goal. The pass is the easy half; the run is the lesson.</p>
       <div class="say"><b>Say this &mdash;</b> "Pass, then MOVE &mdash; never stand and watch." &nbsp;&middot;&nbsp; "Run into the space, not at your friend."</div>
       <div class="ramps"><span class="ramp in"><b>Ramp in</b>Coach returns it slowly into her path and calls her name as it leaves his foot.</span><span class="ramp up"><b>Ramp up</b>Return pass must be one-touch, and a passive defender is added.</span></div>
     </div></div>
 
     <div class="blk"><div class="clock"><span class="t">0:45</span><span class="d">5 min</span></div><div class="body">
-      <h4>Water + Team Challenge &mdash; <em>60-Second Passes</em></h4>
+      <h4>Water + Team Challenge &mdash; <a href="library.html#chall"><em>60-Second Passes</em></a></h4>
       <p>Beat Sunday's number. Announce the old number first.</p>
     </div></div>
 
     <div class="blk"><div class="clock"><span class="t">0:50</span><span class="d">20 min</span></div><div class="body">
-      <h4>Small-Sided &mdash; <em>3v3 Freeze Frame</em></h4>
+      <h4>Small-Sided &mdash; <a href="library.html#freezeframe"><em>3v3 Freeze Frame</em></a></h4>
       <p>Normal 3v3. Twice per half, shout <b>FREEZE</b> and everyone stops dead. Fifteen seconds of questions &mdash; who's standing still? who has space? &mdash; then play on. Use it to <em>praise</em> at least as often as to correct: find a girl in a great position and name her.</p>
       <div class="ramps"><span class="ramp in"><b>Ramp in</b>On the freeze, find her doing something right and say so by name in front of everyone.</span><span class="ramp up"><b>Ramp up</b>The ball carrier must name her two options out loud before play resumes.</span></div>
     </div></div>
@@ -1254,12 +848,12 @@ h1, h2, h3, h4 { text-wrap: balance; line-height: 1.2; }
   <div class="blocks">
 
     <div class="blk"><div class="clock"><span class="t">0:00</span><span class="d">10 min</span></div><div class="body">
-      <h4>Arrival &mdash; <em>Number Freeze</em></h4>
+      <h4>Arrival &mdash; <a href="library.html#freeze"><em>Number Freeze</em></a></h4>
       <p>New rule: when they form a group, they must be <em>spread out</em> &mdash; no two girls closer than three yards. First taste of the theme.</p>
     </div></div>
 
     <div class="blk"><div class="clock"><span class="t">0:10</span><span class="d">12 min</span></div><div class="body">
-      <h4>Ball Mastery &mdash; <em>Open up across your body</em></h4>
+      <h4>Ball Mastery &mdash; <a href="library.html#openup"><em>Open up across your body</em></a></h4>
       <p>Receive with the far foot and take the first touch <em>sideways</em>, so you end up facing the field instead of the ball. This one touch is why a girl looks like she has time.</p>
       <div class="ramps"><span class="ramp in"><b>Ramp in</b>Coach rolls it gently; any touch that ends with her facing forward is a success.</span><span class="ramp up"><b>Ramp up</b>Open up under light pressure from a defender behind her.</span></div>
     </div></div>
@@ -1267,19 +861,19 @@ h1, h2, h3, h4 { text-wrap: balance; line-height: 1.2; }
     <div class="blk"><div class="clock"><span class="t">0:22</span><span class="d">3 min</span></div><div class="body"><h4>Water <em>&mdash; in shade</em></h4><p>&nbsp;</p></div></div>
 
     <div class="blk"><div class="clock"><span class="t">0:25</span><span class="d">20 min</span></div><div class="body">
-      <h4>Skill Block &mdash; <em>The Build-Out Drill</em></h4>
+      <h4>Skill Block &mdash; <a href="library.html#buildout"><em>The Build-Out Drill</em></a></h4>
       <p>Mark a real build-out line. Keeper has the ball; the "opposition" (two coaches plus two girls) must stay behind it. Team's job, every time: <b>two girls sprint to the corners of the box, one goes long.</b> Keeper <em>rolls</em> it &mdash; never punts &mdash; to whoever has the most grass around her. One touch forward, then look up.</p>
       <div class="say"><b>Say this &mdash;</b> "When we have it at our goal, we get BIG. Corners and far away." &nbsp;&middot;&nbsp; "Keeper &mdash; find the girl with nobody near her."</div>
       <div class="ramps"><span class="ramp in"><b>Ramp in</b>Put a cone exactly where she stands. Walk it through with no opposition at all until the picture is automatic.</span><span class="ramp up"><b>Ramp up</b>Opposition presses the instant the ball is touched; keeper must choose the correct side under pressure.</span></div>
     </div></div>
 
     <div class="blk"><div class="clock"><span class="t">0:45</span><span class="d">5 min</span></div><div class="body">
-      <h4>Water + Team Challenge &mdash; <em>Bullseye</em></h4>
+      <h4>Water + Team Challenge &mdash; <a href="library.html#chall"><em>Bullseye</em></a></h4>
       <p>Longer this time &mdash; fifteen yards. Rewards the driven pass that width demands.</p>
     </div></div>
 
     <div class="blk"><div class="clock"><span class="t">0:50</span><span class="d">20 min</span></div><div class="body">
-      <h4>Small-Sided &mdash; <em>5v5 Wide Zones</em></h4>
+      <h4>Small-Sided &mdash; <a href="library.html#widezones"><em>5v5 Wide Zones</em></a></h4>
       <p>Mark five-yard channels down both touchlines. <b>Constraint:</b> a goal counts double if the ball went through a wide channel first. Suddenly the edges of the field are the most valuable real estate on it.</p>
       <div class="ramps"><span class="ramp in"><b>Ramp in</b>A girl standing in the wide channel cannot be tackled &mdash; a safe, high-value job for a newer player, and her teammates will start looking for her.</span><span class="ramp up"><b>Ramp up</b>Must switch from one channel to the other before scoring.</span></div>
     </div></div>
@@ -1308,12 +902,12 @@ h1, h2, h3, h4 { text-wrap: balance; line-height: 1.2; }
   <div class="blocks">
 
     <div class="blk"><div class="clock"><span class="t">0:00</span><span class="d">10 min</span></div><div class="body">
-      <h4>Arrival &mdash; <em>Body Part Stop</em></h4>
+      <h4>Arrival &mdash; <a href="library.html#bodypart"><em>Body Part Stop</em></a></h4>
       <p>Add: after every stop, she must point at the furthest teammate from her before dribbling on.</p>
     </div></div>
 
     <div class="blk"><div class="clock"><span class="t">0:10</span><span class="d">12 min</span></div><div class="body">
-      <h4>Ball Mastery &mdash; <em>Open up across your body</em></h4>
+      <h4>Ball Mastery &mdash; <a href="library.html#openup"><em>Open up across your body</em></a></h4>
       <p>Repeat, adding a shoulder check before every touch. "Take a picture before the ball arrives."</p>
       <div class="ramps"><span class="ramp in"><b>Ramp in</b>Just the look &mdash; turn your head before you touch it. That alone is the skill.</span><span class="ramp up"><b>Ramp up</b>Shoulder check, open up, and play a fifteen-yard pass to the far side.</span></div>
     </div></div>
@@ -1321,19 +915,19 @@ h1, h2, h3, h4 { text-wrap: balance; line-height: 1.2; }
     <div class="blk"><div class="clock"><span class="t">0:22</span><span class="d">3 min</span></div><div class="body"><h4>Water <em>&mdash; in shade</em></h4><p>&nbsp;</p></div></div>
 
     <div class="blk"><div class="clock"><span class="t">0:25</span><span class="d">20 min</span></div><div class="body">
-      <h4>Skill Block &mdash; <em>Two-Goal Scan</em></h4>
+      <h4>Skill Block &mdash; <a href="library.html#twogoal"><em>Two-Goal Scan</em></a></h4>
       <p>3v1 in a box with a cone-goal on two opposite sides. The three must recognise which goal the defender has abandoned and attack that one. Rotate the defender every ninety seconds.</p>
       <div class="say"><b>Say this &mdash;</b> "Take a picture before the ball comes." &nbsp;&middot;&nbsp; "If the crowd's on one side, the answer's the other side."</div>
       <div class="ramps"><span class="ramp in"><b>Ramp in</b>Point at the free goal and call it out for her. Then stop calling it and see if she looks.</span><span class="ramp up"><b>Ramp up</b>Silent version &mdash; no talking allowed, she has to see it herself. Make it 3v2.</span></div>
     </div></div>
 
     <div class="blk"><div class="clock"><span class="t">0:45</span><span class="d">5 min</span></div><div class="body">
-      <h4>Water + Team Challenge &mdash; <em>Team Total</em></h4>
+      <h4>Water + Team Challenge &mdash; <a href="library.html#chall"><em>Team Total</em></a></h4>
       <p>Beat the number from Session 1. Tell them what it was. They'll remember.</p>
     </div></div>
 
     <div class="blk"><div class="clock"><span class="t">0:50</span><span class="d">20 min</span></div><div class="body">
-      <h4>Small-Sided &mdash; <em>5v5 Switch Bonus</em></h4>
+      <h4>Small-Sided &mdash; <a href="library.html#switchbonus"><em>5v5 Switch Bonus</em></a></h4>
       <p>Goals are worth two. <b>A pass that crosses from one side of the field to the other is worth one</b> &mdash; so a team that never scores can still win by moving the ball well, which is a genuinely useful thing for an eight-year-old to discover.</p>
       <div class="ramps"><span class="ramp in"><b>Ramp in</b>A dribble across counts as a switch.</span><span class="ramp up"><b>Ramp up</b>The switch has to beat at least one defender to count.</span></div>
     </div></div>
@@ -1362,12 +956,12 @@ h1, h2, h3, h4 { text-wrap: balance; line-height: 1.2; }
   <div class="blocks">
 
     <div class="blk"><div class="clock"><span class="t">0:00</span><span class="d">10 min</span></div><div class="body">
-      <h4>Arrival &mdash; <em>Rescue Tag</em></h4>
+      <h4>Arrival &mdash; <a href="library.html#rescue"><em>Rescue Tag</em></a></h4>
       <p>Three taggers now. Faster, louder, and it's already about winning the ball back.</p>
     </div></div>
 
     <div class="blk"><div class="clock"><span class="t">0:10</span><span class="d">12 min</span></div><div class="body">
-      <h4>Ball Mastery &mdash; <em>The step-over</em></h4>
+      <h4>Ball Mastery &mdash; <a href="library.html#stepover"><em>The step-over</em></a></h4>
       <p>Pure fun. Nobody will do it well and that's fine &mdash; the point is a group of eight-year-olds trying something flashy and laughing at each other. Bravery is the curriculum.</p>
       <div class="ramps"><span class="ramp in"><b>Ramp in</b>Step over a stationary ball, walking. That's the whole thing.</span><span class="ramp up"><b>Ramp up</b>Step-over into an inside cut, at pace, against a passive defender.</span></div>
     </div></div>
@@ -1375,19 +969,19 @@ h1, h2, h3, h4 { text-wrap: balance; line-height: 1.2; }
     <div class="blk"><div class="clock"><span class="t">0:22</span><span class="d">3 min</span></div><div class="body"><h4>Water <em>&mdash; in shade</em></h4><p>&nbsp;</p></div></div>
 
     <div class="blk"><div class="clock"><span class="t">0:25</span><span class="d">20 min</span></div><div class="body">
-      <h4>Skill Block &mdash; <em>Two on the Ball</em></h4>
+      <h4>Skill Block &mdash; <a href="library.html#twoontheball"><em>Two on the Ball</em></a></h4>
       <p>2v2 in a grid. The rule: one defender presses the ball, the second stands <em>behind and inside</em> her &mdash; the safety net. Freeze it every few reps and check: are they side by side? That's the mistake.</p>
       <div class="say"><b>Say this &mdash;</b> "First girl slows her down, second girl stands behind &mdash; never side by side." &nbsp;&middot;&nbsp; "Talk: 'I've got her, you take the other one.'"</div>
       <div class="ramps"><span class="ramp in"><b>Ramp in</b>Start 2v1 so the shape is obvious and the pair always succeeds. She learns the picture before the pressure.</span><span class="ramp up"><b>Ramp up</b>Live 2v2, and they must win it and dribble out through a gate to finish the rep.</span></div>
     </div></div>
 
     <div class="blk"><div class="clock"><span class="t">0:45</span><span class="d">5 min</span></div><div class="body">
-      <h4>Water + Team Challenge &mdash; <em>Beat the Coach</em></h4>
+      <h4>Water + Team Challenge &mdash; <a href="library.html#chall"><em>Beat the Coach</em></a></h4>
       <p>Now in pairs &mdash; two girls defend, one coach attacks. Direct rehearsal of the skill block.</p>
     </div></div>
 
     <div class="blk"><div class="clock"><span class="t">0:50</span><span class="d">20 min</span></div><div class="body">
-      <h4>Small-Sided &mdash; <em>5v5 Five-Second Rule</em></h4>
+      <h4>Small-Sided &mdash; <a href="library.html#fivesecond"><em>5v5 Five-Second Rule</em></a></h4>
       <p>The instant your team loses it, you have five seconds to win it back &mdash; count down out loud, theatrically. A win-back inside five seconds is worth a point. This is genuinely the most fun game in the book; expect noise.</p>
       <div class="ramps"><span class="ramp in"><b>Ramp in</b>Eight seconds, counted slowly, and celebrate her win-back like a cup final.</span><span class="ramp up"><b>Ramp up</b>Four seconds, and it only counts in the attacking half.</span></div>
     </div></div>
@@ -1416,31 +1010,31 @@ h1, h2, h3, h4 { text-wrap: balance; line-height: 1.2; }
   <div class="blocks">
 
     <div class="blk"><div class="clock"><span class="t">0:00</span><span class="d">10 min</span></div><div class="body">
-      <h4>Arrival &mdash; <em>Traffic Lights</em></h4>
+      <h4>Arrival &mdash; <a href="library.html#traffic"><em>Traffic Lights</em></a></h4>
       <p>Their favourite by now. Let a girl make the calls.</p>
     </div></div>
 
     <div class="blk"><div class="clock"><span class="t">0:10</span><span class="d">12 min</span></div><div class="body">
-      <h4>Ball Mastery &mdash; <em>The step-over</em></h4>
+      <h4>Ball Mastery &mdash; <a href="library.html#stepover"><em>The step-over</em></a></h4>
       <p>Repeat. Add a "skill of your choice" minute where each girl uses whichever move she likes best &mdash; useful intelligence for you about what has actually landed.</p>
     </div></div>
 
     <div class="blk"><div class="clock"><span class="t">0:22</span><span class="d">3 min</span></div><div class="body"><h4>Water <em>&mdash; in shade</em></h4><p>&nbsp;</p></div></div>
 
     <div class="blk"><div class="clock"><span class="t">0:25</span><span class="d">20 min</span></div><div class="body">
-      <h4>Skill Block &mdash; <em>Restart Circuit</em> (three stations, ~6 min each)</h4>
+      <h4>Skill Block &mdash; <a href="library.html#restarts"><em>Restart Circuit</em></a> (three stations, ~6 min each)</h4>
       <p><b>Throw-in:</b> both feet stay on the ground, ball goes over the head. <b>Goal kick:</b> the build-out picture from Session 11 &mdash; corners of the box, one long. <b>Corner:</b> one girl at the near post, one at the top of the box, everyone else stays out of the way.</p>
       <div class="say"><b>Say this &mdash;</b> "Both feet down." &nbsp;&middot;&nbsp; "Near post and top of the box &mdash; that's it, nobody else goes in."</div>
       <div class="ramps"><span class="ramp in"><b>Ramp in</b>Throw from her knees first to get the over-the-head motion. Corners taken from eight yards.</span><span class="ramp up"><b>Ramp up</b>Throw-in must find a <em>moving</em> teammate; corner must clear the first defender.</span></div>
     </div></div>
 
     <div class="blk"><div class="clock"><span class="t">0:45</span><span class="d">5 min</span></div><div class="body">
-      <h4>Water + Team Challenge &mdash; <em>Golden Goal</em></h4>
+      <h4>Water + Team Challenge &mdash; <a href="library.html#chall"><em>Golden Goal</em></a></h4>
       <p>One shot each, this time from a corner delivery.</p>
     </div></div>
 
     <div class="blk"><div class="clock"><span class="t">0:50</span><span class="d">20 min</span></div><div class="body">
-      <h4>Shape &mdash; <em>walkthrough, then live</em></h4>
+      <h4>Shape &mdash; <a href="library.html#shapewalk"><em>walkthrough, then live</em></a></h4>
       <p>Ten minutes <b>walking</b> in 3&ndash;3&ndash;2 &mdash; genuinely walking, ball rolled by hand, stopping to look at the picture. Then ten minutes live at 6v6 with target zones instead of a full opposition, because you'll never have eighteen girls at practice.</p>
       <div class="say"><b>Say this &mdash;</b> "Only ONE of us goes to the ball."</div>
       <div class="ramps"><span class="ramp in"><b>Ramp in</b>Her home cone stays down all session. "Back to your cone" is the only thing she has to remember.</span><span class="ramp up"><b>Ramp up</b>She holds shape with no cone, and calls a teammate back into position when she drifts.</span></div>
@@ -1475,14 +1069,14 @@ h1, h2, h3, h4 { text-wrap: balance; line-height: 1.2; }
     </div></div>
 
     <div class="blk"><div class="clock"><span class="t">0:10</span><span class="d">12 min</span></div><div class="body">
-      <h4>Ball Mastery &mdash; <em>free choice, and they teach</em></h4>
+      <h4>Ball Mastery &mdash; <a href="library.html#freechoice"><em>free choice, and they teach</em></a></h4>
       <p>Each girl picks the move she owns now. Then three volunteers <b>teach theirs to the group</b> &mdash; including, if you can engineer it, a girl who started the season having never played. Nothing you say all season will land harder than that.</p>
     </div></div>
 
     <div class="blk"><div class="clock"><span class="t">0:22</span><span class="d">3 min</span></div><div class="body"><h4>Water <em>&mdash; in shade</em></h4><p>&nbsp;</p></div></div>
 
     <div class="blk"><div class="clock"><span class="t">0:25</span><span class="d">20 min</span></div><div class="body">
-      <h4>Skill Block &mdash; <em>Girls' Choice</em></h4>
+      <h4>Skill Block &mdash; <a href="library.html#girlschoice"><em>Girls' Choice</em></a></h4>
       <p>Vote on the two favourite games of the season and run them. Coaches only ask questions &mdash; no instruction, no corrections, no organising beyond safety.</p>
       <div class="ramps"><span class="ramp in"><b>Ramp in</b>Ask her which game she wants first, before the confident girls answer.</span><span class="ramp up"><b>Ramp up</b>She runs a station herself, with a coach standing beside her, not in front of her.</span></div>
     </div></div>
@@ -1493,7 +1087,7 @@ h1, h2, h3, h4 { text-wrap: balance; line-height: 1.2; }
     </div></div>
 
     <div class="blk"><div class="clock"><span class="t">0:50</span><span class="d">20 min</span></div><div class="body">
-      <h4>Small-Sided &mdash; <em>World Cup</em></h4>
+      <h4>Small-Sided &mdash; <a href="library.html#worldcup"><em>World Cup</em></a></h4>
       <p>Four teams of three, round robin to one goal with a keeper, two-minute matches. <b>Nobody is ever eliminated</b> &mdash; every team plays every round regardless of results. Balance the teams deliberately by size <em>and</em> experience.</p>
       <div class="ramps"><span class="ramp in"><b>Ramp in</b>Put her with a veteran who's been told her job is to set her up.</span><span class="ramp up"><b>Ramp up</b>Her team plays two-touch while everyone else plays free.</span></div>
     </div></div>
@@ -1522,7 +1116,7 @@ h1, h2, h3, h4 { text-wrap: balance; line-height: 1.2; }
   <div class="blocks">
 
     <div class="blk"><div class="clock"><span class="t">0:00</span><span class="d">10 min</span></div><div class="body">
-      <h4>Arrival &mdash; <em>Sharks &amp; Minnows</em></h4>
+      <h4>Arrival &mdash; <a href="library.html#sharks"><em>Sharks &amp; Minnows</em></a></h4>
       <p>Where you started. Let them notice how much easier it is now.</p>
     </div></div>
 
@@ -1561,53 +1155,12 @@ h1, h2, h3, h4 { text-wrap: balance; line-height: 1.2; }
   </div>
 </article>
 
-<!-- ============ GAME BANK ============ -->
-<section id="games">
-  <div class="sec-head">
-    <div class="eyebrow">Appendix</div>
-    <h2>The game bank</h2>
-  </div>
+<div class="panel" style="margin-top:26px">
+  <h3>Don&#39;t know an activity?</h3>
+  <p>Every activity name on these cards links into the <a href="library.html" style="color:var(--rust);font-weight:700">Coaching Library</a>, which explains all thirty-five of them with a diagram of the setup, numbered steps, and what each one teaches. It also holds the season plan, the mixed-ability method, the 12-player rotation grid, your league rules, and the heat protocol.</p>
+</div>
 
-  <div class="panel">
-    <h3>Arrival games &mdash; 10 min, no setup, join any time</h3>
-    <div class="ref">
-      <div class="ref-row"><span class="k">Sharks &amp; Minnows</span><span class="v">Everyone dribbles, coaches kick balls out. <b>No-out version:</b> three toe-taps and you're back in immediately. Never play the elimination version.</span></div>
-      <div class="ref-row"><span class="k">Traffic Lights</span><span class="v">Green go, yellow slow, red stop the ball dead. Teaches speed control and the sole-stop.</span></div>
-      <div class="ref-row"><span class="k">Body Part Stop</span><span class="v">Call a body part, stop the ball with it. Deliberately silly &mdash; good for a session that needs energy.</span></div>
-      <div class="ref-row"><span class="k">Follow the Leader</span><span class="v">Pairs, both with balls, one leads and one copies, swap at 45 seconds. Your best vehicle for pairing a veteran with a newcomer.</span></div>
-      <div class="ref-row"><span class="k">Number Freeze</span><span class="v">Call a number, girls group up that many. Mixes the roster without you ever picking teams out loud.</span></div>
-      <div class="ref-row"><span class="k">Rescue Tag</span><span class="v">Taggers freeze girls; teammates free them by passing through their legs. Nobody sits, ever.</span></div>
-    </div>
-  </div>
-
-  <div class="panel">
-    <h3>Team challenges &mdash; 5 min, doubles as a water break</h3>
-    <div class="ref">
-      <div class="ref-row"><span class="k">Team Total</span><span class="v">Sixty seconds, count every touch as one team number. Beat it later in the season and tell them the old score first.</span></div>
-      <div class="ref-row"><span class="k">Beat the Coach</span><span class="v">Coach dribbles, the team tries to win it. Coach loses eventually, dramatically.</span></div>
-      <div class="ref-row"><span class="k">Bullseye</span><span class="v">Pass at a cone from eight yards (fifteen later in the season). Count team hits.</span></div>
-      <div class="ref-row"><span class="k">Golden Goal</span><span class="v">One shot each, count the team total. Everyone shoots, nobody queues long.</span></div>
-      <div class="ref-row"><span class="k">Everyone Scores Relay</span><span class="v">The team isn't finished until every girl has scored. Inclusive by construction.</span></div>
-      <div class="ref-row"><span class="k">Crossbar Challenge</span><span class="v">Knock a cone off the goal line from ten yards.</span></div>
-      <div class="ref-row"><span class="k">60-Second Passes</span><span class="v">Team-wide completed passes in a minute. A running season-long number.</span></div>
-      <div class="ref-row"><span class="k">Keeper Gauntlet</span><span class="v">Coach in goal, every girl takes one shot. Coach concedes most, theatrically.</span></div>
-    </div>
-  </div>
-
-  <div class="panel">
-    <h3>If only six or seven girls show up</h3>
-    <p>It will happen, probably more than once. Don't improvise &mdash; run the same card, but: <b>keep the arrival game and ball mastery exactly as written</b> (they're individual anyway), <b>run one station instead of two</b> in the skill block, and <b>drop the small-sided game to 3v3 or 2v2</b>. A small session is a gift, not a problem: fewer girls means more touches each, which is the whole objective.</p>
-    <p>If <em>fifteen</em> show up, the reverse: three stations, and put your third coach on the newest three girls for the whole skill block.</p>
-  </div>
-
-  <div class="panel">
-    <h3>What to hand your assistant coaches</h3>
-    <p>Print the session card and hand them the physical sheet before warm-up, with one sentence: "you've got the second station, ten minutes, swap when I shout." The <em>ramp in</em> and <em>ramp up</em> strips are written so a soccer parent can read them mid-activity and act on them without asking you.</p>
-    <p>If you have a third coach, don't give them a station. Give them <b>three names</b> &mdash; your three newest girls &mdash; and one job: make sure those three touch the ball constantly and get told they did something well before they go home. That's the highest-value assignment on the field.</p>
-  </div>
-</section>
-
-<p class="foot">Built for a 9v9 SBMSA 8U girls' season &mdash; eight weeks, sixteen sessions, Sunday teach / weeknight sharpen. Assumes a shared half-field, two pop-up goals, pinnies in two colours, roughly twenty-four discs, and a ball per girl. Adjust grid sizes to whatever space you actually get; every activity in this book works smaller.</p>
+<p class="foot">Built for a 9v9 SBMSA 8U girls&#39; season &mdash; eight weeks, sixteen sessions, twelve players. Sunday teach / weeknight sharpen. Assumes a shared half-field, two pop-up goals, pinnies in two colours, roughly twenty-four discs, and a ball per girl. Adjust grid sizes to whatever space you actually get; every activity works smaller.</p>
 
 </div>
 </body>

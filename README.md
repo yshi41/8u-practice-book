@@ -4,11 +4,22 @@ Sixteen 90-minute practice plans for a **9v9 SBMSA 8U girls' season** — eight 
 
 **Live:** https://yshi41.github.io/8u-practice-book/
 
+## Two documents, two jobs
+
+| File | What it is | When you use it |
+| --- | --- | --- |
+| [`index.html`](index.html) | **The Practice Book** — the sixteen session cards, nothing else | On the field. Print it: one session per sheet. |
+| [`library.html`](library.html) | **The Coaching Library** — the season plan and every activity explained | At home, the night before. |
+
+Every activity name on a session card is a **link** into its library entry. Tap "The Toy Box" on Session 1 and you land on the diagram, the setup steps, and what it teaches.
+
 ## Printing
 
-Open the site and press **Ctrl+P**. Each session prints to its own sheet — nav and screen chrome drop out, backgrounds go white. Take the sheets to the field; leave the rest at home.
+Open the practice book and press **Ctrl+P**. Each session prints to its own sheet — nav and screen chrome drop out, backgrounds go white. Take the sheets to the field; leave the library at home.
 
-## What's in it
+## What's in the library
+
+**The season plan** — seven sections that used to sit at the front of the practice book:
 
 | Section | Contents |
 | --- | --- |
@@ -19,8 +30,15 @@ Open the site and press **Ctrl+P**. Each session prints to its own sheet — nav
 | Your league rules | Build-out line, no punting, equal playing time + keeper, no heading |
 | Houston heat | Operational requirements, not cautions |
 | The eight-week arc | Theme, sessions, and move of the week |
-| The sixteen sessions | One printable card each |
-| The game bank | Arrival games, team challenges, and what to do at odd attendance |
+
+**The drill library** — all 35 activities, each with an overhead diagram, numbered setup and run steps, what it teaches, and how to scale it up or down:
+
+- **Soccer words** — every coaching term in plain English (gate, grid, endzone, numbers-up, goal-side…)
+- **Diagram key** — how to read the pictures
+- **Arrival games** (6) · **Ball moves** (8) · **Skill blocks** (14) · **Small-sided games** (15) · **Team challenges** (8)
+- **Running a session** — odd attendance, and what to hand your assistant coaches
+
+All distances are given in **adult walking steps**. Nothing needs measuring.
 
 ## The weekly loop
 
@@ -45,7 +63,7 @@ Individual → individual against an opponent → scoring → with a teammate �
 
 ## Editing
 
-Everything is one self-contained `index.html` — no build step, no dependencies, no external fonts or CDN. Edit it, commit, push; Pages redeploys in about a minute.
+Two self-contained HTML files — no build step, no dependencies, no external fonts or CDN, and every diagram is inline SVG. Edit, commit, push; Pages redeploys in about a minute. Each file carries its own copy of the stylesheet, so either one still works opened straight off disk.
 
 ## Assumptions
 
