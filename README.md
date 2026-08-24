@@ -67,4 +67,4 @@ Two self-contained HTML files — no build step, no dependencies, no external fo
 
 ## Assumptions
 
-A shared half-field, two pop-up goals, pinnies in two colours, roughly 24 discs, and a ball per girl (12 balls). Game-day maths assumes four 10-minute quarters — if your games run two 20-minute halves, sub at each 10-minute mark and the rotation is identical. Every activity works smaller — adjust grid sizes to the space you actually get.
+A shared half-field, two pop-up goals, pinnies in two colours, roughly 24 discs, and a ball per girl (12 balls). Games are four 10-minute quarters (confirmed), which is what the rotation grid is built on. Every activity works smaller — adjust grid sizes to the space you actually get.
