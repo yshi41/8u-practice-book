@@ -8,7 +8,8 @@ Sixteen 90-minute practice plans for a **9v9 SBMSA 8U girls' season** — eight 
 
 | File | What it is | When you use it |
 | --- | --- | --- |
-| [`index.html`](index.html) | **The Practice Book** — the sixteen session cards, nothing else | On the field. Print it: one session per sheet. |
+| [`index.html`](index.html) | **The Practice Book** — all sixteen session cards | Print it: one session per sheet. |
+| `session-1.html` … `session-16.html` | **One practice per page** — its own URL, with previous/next links | Working from a single session, or sending one to someone. |
 | [`library.html`](library.html) | **The Coaching Library** — the season plan and every activity explained | At home, the night before. |
 
 Every activity name on a session card is a **link** into its library entry. Tap "The Toy Box" on Session 1 and you land on the diagram, the setup steps, and what it teaches.
@@ -19,7 +20,7 @@ Every session card carries its own controls.
 
 **Share this practice**
 - **Email it** — opens your mail client with the subject, the focus, the full block-by-block plan and the total length already written, plus a link to that practice. If you have adjusted the practice, the email carries your version.
-- **Copy practice link** — a URL to that one session on its own page: `…/?s=7`. Opening it shows just that practice, not the whole book.
+- **Copy practice link** — the URL of that session's own page, e.g. `…/session-7.html`. A real page, not the whole book scrolled to an anchor.
 - **Copy link with my changes** — appears once you have adjusted something. The URL carries your adjustments, so the person you send it to sees your version, not the original.
 
 **Adjust this practice**
@@ -46,7 +47,7 @@ Open the practice book and press **Ctrl+P**. Each session prints to its own shee
 | Coaching a roster this wide | The mixed-ability method — seven moves that actually work |
 | What 9v9 changes | Why nine-a-side is a harder problem at this age, and the 3–3–2 shape |
 | The 12-player plan | Game-day rotation grid, keeper rotation, attendance fallbacks, and how 12 divides at practice |
-| Your league rules | Build-out line, no punting, equal playing time + keeper, no heading |
+| Your league rules | Checked against the SBMSA rulebook: 9v9, 4 × 12-minute quarters, minimum two quarters per player, substitutions at quarter breaks only, size 4 ball, build-out line on goal kicks, offside in effect |
 | Houston heat | Operational requirements, not cautions |
 | The eight-week arc | Theme, sessions, and move of the week |
 
@@ -88,4 +89,4 @@ Two self-contained HTML files — no build step, no dependencies, no external fo
 
 ## Assumptions
 
-A shared half-field, two pop-up goals, pinnies in two colours, roughly 24 discs, and a ball per girl (12 balls). Games are four 10-minute quarters (confirmed), which is what the rotation grid is built on. Every activity works smaller — adjust grid sizes to the space you actually get.
+A shared half-field, two pop-up goals, pinnies in two colours, roughly 24 discs, and a ball per girl (12 balls). Games are four 12-minute quarters — a 48-minute match — per Rule 6.07, which is what the rotation grid is built on. Every activity works smaller — adjust grid sizes to the space you actually get.
