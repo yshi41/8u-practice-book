@@ -516,5 +516,24 @@ h1, h2, h3, h4 { text-wrap: balance; line-height: 1.2; }
   }
 })();
 </script>
+<script>
+/* This page is also published as a standalone Artifact, which hosts a single
+   file — so a relative link to session-7.html has nothing to resolve against
+   there. When we are served from anywhere other than the real site, rewrite
+   page links to absolute so they still work. Left alone on the site itself
+   and on local file:// copies, where the sibling files are present. */
+(function () {
+  var BASE = 'https://yshi41.github.io/8u-practice-book/';
+  var proto = location.protocol, host = location.hostname;
+  if ((proto !== 'http:' && proto !== 'https:') || host === 'yshi41.github.io') return;
+  var links = document.querySelectorAll('a[href]');
+  for (var i = 0; i < links.length; i++) {
+    var href = links[i].getAttribute('href');
+    if (!href || /^(https?:)?\/\//.test(href) || href.charAt(0) === '#' ||
+        href.indexOf('mailto:') === 0) continue;
+    links[i].setAttribute('href', BASE + href);
+  }
+})();
+</script>
 </body>
 </html>
