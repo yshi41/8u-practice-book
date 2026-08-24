@@ -1,6 +1,6 @@
 # The 8U Practice Book
 
-Sixteen 90-minute practice plans for a **9v9 SBMSA 8U girls' season** — eight weeks, two sessions a week, built for a roster that spans complete beginners to experienced players.
+Sixteen 90-minute practice plans for a **9v9 SBMSA 8U girls' season** — eight weeks, two sessions a week, for a **12-player roster** spanning complete beginners to experienced players.
 
 **Live:** https://yshi41.github.io/8u-practice-book/
 
@@ -15,6 +15,7 @@ Open the site and press **Ctrl+P**. Each session prints to its own sheet — nav
 | How this book works | The weekly loop and the fixed 90-minute template |
 | Coaching a roster this wide | The mixed-ability method — seven moves that actually work |
 | What 9v9 changes | Why nine-a-side is a harder problem at this age, and the 3–3–2 shape |
+| The 12-player plan | Game-day rotation grid, keeper rotation, attendance fallbacks, and how 12 divides at practice |
 | Your league rules | Build-out line, no punting, equal playing time + keeper, no heading |
 | Houston heat | Operational requirements, not cautions |
 | The eight-week arc | Theme, sessions, and move of the week |
@@ -48,4 +49,4 @@ Everything is one self-contained `index.html` — no build step, no dependencies
 
 ## Assumptions
 
-A shared half-field, two pop-up goals, pinnies in two colours, roughly 24 discs, and a ball per girl. Every activity works smaller — adjust grid sizes to the space you actually get.
+A shared half-field, two pop-up goals, pinnies in two colours, roughly 24 discs, and a ball per girl (12 balls). Game-day maths assumes four 10-minute quarters — if your games run two 20-minute halves, sub at each 10-minute mark and the rotation is identical. Every activity works smaller — adjust grid sizes to the space you actually get.
