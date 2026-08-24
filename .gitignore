@@ -11,3 +11,9 @@ $RECYCLE.BIN/
 *.swp
 *~
 .vscode/
+
+# Roster and family contact data — NEVER commit.
+# This repo is PUBLIC (github.com/yshi41/8u-practice-book).
+SBMSA 8U Soccer/
+*.csv
+*.xlsx
