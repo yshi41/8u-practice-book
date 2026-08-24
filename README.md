@@ -13,6 +13,12 @@ Sixteen 90-minute practice plans for a **9v9 SBMSA 8U girls' season** — eight 
 
 Every activity name on a session card is a **link** into its library entry. Tap "The Toy Box" on Session 1 and you land on the diagram, the setup steps, and what it teaches.
 
+## Sharing a single session
+
+Every session card has an **Email it** button. It opens your mail client with the subject, the focus, the full block-by-block plan, and a direct link to that session already filled in — so an assistant coach gets the plan in the message body without having to click anything. **Copy link** grabs the direct URL to that one session instead.
+
+Both buttons are hidden when printing.
+
 ## Printing
 
 Open the practice book and press **Ctrl+P**. Each session prints to its own sheet — nav and screen chrome drop out, backgrounds go white. Take the sheets to the field; leave the library at home.

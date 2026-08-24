@@ -83,6 +83,14 @@ h1, h2, h3, h4 { text-wrap: balance; line-height: 1.2; }
 .blk h4 a:hover, .blk h4 a:focus-visible { color: var(--rust); border-bottom-style: solid; }
 .blk h4 a em { color: var(--muted); }
 .blk h4 a:hover em { color: var(--rust); }
+.share { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-top: 18px; padding-top: 15px; border-top: 1px solid var(--rule); }
+.share .lbl { font-size: .72em; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin-right: 2px; }
+.sbtn { font-family: inherit; font-size: .78em; font-weight: 700; letter-spacing: .02em; text-decoration: none; border-radius: 4px; padding: 9px 15px; cursor: pointer; border: 1px solid var(--rust); background: var(--rust); color: var(--card); display: inline-flex; align-items: center; min-height: 40px; }
+.sbtn:hover { background: var(--text); border-color: var(--text); }
+.sbtn.ghost { background: transparent; color: var(--rust); }
+.sbtn.ghost:hover { background: var(--tan); color: var(--rust); border-color: var(--rust); }
+.sbtn:focus-visible { outline: 3px solid var(--forest); outline-offset: 2px; }
+
 /* ---------- jump nav ---------- */
 .nav {
   position: sticky; top: 0; z-index: 20;
@@ -237,7 +245,7 @@ h1, h2, h3, h4 { text-wrap: balance; line-height: 1.2; }
   }
   body { background: #fff; }
   .wrap { max-width: none; padding: 0; }
-  .nav { display: none; }
+  .nav, .share, .tolib { display: none; }
   .card { break-inside: avoid; break-after: page; border: none; margin-bottom: 0; }
   .card:last-of-type { break-after: auto; }
   .card-hd { padding: 0 0 10px; }
@@ -1163,5 +1171,95 @@ h1, h2, h3, h4 { text-wrap: balance; line-height: 1.2; }
 <p class="foot">Built for a 9v9 SBMSA 8U girls&#39; season &mdash; eight weeks, sixteen sessions, twelve players. Odd sessions teach, even sessions sharpen. Assumes a shared half-field, two pop-up goals, pinnies in two colours, roughly twenty-four discs, and a ball per girl. Adjust grid sizes to whatever space you actually get; every activity works smaller.</p>
 
 </div>
+
+<script>
+(function () {
+  var SITE = 'https://yshi41.github.io/8u-practice-book/';
+
+  function outline(card) {
+    var rows = [];
+    Array.prototype.forEach.call(card.querySelectorAll('.blk'), function (b) {
+      var h = b.querySelector('h4');
+      if (!h) return;
+      var t = b.querySelector('.clock .t');
+      var d = b.querySelector('.clock .d');
+      var when = (t ? t.textContent.trim() : '');
+      if (d && d.textContent.trim() && d.textContent.trim() !== '\u2014') {
+        when += ' (' + d.textContent.trim() + ')';
+      }
+      rows.push(when + '  ' + h.textContent.replace(/\s+/g, ' ').trim());
+    });
+    return rows.join('\n');
+  }
+
+  function copy(text, btn, original) {
+    function ok() {
+      btn.textContent = 'Link copied';
+      setTimeout(function () { btn.textContent = original; }, 1800);
+    }
+    function manual() {
+      var ta = document.createElement('textarea');
+      ta.value = text;
+      ta.setAttribute('readonly', '');
+      ta.style.position = 'absolute';
+      ta.style.left = '-9999px';
+      document.body.appendChild(ta);
+      ta.select();
+      try { document.execCommand('copy'); ok(); }
+      catch (e) { btn.textContent = 'Press Ctrl+C'; }
+      document.body.removeChild(ta);
+    }
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(ok, manual);
+    } else { manual(); }
+  }
+
+  Array.prototype.forEach.call(document.querySelectorAll('article.card'), function (card) {
+    var titleEl = card.querySelector('.card-hd h3');
+    var blocks = card.querySelector('.blocks');
+    if (!titleEl || !blocks) return;
+
+    var sessEl = card.querySelector('.sess');
+    var focusEl = card.querySelector('.focus');
+    var title = titleEl.textContent.trim();
+    var sess = sessEl ? sessEl.textContent.replace(/\s+/g, ' ').trim() : '';
+    var focus = focusEl ? focusEl.textContent.replace(/\s+/g, ' ').trim() : '';
+    if (focus.length > 300) focus = focus.slice(0, 297).replace(/\s+\S*$/, '') + '...';
+    var url = SITE + '#' + card.id;
+
+    var body =
+      sess + ' - ' + title + '\n\n' +
+      focus + '\n\n' +
+      'THE PLAN\n' + outline(card) + '\n\n' +
+      'Full card, with the coaching points and how to include newer players:\n' + url + '\n\n' +
+      'Every activity explained - diagrams, setup steps, what it teaches:\n' + SITE + 'library.html\n';
+
+    var subject = '8U Practice - ' + sess + ': ' + title;
+
+    var row = document.createElement('div');
+    row.className = 'share';
+
+    var lbl = document.createElement('span');
+    lbl.className = 'lbl';
+    lbl.textContent = 'Share this session';
+    row.appendChild(lbl);
+
+    var mail = document.createElement('a');
+    mail.className = 'sbtn';
+    mail.href = 'mailto:?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
+    mail.textContent = 'Email it';
+    row.appendChild(mail);
+
+    var link = document.createElement('button');
+    link.className = 'sbtn ghost';
+    link.type = 'button';
+    link.textContent = 'Copy link';
+    link.addEventListener('click', function () { copy(url, link, 'Copy link'); });
+    row.appendChild(link);
+
+    blocks.appendChild(row);
+  });
+})();
+</script>
 </body>
 </html>
