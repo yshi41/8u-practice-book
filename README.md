@@ -47,7 +47,7 @@ Open the practice book and press **Ctrl+P**. Each session prints to its own shee
 | Coaching a roster this wide | The mixed-ability method — seven moves that actually work |
 | What 9v9 changes | Why nine-a-side is a harder problem at this age, and the 3–3–2 shape |
 | The 12-player plan | Game-day rotation grid, keeper rotation, attendance fallbacks, and how 12 divides at practice |
-| Your league rules | Checked against the SBMSA rulebook: 9v9, 4 × 12-minute quarters, minimum two quarters per player, substitutions at quarter breaks only, size 4 ball, build-out line on goal kicks, offside in effect |
+| Your league rules | Checked against the SBMSA rulebook: 9v9, 4 × 12-minute quarters, minimum two quarters per player, substitutions at quarter breaks only, size 4 ball, build-out line on goal kicks, offside in effect. Plus two rules the league enforces that the rulebook never states: no punting, and any head contact stops play. |
 | Houston heat | Operational requirements, not cautions |
 | The eight-week arc | Theme, sessions, and move of the week |
 
