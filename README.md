@@ -13,11 +13,24 @@ Sixteen 90-minute practice plans for a **9v9 SBMSA 8U girls' season** — eight 
 
 Every activity name on a session card is a **link** into its library entry. Tap "The Toy Box" on Session 1 and you land on the diagram, the setup steps, and what it teaches.
 
-## Sharing a single session
+## Sharing and adjusting a practice
 
-Every session card has an **Email it** button. It opens your mail client with the subject, the focus, the full block-by-block plan, and a direct link to that session already filled in — so an assistant coach gets the plan in the message body without having to click anything. **Copy link** grabs the direct URL to that one session instead.
+Every session card carries its own controls.
 
-Both buttons are hidden when printing.
+**Share this practice**
+- **Email it** — opens your mail client with the subject, the focus, the full block-by-block plan and the total length already written, plus a link to that practice. If you have adjusted the practice, the email carries your version.
+- **Copy practice link** — a URL to that one session on its own page: `…/?s=7`. Opening it shows just that practice, not the whole book.
+- **Copy link with my changes** — appears once you have adjusted something. The URL carries your adjustments, so the person you send it to sees your version, not the original.
+
+**Adjust this practice**
+- Change the **minutes** on any block; every later start time and the total recompute as you type. The total turns amber if it is no longer 90 minutes.
+- **Reorder** or **remove** any block.
+- **Add an activity** — pick any of the 52 activities from the library, or write a custom one with your own notes. Library additions carry their own "you need" line and a link back to the full entry.
+- **Reset to original** puts the session back as written.
+
+Adjustments are saved in your browser, so they survive a reload. They are per-device — sharing them is what the link and email are for.
+
+All of it is hidden when printing.
 
 ## Printing
 
