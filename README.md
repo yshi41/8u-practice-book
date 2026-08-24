@@ -40,13 +40,15 @@ Open the practice book and press **Ctrl+P**. Each session prints to its own shee
 
 All distances are given in **adult walking steps**. Nothing needs measuring.
 
-## The weekly loop
+## The rhythm
 
-The schedule is unstable by design — a random weekday game will occasionally eat a practice — so the week is built so the session you might lose never carries new material.
+The schedule is unstable by design — a game can land on a practice day and eat it — so it is always obvious which session carries new material.
 
-- **Sunday → teach.** Lands the day after Saturday's game. Every new concept lives here.
-- **Weeknight → sharpen.** Rehearses and applies. Safe to lose.
-- **Saturday → play.** Two instructions for the whole match, maximum.
+- **Odd-numbered sessions teach.** Every new concept and every move of the week. Protect these.
+- **Even-numbered sessions sharpen.** Rehearse and apply. Safe to lose.
+- **Game day → play.** Two instructions for the whole match, maximum.
+
+If a game cancels a practice, slide that session rather than skipping it. If the season runs short, cut from the middle — never the end.
 
 ## The season arc
 
