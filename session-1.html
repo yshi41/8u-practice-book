@@ -130,6 +130,11 @@ h1, h2, h3, h4 { text-wrap: balance; line-height: 1.2; }
 .tb-yours { margin-top: 8px; padding: 9px 13px; border-radius: 4px; background: #F8EFDC; border: 1px solid var(--warn); font-size: .78em; color: var(--warn); font-weight: 700; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
 .tb-yours[hidden] { display: none; }
 .tb-yours b { color: var(--warn); }
+.tb-yours .tb-msg { flex: 1 1 240px; }
+.tb-yours.live { background: #E8F0E4; border-color: var(--forest); color: #24401B; }
+.tb-yours.live b { color: var(--forest); }
+.tb-yours.live .tb-restore { border-color: var(--forest); color: var(--forest); }
+.tb-yours.live .tb-restore:hover { background: var(--forest); color: #fff; }
 .tb-restore { font-family: inherit; font-size: .95em; font-weight: 700; cursor: pointer; border: 1px solid var(--warn); background: transparent; color: var(--warn); border-radius: 4px; padding: 6px 11px; min-height: 34px; }
 .tb-restore:hover { background: var(--warn); color: #fff; }
 .tb-restore:focus-visible { outline: 3px solid var(--forest); outline-offset: 2px; }
@@ -871,6 +876,7 @@ var LIB = [{"id":"bodypart","n":"Body Part Stop","c":"Arrival games","w":"Sessio
       if (samePlan(st.plan, defaultPlan(st.base))) localStorage.removeItem(k);
       else localStorage.setItem(k, JSON.stringify(st.plan));
     } catch (e) { }
+    push(id);
   }
 
   function load(id, base, edition) {
@@ -955,8 +961,7 @@ var LIB = [{"id":"bodypart","n":"Body Part Stop","c":"Arrival games","w":"Sessio
     if (yours) {
       yours.hidden = !edited;
       if (edited && !yours.dataset.wired) {
-        yours.innerHTML = '<b>This is your edited version</b>, saved in this browser only ' +
-          '&mdash; Moira and your other devices still see the written session. ' +
+        yours.innerHTML = '<span class="tb-msg"></span>' +
           '<button type="button" class="tb-restore" data-act="tobook">Copy it for Claude</button>' +
           '<button type="button" class="tb-restore" data-act="undo">Put the original back</button>';
         var toBook = yours.querySelector('[data-act=tobook]');
@@ -971,6 +976,35 @@ var LIB = [{"id":"bodypart","n":"Body Part Stop","c":"Arrival games","w":"Sessio
         });
         yours.dataset.wired = '1';
       }
+      if (edited) sayWhereItLives(id, yours);
+    }
+  }
+
+  /* The one sentence that has to be true: where does this version live, and
+     who else can see it? */
+  function sayWhereItLives(id, yours) {
+    var st = cards[id];
+    var msg = yours.querySelector('.tb-msg');
+    var live = LINK === 'live' && !LINKVIEW && st.sync !== 'error';
+    yours.className = 'tb-yours' + (live ? ' live' : '');
+
+    if (LINKVIEW) {
+      msg.innerHTML = '<b>Somebody else\u2019s version</b> &mdash; this is the practice whoever ' +
+        'sent you the link put together, not the written session.';
+    } else if (LINK === 'connecting') {
+      msg.innerHTML = '<b>This is your edited version.</b> Checking whether the team copy is ' +
+        'reachable\u2026';
+    } else if (LINK === 'local') {
+      msg.innerHTML = '<b>This is your edited version</b>, saved in this browser only &mdash; ' +
+        'Moira and your other devices still see the written session.';
+    } else if (st.sync === 'saving') {
+      msg.innerHTML = '<b>Saving it for the team\u2026</b>';
+    } else if (st.sync === 'error') {
+      msg.innerHTML = '<b>Saved on this device only</b> &mdash; the team copy could not be ' +
+        'reached just now. Your version is safe here and will go up when it can.';
+    } else {
+      msg.innerHTML = '<b>Saved for the whole team</b> &mdash; anybody who opens this practice ' +
+        'sees your version' + (st.serverTs ? ', changed ' + ago(st.serverTs) : '') + '.';
     }
   }
 
@@ -1325,6 +1359,114 @@ var LIB = [{"id":"bodypart","n":"Body Part Stop","c":"Arrival games","w":"Sessio
     render(id);
   }
 
+  /* ---------- the team copy ----------
+     /api/practice is a Cloudflare Pages Function over a KV store: adjust a
+     practice and it saves itself for everybody, on every device. Served from
+     anywhere without that Function \u2014 GitHub Pages, or a file opened off a
+     memory stick \u2014 the probe below simply fails and the page carries on
+     exactly as it did before: saved here, and copied out for Claude when the
+     coach wants it written into the book for good. */
+
+  var API = '/api/practice';
+  var KEY = 'coach8u';        /* the speed bump in functions/api/practice.js */
+  var LINK = 'connecting';    /* connecting | live | local */
+  var LINKVIEW = false;       /* reading somebody's ?p= link, not editing ours */
+  var pushTimer = {};
+
+  var MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+                'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+  function ago(ts) {
+    if (!ts) return '';
+    var then = new Date(ts), now = new Date();
+    var mins = Math.max(0, Math.round((now.getTime() - ts) / 60000));
+    if (mins < 2) return 'a moment ago';
+    if (mins < 60) return mins + ' minutes ago';
+    var hhmm = then.getHours() + ':' + (then.getMinutes() < 10 ? '0' : '') + then.getMinutes();
+    if (then.toDateString() === now.toDateString()) return 'today at ' + hhmm;
+    return 'on ' + then.getDate() + ' ' + MONTHS[then.getMonth()];
+  }
+
+  function apiGet(id) {
+    return fetch(API + '?s=' + encodeURIComponent(id), { headers: { accept: 'application/json' } })
+      .then(function (r) { return r.ok ? r.json() : Promise.reject(new Error('http ' + r.status)); });
+  }
+
+  function apiPost(body) {
+    return fetch(API, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify(body)
+    }).then(function (r) { return r.ok ? r.json() : Promise.reject(new Error('http ' + r.status)); });
+  }
+
+  /* The team copy wins when it holds a plan for the session as it stands now.
+     Where it holds nothing, an adjustment already sitting on this device is
+     the one thing worth keeping, so that goes up instead. */
+  function adopt(id, saved) {
+    var st = cards[id];
+
+    if (saved && saved.edition !== st.edition) {
+      /* the practice has been written into the book since that was saved.
+         The book wins, and the superseded team copy goes. */
+      st.serverTs = 0;
+      pushNow(id, true);
+      return;
+    }
+
+    if (saved && Array.isArray(saved.plan) && planFits(saved.plan, st.base)) {
+      st.serverTs = saved.ts;
+      if (!samePlan(saved.plan, st.plan)) {
+        st.plan = saved.plan;
+        try { localStorage.setItem(keyFor(id, st.edition), JSON.stringify(st.plan)); } catch (e) { }
+        render(id);
+      } else { updateChrome(id); }
+      return;
+    }
+
+    st.serverTs = 0;
+    if (!samePlan(st.plan, defaultPlan(st.base))) pushNow(id);
+    else updateChrome(id);
+  }
+
+  function pushNow(id, clear) {
+    var st = cards[id];
+    if (LINK !== 'live' || LINKVIEW) return;
+    var isDefault = clear || samePlan(st.plan, defaultPlan(st.base));
+    st.sync = 'saving';
+    updateChrome(id);
+    apiPost(isDefault ? { s: id, edition: st.edition, clear: true, key: KEY }
+                      : { s: id, edition: st.edition, plan: st.plan, key: KEY })
+      .then(function (res) {
+        if (res && res.ok) {
+          st.sync = 'ok';
+          st.serverTs = res.saved ? res.saved.ts : 0;
+        } else { st.sync = 'error'; }
+        updateChrome(id);
+      }, function () { st.sync = 'error'; updateChrome(id); });
+  }
+
+  /* Minutes are typed a digit at a time; the team copy does not need to hear
+     about every keystroke. */
+  function push(id) {
+    if (LINK !== 'live' || LINKVIEW || !cards[id]) return;
+    /* say so at the first keystroke, not when the write finally goes */
+    cards[id].sync = 'saving';
+    updateChrome(id);
+    clearTimeout(pushTimer[id]);
+    pushTimer[id] = setTimeout(function () { pushNow(id); }, 900);
+  }
+
+  function syncAll() {
+    Object.keys(cards).forEach(function (id) {
+      apiGet(id).then(function (res) {
+        if (!res || !res.ok) { LINK = 'local'; updateChrome(id); return; }
+        LINK = 'live';
+        adopt(id, res.saved);
+      }, function () { LINK = 'local'; updateChrome(id); });
+    });
+  }
+
   /* ---------- plans arriving by link ---------- */
 
   function applyEncoded(id, encoded) {
@@ -1348,6 +1490,10 @@ var LIB = [{"id":"bodypart","n":"Body Part Stop","c":"Arrival games","w":"Sessio
 
   if (p && all.length === 1) {
     var only = all[0];
+    /* set before applying: the first render must already know it is looking
+       at somebody else's link, or the banner asks a question nothing will
+       ever answer */
+    LINKVIEW = true;
     if (applyEncoded(only.id, p)) {
       var n = only.id.replace(/^s/, '');
       var banner = document.createElement('div');
@@ -1358,6 +1504,7 @@ var LIB = [{"id":"bodypart","n":"Body Part Stop","c":"Arrival games","w":"Sessio
         'See the original</a>';
       only.parentNode.insertBefore(banner, only);
     } else {
+      LINKVIEW = false;
       var stale = document.createElement('div');
       stale.className = 'solo';
       stale.innerHTML = '<b>That link did not fit this session</b> &mdash; it was built from an ' +
@@ -1365,6 +1512,29 @@ var LIB = [{"id":"bodypart","n":"Body Part Stop","c":"Arrival games","w":"Sessio
       only.parentNode.insertBefore(stale, only);
     }
   }
+
+  if (!LINKVIEW && window.fetch) {
+    syncAll();
+    /* Coming back to the page is the moment to find out whether the other
+       coach has changed it; mid-edit is not. Phones raise one of these two
+       when an app comes back to the front, desktops the other, and neither
+       is worth missing — hence both, throttled. */
+    var lastLook = 0;
+    function lookAgain() {
+      if (LINK !== 'live' || LINKVIEW) return;
+      var now = new Date().getTime();
+      if (now - lastLook < 5000) return;
+      lastLook = now;
+      Object.keys(cards).forEach(function (id) {
+        if (cards[id].editing) return;
+        apiGet(id).then(function (res) { if (res && res.ok) adopt(id, res.saved); }, function () { });
+      });
+    }
+    document.addEventListener('visibilitychange', function () {
+      if (!document.hidden) lookAgain();
+    });
+    window.addEventListener('focus', lookAgain);
+  } else { LINK = 'local'; }
 
   var s = q.get('s');
   if (s && /^\d+$/.test(s) && all.length > 1) {
