@@ -56,7 +56,7 @@ Baking bumps `data-edition` on the session card. Every browser holding an older 
 
 **Working on the book with Claude:** the published site is the source of truth. Claude pulls `origin/main` before editing anything, because the site may be ahead of any local copy — a practice baked in from the field, or a change made from another machine.
 
-## Kicker's Club
+## Kicking Club
 
 `wall-kicks.html` — parents log the wall kicks their daughter does at home. The coach page, behind a password, shows a leaderboard. (The file keeps its old name so existing links and bookmarks still work.)
 
@@ -97,7 +97,7 @@ After that, `git push` deploys the site and the API together. No further logins.
 
 ### One home
 
-Once Cloudflare is serving the book, both copies are live but only one of them can reach the shared practice and the Kicker's Club list. Every page carries a short script at the top of its `<head>` that hands a reader on `github.io` over to the Cloudflare copy, keeping the page, the query and the anchor — so an edited-practice link or a library anchor lands where it was pointing.
+Once Cloudflare is serving the book, both copies are live but only one of them can reach the shared practice and the Kicking Club list. Every page carries a short script at the top of its `<head>` that hands a reader on `github.io` over to the Cloudflare copy, keeping the page, the query and the anchor — so an edited-practice link or a library anchor lands where it was pointing.
 
 It ships switched off: `var HOME = '';` in that script is the only thing to fill in, and with it empty the script returns on its first line. Fill in the Cloudflare address in all five pages to turn it on.
 

@@ -65,7 +65,19 @@ async function listAll(kv) {
     if (m && m.p) out.push({ p: m.p, d: m.d, k: Number(m.k) || 0, ts: Number(m.ts) || 0 });
   }
   out.sort((a, b) => (a.ts || 0) - (b.ts || 0));
-  return out;
+
+  /* The same kicks arriving twice -- a parent tapping Save again, or a queued
+     entry that did reach us the first time and came back on a new id -- is one
+     session, not two. The page has always shown it that way; counting it twice
+     here would quietly inflate the number a coach's correction is measured
+     against, and her corrected total would come out wrong. */
+  const seen = new Set();
+  return out.filter((e) => {
+    const id = e.p + '|' + e.d + '|' + e.k;
+    if (seen.has(id)) return false;
+    seen.add(id);
+    return true;
+  });
 }
 
 async function listAdjust(kv) {
