@@ -378,7 +378,7 @@ h1, h2, h3, h4 { text-wrap: balance; line-height: 1.2; }
 <script>
 /* ---------- one home ----------
    This copy of the book works, but it cannot reach the team's shared practice
-   or the Kicker's Club list, so anybody landing here is handed over to the copy
+   or the Kicking Club list, so anybody landing here is handed over to the copy
    that can -- but only once that copy has answered. If Cloudflare is ever down
    this page stays put and keeps working, which is what matters when the
    alternative is a coach on a field holding a dead link.
@@ -1023,7 +1023,7 @@ var LIB = [{"id":"bodypart","n":"Body Part Stop","c":"Arrival games","w":"Sessio
   function sayWhereItLives(id, yours) {
     var st = cards[id];
     var msg = yours.querySelector('.tb-msg');
-    var live = LINK === 'live' && !LINKVIEW && st.sync !== 'error';
+    var live = LINK === 'live' && !LINKVIEW && st.sync !== 'error' && st.sync !== 'empty';
     yours.className = 'tb-yours' + (live ? ' live' : '');
 
     if (LINKVIEW) {
@@ -1035,6 +1035,9 @@ var LIB = [{"id":"bodypart","n":"Body Part Stop","c":"Arrival games","w":"Sessio
     } else if (LINK === 'local') {
       msg.innerHTML = '<b>This is your edited version</b>, saved in this browser only &mdash; ' +
         'Moira and your other devices still see the written session.';
+    } else if (st.sync === 'empty') {
+      msg.innerHTML = '<b>Nothing in this practice yet</b> &mdash; the team still sees the version ' +
+        'you saved last. Add something and it goes up.';
     } else if (st.sync === 'saving') {
       msg.innerHTML = '<b>Saving it for the team\u2026</b>';
     } else if (st.sync === 'error') {
@@ -1470,6 +1473,12 @@ var LIB = [{"id":"bodypart","n":"Body Part Stop","c":"Arrival games","w":"Sessio
   function pushNow(id, clear) {
     var st = cards[id];
     if (LINK !== 'live' || LINKVIEW) return;
+
+    /* An emptied practice is a coach halfway through rebuilding one, not a
+       practice she wants the team to see. Hold the last saved version for
+       them and say so, rather than publishing nothing. */
+    if (!clear && !st.plan.length) { st.sync = 'empty'; updateChrome(id); return; }
+
     var isDefault = clear || samePlan(st.plan, defaultPlan(st.base));
     st.sync = 'saving';
     updateChrome(id);
@@ -1489,7 +1498,7 @@ var LIB = [{"id":"bodypart","n":"Body Part Stop","c":"Arrival games","w":"Sessio
   function push(id) {
     if (LINK !== 'live' || LINKVIEW || !cards[id]) return;
     /* say so at the first keystroke, not when the write finally goes */
-    cards[id].sync = 'saving';
+    cards[id].sync = cards[id].plan.length ? 'saving' : 'empty';
     updateChrome(id);
     clearTimeout(pushTimer[id]);
     pushTimer[id] = setTimeout(function () { pushNow(id); }, 900);

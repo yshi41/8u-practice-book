@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light">
 <meta name="robots" content="noindex, nofollow">
-<meta name="description" content="Kicker's Club - log the wall kicks done at home.">
-<title>Kicker&#39;s Club</title>
+<meta name="description" content="Kicking Club - log the wall kicks done at home.">
+<title>Kicking Club</title>
 <style>
 :root{color-scheme:light;--bg:#F4ECD8;--card:#FBF6E8;--tan:#EDE0BF;--rule:#D2C09C;--rule-hi:#B9A275;
 --text:#241608;--sec:#46331C;--muted:#6B5334;--rust:#7A3E0F;--forest:#1F5A34;--warn:#7A4A08;--fs:19px;
@@ -73,7 +73,7 @@ td.k abbr{color:var(--rust);text-decoration:none;margin-left:2px}
 <script>
 /* ---------- one home ----------
    This copy of the book works, but it cannot reach the team's shared practice
-   or the Kicker's Club list, so anybody landing here is handed over to the copy
+   or the Kicking Club list, so anybody landing here is handed over to the copy
    that can -- but only once that copy has answered. If Cloudflare is ever down
    this page stays put and keeps working, which is what matters when the
    alternative is a coach on a field holding a dead link.
@@ -102,7 +102,7 @@ td.k abbr{color:var(--rust);text-decoration:none;margin-left:2px}
 
 <header class="mast">
   <div class="eyebrow">SBMSA 8U Girls</div>
-  <h1>Kicker&rsquo;s Club</h1>
+  <h1>Kicking Club</h1>
   <p class="sub">Log the passes she does against a wall at home. A wall never misses, never gets bored, and
   sends the ball back at exactly the pace she hit it &mdash; which is why it is the fastest way to fix a weak pass.</p>
 </header>
@@ -441,7 +441,7 @@ td.k abbr{color:var(--rust);text-decoration:none;margin-left:2px}
 
     h += '<div class="card" style="padding:0;overflow:hidden"><table>' +
       '<thead><tr><th></th><th>Player</th><th>Times</th><th>Last</th>' +
-      '<th style="text-align:right">Kicks</th>' + (canEdit ? '<th></th>' : '') +
+      '<th style="text-align:right">Kicks</th><th></th>' +
       '</tr></thead><tbody>';
 
     rows.forEach(function (r, i) {
@@ -460,25 +460,31 @@ td.k abbr{color:var(--rust);text-decoration:none;margin-left:2px}
         '<td>' + (r.t || '&mdash;') + '</td>' +
         '<td>' + (r.last ? esc(pretty(r.last)) : '&mdash;') + '</td>' +
         '<td class="k">' + r.k + (r.fixed ? '<abbr title="you corrected this total">*</abbr>' : '') + '</td>' +
-        (canEdit ? '<td class="act"><button class="mini ghost" data-adj="' + esc(r.n) + '">Adjust</button></td>' : '') +
+        '<td class="act"><button class="mini ghost" data-adj="' + esc(r.n) + '"' +
+        (canEdit ? '' : ' disabled title="Needs the team list"') + '>Adjust</button></td>' +
         '</tr>';
     });
     h += '</tbody></table></div>';
 
+    h += '<div class="row">' +
+      (canEdit ? '<button id="reload">Refresh</button>' : '') +
+      '<button class="ghost" id="back">Back to the form</button>' +
+      '<button class="' + (resetArmed ? 'danger' : 'ghost') + '" id="reset">' +
+      (resetArmed ? (canEdit ? 'Tap again to wipe everything' : 'Tap again to clear this phone')
+                  : (canEdit ? 'Reset the record' : 'Clear what this phone is holding')) +
+      '</button></div>';
+
     if (canEdit) {
-      h += '<div class="row"><button id="reload">Refresh</button>' +
-        '<button class="ghost" id="back">Back to the form</button>' +
-        '<button class="' + (resetArmed ? 'danger' : 'ghost') + '" id="reset">' +
-        (resetArmed ? 'Tap again to wipe everything' : 'Reset the record') + '</button></div>' +
-        '<div class="foot">Every entry a parent makes lands here, so this is the same leaderboard on ' +
+      h += '<div class="foot">Every entry a parent makes lands here, so this is the same leaderboard on ' +
         'every phone. <b>Adjust</b> sets a girl&rsquo;s total to whatever it should be without ' +
         'rewriting what anybody logged &mdash; a star marks a total you have corrected. ' +
         '<b>Reset the record</b> wipes every entry and every correction for the whole team, and ' +
         'cannot be undone.</div>';
     } else {
-      h += '<div class="row"><button class="ghost" id="back">Back to the form</button></div>' +
-        '<div class="foot">The team list cannot be reached from here, so this is only what this phone ' +
-        'is holding. Adjusting a total and resetting the record both need the connection.</div>';
+      h += '<div class="warn" style="margin-top:16px"><b>The team list cannot be reached.</b>' +
+        'So this is only what this phone is holding, and there is no shared total to correct &mdash; ' +
+        '<b>Adjust</b> stays greyed out until the connection is back. The button above clears what ' +
+        'is waiting on this phone, which is the only record here.</div>';
     }
 
     root.innerHTML = h;
@@ -531,6 +537,20 @@ td.k abbr{color:var(--rust);text-decoration:none;margin-left:2px}
       document.getElementById('reset').addEventListener('click', function () {
         if (!resetArmed) { armReset(true); render(); return; }
         armReset(false);
+
+        /* With no team list to wipe, the only record here is what this phone
+           is still carrying. Say what was actually cleared. */
+        if (!canEdit) {
+          var waiting = read(QUEUE).length;
+          write(QUEUE, []);
+          flash = waiting
+            ? { kind: 'ok', msg: 'Cleared ' + waiting + ' ' + (waiting === 1 ? 'entry' : 'entries') +
+                                 ' that were waiting on this phone.' }
+            : { kind: 'ok', msg: 'Nothing was waiting on this phone.' };
+          render();
+          return;
+        }
+
         apiSend({ op: 'reset', key: KEY }).then(function (res) {
           if (take(res)) {
             write(QUEUE, []);
