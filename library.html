@@ -145,6 +145,32 @@ h1,h2,h3,h4{text-wrap:balance;line-height:1.2}
   a{color:inherit;text-decoration:none}
 }
 </style>
+<script>
+/* ---------- one home ----------
+   This copy of the book works, but it cannot reach the team's shared practice
+   or the Kicker's Club list, so anybody landing here is handed over to the copy
+   that can -- but only once that copy has answered. If Cloudflare is ever down
+   this page stays put and keeps working, which is what matters when the
+   alternative is a coach on a field holding a dead link.
+
+   Add ?stay=1 to any address to stay here on purpose.
+
+   HOME empty = switched off, which is how this ships until the Cloudflare
+   address is known. */
+(function () {
+  var HOME = '';
+  if (!HOME || location.hostname !== 'yshi41.github.io') return;
+  if (/(^|[?&])stay=1(&|$)/.test(location.search)) return;
+
+  var file = location.pathname.replace(/^.*\//, '') || 'index.html';
+  var to = HOME + file + location.search + location.hash;
+
+  try {
+    fetch(HOME + 'index.html', { mode: 'no-cors', cache: 'no-store' })
+      .then(function () { location.replace(to); }, function () { });
+  } catch (e) { }
+})();
+</script>
 </head>
 <body>
 <div class="wrap">

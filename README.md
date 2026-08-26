@@ -95,6 +95,14 @@ Two coaches editing the same session at the same time is last-write-wins. With t
 
 After that, `git push` deploys the site and the API together. No further logins.
 
+### One home
+
+Once Cloudflare is serving the book, both copies are live but only one of them can reach the shared practice and the Kicker's Club list. Every page carries a short script at the top of its `<head>` that hands a reader on `github.io` over to the Cloudflare copy, keeping the page, the query and the anchor — so an edited-practice link or a library anchor lands where it was pointing.
+
+It ships switched off: `var HOME = '';` in that script is the only thing to fill in, and with it empty the script returns on its first line. Fill in the Cloudflare address in all five pages to turn it on.
+
+Two deliberate properties: it redirects **only after the Cloudflare copy has answered**, so an outage there leaves `github.io` working rather than dead; and `?stay=1` on any address keeps you on `github.io` on purpose.
+
 The coach password is a speed bump, not security — anyone with the link can read the page source, key included. The page carries first names only and is marked `noindex`.
 
 ## Printing
