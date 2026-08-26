@@ -127,6 +127,13 @@ h1, h2, h3, h4 { text-wrap: balance; line-height: 1.2; }
 .tb-legend { display: flex; gap: 11px; flex-wrap: wrap; }
 .tb-key { display: inline-flex; align-items: center; gap: 5px; font-size: .68em; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: var(--muted); }
 .tb-key i { width: 11px; height: 11px; border-radius: 2px; display: inline-block; }
+.tb-yours { margin-top: 8px; padding: 9px 13px; border-radius: 4px; background: #F8EFDC; border: 1px solid var(--warn); font-size: .78em; color: var(--warn); font-weight: 700; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.tb-yours[hidden] { display: none; }
+.tb-yours b { color: var(--warn); }
+.tb-restore { font-family: inherit; font-size: .95em; font-weight: 700; cursor: pointer; border: 1px solid var(--warn); background: transparent; color: var(--warn); border-radius: 4px; padding: 6px 11px; min-height: 34px; }
+.tb-restore:hover { background: var(--warn); color: #fff; }
+.tb-restore:focus-visible { outline: 3px solid var(--forest); outline-offset: 2px; }
+
 @media (prefers-reduced-motion: reduce) { .tb-seg { transition: none; } }
 
 /* ---------- per-block edit controls ---------- */
@@ -345,7 +352,7 @@ h1, h2, h3, h4 { text-wrap: balance; line-height: 1.2; }
   }
   body { background: #fff; }
   .wrap { max-width: none; padding: 0; }
-  .nav, .share, .tolib, .editor, .bctl, .solo, .timebar, .emptystate { display: none; }
+  .nav, .share, .tolib, .editor, .bctl, .solo, .timebar, .emptystate, .tb-yours { display: none; }
   .card { break-inside: avoid; break-after: page; border: none; margin-bottom: 0; }
   .card:last-of-type { break-after: auto; }
   .card-hd { padding: 0 0 10px; }
@@ -877,6 +884,22 @@ var LIB = [{"id":"bodypart","n":"Body Part Stop","c":"Arrival games","w":"Sessio
     if (st.editedEl) st.editedEl.textContent = edited ? 'Adjusted' : '';
     if (st.copyEditsEl) st.copyEditsEl.hidden = !edited;
     if (st.resetEl) st.resetEl.hidden = !edited;
+
+    /* Saying so loudly, because a plan quietly restored from the browser
+       looks exactly like the written session until you check the clock. */
+    var yours = st.barEl && st.barEl.querySelector('.tb-yours');
+    if (yours) {
+      yours.hidden = !edited;
+      if (edited && !yours.dataset.wired) {
+        yours.innerHTML = '<b>This is your edited version</b>, saved in this browser &mdash; not the ' +
+          'written session. <button type="button" class="tb-restore">Put the original back</button>';
+        yours.querySelector('.tb-restore').addEventListener('click', function () {
+          st.plan = defaultPlan(st.base);
+          save(id); render(id);
+        });
+        yours.dataset.wired = '1';
+      }
+    }
   }
 
   /* ---------- add an activity ---------- */
@@ -1002,7 +1025,8 @@ var LIB = [{"id":"bodypart","n":"Body Part Stop","c":"Arrival games","w":"Sessio
     var bar = document.createElement('div');
     bar.className = 'timebar';
     bar.innerHTML = '<div class="tb-track"></div>' +
-      '<div class="tb-foot"><div class="tb-label"></div><div class="tb-legend"></div></div>';
+      '<div class="tb-foot"><div class="tb-label"></div><div class="tb-legend"></div></div>' +
+      '<div class="tb-yours" hidden></div>';
     hd.parentNode.insertBefore(bar, hd.nextSibling);
     st.barEl = bar;
 
