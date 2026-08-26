@@ -113,7 +113,7 @@ Two deliberate properties: it redirects **only after the Cloudflare copy has ans
 
 **`git push` publishes both copies.** `.github/workflows/deploy-cloudflare.yml` stages the pages and runs `wrangler pages deploy` on every push to `main`, while GitHub Pages rebuilds `github.io` as it always did.
 
-That workflow needs one repository secret, `CLOUDFLARE_API_TOKEN` — the setup is written at the top of the file. Without it the workflow passes and says nothing was deployed, rather than failing red on every push.
+That workflow runs on the `CLOUDFLARE_API_TOKEN` repository secret, which is set. If it is ever removed the workflow passes and says nothing was deployed, rather than failing red on every push; the setup is written at the top of the file.
 
 The Cloudflare project is direct upload rather than Git-connected, because Cloudflare cannot convert one into the other; this workflow does what the native integration would have. To publish by hand:
 
