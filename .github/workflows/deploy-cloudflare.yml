@@ -1,0 +1,72 @@
+# Publishes the book to Cloudflare Pages on every push to main, so that a push
+# updates the copy that actually matters instead of only github.io.
+#
+# The Pages project is direct upload rather than Git-connected -- Cloudflare
+# cannot convert one into the other -- so this workflow does what the native
+# integration would have done.
+#
+# ONE THING TO SET UP: a repository secret named CLOUDFLARE_API_TOKEN.
+#   Cloudflare -> My Profile -> API Tokens -> Create Token
+#     -> template "Edit Cloudflare Workers" (it covers Pages and KV)
+#   GitHub -> Settings -> Secrets and variables -> Actions -> New repository secret
+#     Name: CLOUDFLARE_API_TOKEN     Value: the token
+# Until that exists this workflow passes and says so rather than failing red.
+
+name: Deploy to Cloudflare Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: cloudflare-pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Is the Cloudflare token set up?
+        id: check
+        env:
+          TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        run: |
+          if [ -n "$TOKEN" ]; then
+            echo "ready=yes" >> "$GITHUB_OUTPUT"
+          else
+            echo "ready=no" >> "$GITHUB_OUTPUT"
+            echo "::notice::No CLOUDFLARE_API_TOKEN secret yet, so nothing was deployed. Add it (see the comment at the top of this workflow) and the next push will publish. github.io is unaffected."
+          fi
+
+      # Only the pages get served. Everything else in the repo -- the README,
+      # tools/, the functions themselves -- stays out of the public folder.
+      # A new session-N.html is picked up here without touching this file.
+      - name: Stage the pages
+        if: steps.check.outputs.ready == 'yes'
+        run: |
+          mkdir -p dist
+          cp ./*.html dist/
+          ls -1 dist/
+
+      - name: Deploy
+        if: steps.check.outputs.ready == 'yes'
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: 893593c7f3f881c34a53ce932493a1e4
+          command: pages deploy --commit-dirty=true
+
+      - name: Check the deployed site answers
+        if: steps.check.outputs.ready == 'yes'
+        run: |
+          sleep 5
+          for path in / /api/entries /api/practice; do
+            code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 20 "https://8u-practice-book.pages.dev${path}")
+            echo "$path -> $code"
+            [ "$code" = "200" ] || exit 1
+          done

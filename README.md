@@ -111,15 +111,17 @@ Two deliberate properties: it redirects **only after the Cloudflare copy has ans
 
 ## Deploying
 
-The Cloudflare project is **direct upload**, not connected to Git. That means:
+**`git push` publishes both copies.** `.github/workflows/deploy-cloudflare.yml` stages the pages and runs `wrangler pages deploy` on every push to `main`, while GitHub Pages rebuilds `github.io` as it always did.
+
+That workflow needs one repository secret, `CLOUDFLARE_API_TOKEN` — the setup is written at the top of the file. Without it the workflow passes and says nothing was deployed, rather than failing red on every push.
+
+The Cloudflare project is direct upload rather than Git-connected, because Cloudflare cannot convert one into the other; this workflow does what the native integration would have. To publish by hand:
 
 ```
-npx wrangler pages deploy        # publishes to 8u-practice-book.pages.dev
+cp *.html dist/ && npx wrangler pages deploy
 ```
 
-`git push` still updates `github.io` by itself, but it does **not** update Cloudflare. Publishing a change means both: push, then `wrangler pages deploy`. `dist/` is a throwaway staging folder (`cp *.html dist/`) and is gitignored; `wrangler.toml` holds the project name, the output folder and the two KV bindings.
-
-Connecting the project to GitHub in the Cloudflare dashboard would make pushes deploy on their own — worth doing if this gets edited often.
+`dist/` is a throwaway staging folder and is gitignored. `wrangler.toml` holds the project name, the output folder and the two KV bindings. A new `session-N.html` is picked up by both the workflow and the manual command without editing anything.
 
 The coach password is a speed bump, not security — anyone with the link can read the page source, key included. The page carries first names only and is marked `noindex`.
 
