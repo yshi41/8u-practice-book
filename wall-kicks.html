@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light">
 <meta name="robots" content="noindex, nofollow">
-<meta name="description" content="Log the wall kicks done at home.">
-<title>Wall Kicks</title>
+<meta name="description" content="Kicker's Club - log the wall kicks done at home.">
+<title>Kicker&#39;s Club</title>
 <style>
 :root{color-scheme:light;--bg:#F4ECD8;--card:#FBF6E8;--tan:#EDE0BF;--rule:#D2C09C;--rule-hi:#B9A275;
 --text:#241608;--sec:#46331C;--muted:#6B5334;--rust:#7A3E0F;--forest:#1F5A34;--warn:#7A4A08;--fs:19px;
@@ -62,6 +62,12 @@ td.nm{font-weight:700;color:var(--text)}
 .status.off{color:var(--warn)}
 .dot{display:inline-block;width:9px;height:9px;border-radius:50%;background:currentColor;margin-right:6px;vertical-align:baseline}
 code{font-family:ui-monospace,Consolas,monospace;font-size:.85em;background:var(--tan);padding:2px 5px;border-radius:3px;word-break:break-all}
+.mini{font-size:.74em;padding:7px 11px;min-height:36px}
+.adj{width:104px;padding:8px 10px;font-size:.9em;text-align:right}
+button.danger{border-color:#8B1A1A;color:#8B1A1A;background:transparent}
+button.danger:hover{background:#8B1A1A;color:#fff;border-color:#8B1A1A}
+td.act{text-align:right;white-space:nowrap}
+td.k abbr{color:var(--rust);text-decoration:none;margin-left:2px}
 [hidden]{display:none!important}
 </style>
 </head>
@@ -70,7 +76,7 @@ code{font-family:ui-monospace,Consolas,monospace;font-size:.85em;background:var(
 
 <header class="mast">
   <div class="eyebrow">SBMSA 8U Girls</div>
-  <h1>Wall Kicks</h1>
+  <h1>Kicker&rsquo;s Club</h1>
   <p class="sub">Log the passes she does against a wall at home. A wall never misses, never gets bored, and
   sends the ball back at exactly the pace she hit it &mdash; which is why it is the fastest way to fix a weak pass.</p>
 </header>
@@ -92,28 +98,34 @@ code{font-family:ui-monospace,Consolas,monospace;font-size:.85em;background:var(
      The API is a Cloudflare Pages Function living at /api/entries on this
      same origin, so this is an ordinary fetch: no CORS, no preflight.
 
-     The page probes it once on load. Served from Cloudflare, the probe
-     succeeds and every parent writes to the shared KV store. Served from
-     GitHub Pages, where no Function exists, the probe fails and the page
-     falls back to saving on the phone and emailing a code. One file, both
-     hosts, no configuration.
+     Where it answers, every parent writes to one shared store and the coach
+     sees the same leaderboard on every phone.
+
+     Where it does not answer — no signal, or a host with no Functions — an
+     entry is neither lost nor turned into homework for the parent. It waits
+     on the phone and sends itself the next time the page opens with a
+     connection.
      ------------------------------------------------------------------ */
   var API = '/api/entries';
 
   var NAMES = ["Abigael","Annabel","Annie","Catherine","Dafne","Davy","Helen","Louise","Madeline C.","Madeline S.","Riley W.","Riley Y."];
-  var PASS = 'coach8u';
-  var COACH_EMAIL = 'yshi41@gmail.com';
-  var MINE = 'wk.mine.v1';        // this phone's own log (offline mode)
-  var POOL = 'wk.pool.v1';        // codes the coach merged in (offline mode)
-  var QUEUE = 'wk.queue.v1';      // entries the server has not accepted yet
+  var PASS = 'coach8u';           // hides the coach screen from a casual tap
+  var KEY = 'coach8u';            // and guards the coach's writes at the API
+  var QUEUE = 'wk.queue.v1';      // entries the team list has not taken yet
+  var OLDLOG = 'wk.mine.v1';      // where this phone used to keep its own log
+  var OLDPOOL = 'wk.pool.v1';     // and where the coach used to paste codes
 
-  var ONLINE = false;          // set by the probe below
   var root = document.getElementById('root');
   var view = 'parent';
   var flash = null;
-  var server = [];                 // entries from the Sheet
-  var link = 'connecting';
+  var server = [];                // entries from the team list
+  var adjust = {};                // the coach's corrections, by player
+  var link = 'connecting';        // connecting | live | down
   var busy = false;
+  var editP = null;               // whose total the coach is editing
+  var resetArmed = false, resetTimer = null;
+
+  function live() { return link === 'live'; }
 
   /* ---------- storage ---------- */
 
@@ -146,18 +158,6 @@ code{font-family:ui-monospace,Consolas,monospace;font-size:.85em;background:var(
     var m = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
     return Number(p[2]) + ' ' + (m[Number(p[1]) - 1] || '') + ' ' + p[0];
   }
-  function b64e(s) {
-    var b = new TextEncoder().encode(s), t = '';
-    for (var i = 0; i < b.length; i++) t += String.fromCharCode(b[i]);
-    return btoa(t).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
-  }
-  function b64d(s) {
-    s = String(s).trim().replace(/-/g, '+').replace(/_/g, '/');
-    while (s.length % 4) s += '=';
-    var bin = atob(s), b = new Uint8Array(bin.length);
-    for (var i = 0; i < bin.length; i++) b[i] = bin.charCodeAt(i);
-    return new TextDecoder().decode(b);
-  }
   function keyOf(e) { return e.p + '|' + e.d + '|' + e.k; }
   function merge(a, b) {
     var seen = {}, out = [];
@@ -169,22 +169,41 @@ code{font-family:ui-monospace,Consolas,monospace;font-size:.85em;background:var(
     });
     return out;
   }
+
+  /* A correction is the gap between what was logged and what the coach says
+     the total is. Adding it here moves the number without rewriting a single
+     thing a parent actually entered, so "times logged" stays honest. */
   function totals(entries) {
     var by = {};
-    NAMES.forEach(function (n) { by[n] = { kicks: 0, times: 0, last: null }; });
+    NAMES.forEach(function (n) { by[n] = { kicks: 0, times: 0, last: null, fixed: false }; });
     entries.forEach(function (e) {
-      if (!by[e.p]) by[e.p] = { kicks: 0, times: 0, last: null };
+      if (!by[e.p]) by[e.p] = { kicks: 0, times: 0, last: null, fixed: false };
       by[e.p].kicks += Number(e.k) || 0;
       by[e.p].times += 1;
       if (!by[e.p].last || e.d > by[e.p].last) by[e.p].last = e.d;
     });
+    Object.keys(adjust).forEach(function (n) {
+      if (!by[n]) by[n] = { kicks: 0, times: 0, last: null, fixed: false };
+      by[n].kicks += Number(adjust[n]) || 0;
+      by[n].fixed = true;
+      if (by[n].kicks < 0) by[n].kicks = 0;
+    });
     return by;
   }
 
-  /** Everything we know about, wherever it came from. */
+  /** Everything we know about: the team list, plus anything still waiting. */
   function allEntries() {
-    if (ONLINE) return merge(server, read(QUEUE));
-    return merge(read(MINE), view === 'board' ? read(POOL) : []);
+    return merge(server, read(QUEUE));
+  }
+
+  /* Kicks logged before this page could save them for the team were kept in
+     their own corner of the phone. Move them into the queue once so they go
+     up with everything else instead of being stranded. */
+  function adoptOldLog() {
+    var old = merge(read(OLDLOG), read(OLDPOOL));
+    if (!old.length) return;
+    write(QUEUE, merge(read(QUEUE), old));
+    try { localStorage.removeItem(OLDLOG); localStorage.removeItem(OLDPOOL); } catch (e) { }
   }
 
   /* ---------- talking to the API ---------- */
@@ -199,60 +218,64 @@ code{font-family:ui-monospace,Consolas,monospace;font-size:.85em;background:var(
       .then(function (r) { return r.ok ? r.json() : Promise.reject(new Error('http ' + r.status)); });
   }
 
-  function apiPost(entry) {
+  function apiSend(body) {
     return fetch(API, {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ id: entry.id, p: entry.p, d: entry.d, k: entry.k })
+      body: JSON.stringify(body)
     }).then(function (r) { return r.ok ? r.json() : Promise.reject(new Error('http ' + r.status)); });
+  }
+
+  function apiPost(entry) {
+    return apiSend({ id: entry.id, p: entry.p, d: entry.d, k: entry.k });
+  }
+
+  /** What comes back from the API is the truth about the team list. */
+  function take(res) {
+    if (!res || !res.ok) return false;
+    if (Array.isArray(res.entries)) server = res.entries;
+    adjust = (res.adjust && typeof res.adjust === 'object') ? res.adjust : {};
+    link = 'live';
+    return true;
   }
 
   /** One probe on load decides which world we are in. */
   function probe() {
     apiGet().then(function (res) {
-      if (res && res.ok && Array.isArray(res.entries)) {
-        ONLINE = true; link = 'live'; server = res.entries;
-        render();
-        flushQueue();
-      } else {
-        ONLINE = false; link = 'offline'; render();
-      }
+      if (take(res)) { render(); flushQueue(); }
+      else { link = 'down'; render(); }
     }, function () {
-      ONLINE = false; link = 'offline'; render();
+      link = 'down'; render();
     });
   }
 
   function refresh(then) {
-    if (!ONLINE) { then && then(); return; }
     apiGet().then(function (res) {
-      if (res && res.ok && Array.isArray(res.entries)) { server = res.entries; link = 'live'; }
-      else { link = 'down'; }
+      if (!take(res)) link = 'down';
       render(); then && then();
     }, function () { link = 'down'; render(); then && then(); });
   }
 
-  /** Anything typed while the connection was down goes on the next chance. */
+  /** Anything logged while the connection was down goes on the next chance. */
   function flushQueue() {
-    if (!ONLINE) return;
+    if (!live()) return;
     var q = read(QUEUE);
     if (!q.length) return;
     apiPost(q[0]).then(function (res) {
-      if (res && res.ok) {
+      if (take(res)) {
         write(QUEUE, read(QUEUE).slice(1));
-        if (Array.isArray(res.entries)) server = res.entries;
         render();
         flushQueue();
       }
-    }, function () { /* still offline; try again next load */ });
+    }, function () { /* still no connection; try again next load */ });
   }
 
   /* ---------- parent ---------- */
 
   function statusLine() {
-    if (!ONLINE && link !== 'connecting') return '';
     var q = read(QUEUE).length;
     if (link === 'connecting') return '<div class="status"><span class="dot"></span>Checking the team list…</div>';
-    if (link === 'live') return '<div class="status live"><span class="dot"></span>Saved online for the whole team</div>';
+    if (live()) return '<div class="status live"><span class="dot"></span>Saved online for the whole team</div>';
     return '<div class="status off"><span class="dot"></span>Cannot reach the team list' +
       (q ? ' &mdash; ' + q + ' waiting to send' : '') + '</div>';
   }
@@ -263,9 +286,9 @@ code{font-family:ui-monospace,Consolas,monospace;font-size:.85em;background:var(
     var h = '';
 
     if (flash) h += '<div class="' + flash.kind + '">' + flash.msg + '</div>';
-    if (!storageWorks() && !ONLINE) {
+    if (!storageWorks()) {
       h += '<div class="warn"><b>This browser is not saving anything.</b>Private or incognito mode blocks ' +
-           'storage. Open this page in a normal window and it will remember.</div>';
+           'storage, so a kick logged with no connection would be lost. Open this page in a normal window.</div>';
     }
 
     var opts = ['<option value="">&mdash; choose &mdash;</option>'].concat(NAMES.map(function (n) {
@@ -281,19 +304,14 @@ code{font-family:ui-monospace,Consolas,monospace;font-size:.85em;background:var(
       (busy ? 'Saving…' : 'Save it') + '</button></div>' +
       '<div id="mine"></div>' +
       '<p class="note">Twenty passes against a wall counts as twenty kicks. Log it whenever she does it &mdash; ' +
-      'a few minutes a week adds up faster than anything we can do at practice.</p></div>';
+      'a few minutes a week adds up faster than anything we can do at practice. Nothing else to do: ' +
+      'the page tells the coach.</p></div>';
 
-    var sum = entries.reduce(function (n, e) { return n + (Number(e.k) || 0); }, 0);
+    var sum = 0;
+    NAMES.forEach(function (n) { sum += by[n].kicks; });
+    var times = entries.length;
     h += '<div class="tot"><div class="tile"><b>' + sum + '</b>kicks by the team</div>' +
-         '<div class="tile"><b>' + entries.length + '</b>times logged</div></div>';
-
-    if (!ONLINE && read(MINE).length) {
-      h += '<div class="card"><h2>Send it to the coach</h2>' +
-        '<p class="note" style="margin-top:0">This page saves on <b>this phone only</b>, so the coach cannot ' +
-        'see it until you send it. Sending twice never double-counts.</p>' +
-        '<div class="row"><button id="send">Email my numbers to the coach</button>' +
-        '<button class="ghost" id="copy">Copy the code instead</button></div></div>';
-    }
+         '<div class="tile"><b>' + times + '</b>times logged</div></div>';
 
     root.innerHTML = h;
     flash = null;
@@ -304,17 +322,13 @@ code{font-family:ui-monospace,Consolas,monospace;font-size:.85em;background:var(
       if (!who.value || !t || !t.times) { box.innerHTML = ''; return; }
       var recent = entries.filter(function (e) { return e.p === who.value; })
         .sort(function (a, b) { return a.d < b.d ? 1 : -1; }).slice(0, 6);
-      box.innerHTML = '<div class="mine">' + esc(who.value) + ' has <b>' + t.kicks + '</b> kicks' +
-        (ONLINE ? '' : ' logged on this phone') + '</div><div class="log">' +
+      box.innerHTML = '<div class="mine">' + esc(who.value) + ' has <b>' + t.kicks + '</b> kicks</div>' +
+        '<div class="log">' +
         recent.map(function (e) { return '<span>' + esc(pretty(e.d)) + ' &middot; ' + e.k + '</span>'; }).join('') +
         '</div>';
     });
 
     document.getElementById('save').addEventListener('click', save);
-    if (document.getElementById('send')) {
-      document.getElementById('send').addEventListener('click', sendToCoach);
-      document.getElementById('copy').addEventListener('click', copyCode);
-    }
   }
 
   function save() {
@@ -327,61 +341,32 @@ code{font-family:ui-monospace,Consolas,monospace;font-size:.85em;background:var(
     if (isNaN(n) || n < 1) { flash = { kind: 'warn', msg: 'How many kicks? A whole number, at least 1.' }; return render(); }
 
     var entry = { id: uid(), p: who, d: when, k: n, ts: Date.now() };
-
-    if (!ONLINE) {
-      var mine = read(MINE);
-      mine.push(entry);
-      if (!write(MINE, mine)) {
-        flash = { kind: 'warn', msg: 'This browser would not save it. Try a normal (not private) window.' };
-        return render();
-      }
-      flash = { kind: 'ok', msg: 'Saved &mdash; ' + esc(who) + ', ' + n + ' kicks on ' + esc(pretty(when)) + '.' };
-      return render();
-    }
+    var said = esc(who) + ', ' + n + ' kicks on ' + esc(pretty(when)) + '.';
 
     busy = true; render();
     apiPost(entry).then(function (res) {
       busy = false;
-      if (res && res.ok) {
-        if (Array.isArray(res.entries)) server = res.entries;
-        link = 'live';
-        flash = { kind: 'ok', msg: 'Saved for the whole team &mdash; ' + esc(who) + ', ' + n +
-                                   ' kicks on ' + esc(pretty(when)) + '.' };
-      } else {
-        queue(entry);
-        flash = { kind: 'warn', msg: 'Kept on this phone for now &mdash; the team list did not answer. It will send itself next time you open this page.' };
-      }
+      if (take(res)) flash = { kind: 'ok', msg: 'Saved for the whole team &mdash; ' + said };
+      else keep(entry, said);
       render();
     }, function () {
       busy = false; link = 'down';
-      queue(entry);
-      flash = { kind: 'warn', msg: 'Kept on this phone for now &mdash; no connection. It will send itself next time you open this page.' };
+      keep(entry, said);
       render();
     });
   }
 
-  function queue(entry) {
-    var q = read(QUEUE); q.push(entry); write(QUEUE, q);
-  }
-
-  function code() { return b64e(JSON.stringify(read(MINE))); }
-
-  function sendToCoach() {
-    var by = totals(read(MINE));
-    var lines = NAMES.filter(function (n) { return by[n].times; }).map(function (n) {
-      return '  ' + n + ': ' + by[n].kicks + ' kicks over ' + by[n].times + ' sessions';
-    }).join('\n');
-    var body = 'Wall kicks so far:\n\n' + lines + '\n\nPaste this code into the coach page:\n\n' + code() + '\n';
-    window.location.href = 'mailto:' + COACH_EMAIL + '?subject=' + encodeURIComponent('Wall kicks') +
-      '&body=' + encodeURIComponent(body);
-  }
-
-  function copyCode() {
-    var c = code(), btn = document.getElementById('copy');
-    function done() { btn.textContent = 'Code copied'; setTimeout(function () { btn.textContent = 'Copy the code instead'; }, 1800); }
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(c).then(done, function () { prompt('Copy this code:', c); });
-    } else { prompt('Copy this code:', c); }
+  /** No connection: hold it here and say so, without asking the parent to do
+      anything about it. */
+  function keep(entry, said) {
+    var q = read(QUEUE);
+    q.push(entry);
+    if (!write(QUEUE, q)) {
+      flash = { kind: 'warn', msg: 'This browser would not save it. Try a normal (not private) window.' };
+      return;
+    }
+    flash = { kind: 'warn', msg: 'Kept on this phone &mdash; ' + said +
+      ' It sends itself the next time you open this page with a connection.' };
   }
 
   /* ---------- coach ---------- */
@@ -395,7 +380,7 @@ code{font-family:ui-monospace,Consolas,monospace;font-size:.85em;background:var(
       'anything on this page can be read by anyone who has the link.</p></div>';
     var pw = document.getElementById('pw');
     function go() {
-      if (pw.value === PASS) { view = 'board'; if (ONLINE) refresh(); else render(); }
+      if (pw.value === PASS) { view = 'board'; if (live()) refresh(); else render(); }
       else { pw.value = ''; pw.placeholder = 'Not that one'; pw.focus(); }
     }
     document.getElementById('go').addEventListener('click', go);
@@ -404,16 +389,23 @@ code{font-family:ui-monospace,Consolas,monospace;font-size:.85em;background:var(
     pw.focus();
   }
 
+  function armReset(on) {
+    resetArmed = on;
+    clearTimeout(resetTimer);
+    if (on) resetTimer = setTimeout(function () { resetArmed = false; render(); }, 6000);
+  }
+
   function boardView() {
     var entries = allEntries();
     var by = totals(entries);
+    var canEdit = live();
     var rows = NAMES.map(function (n) {
-      return { n: n, k: by[n].kicks, t: by[n].times, last: by[n].last };
+      return { n: n, k: by[n].kicks, t: by[n].times, last: by[n].last, fixed: by[n].fixed };
     }).sort(function (a, b) { return b.k - a.k || a.n.localeCompare(b.n); });
 
     var top = rows.length ? rows[0].k : 0;
     var sum = rows.reduce(function (s, r) { return s + r.k; }, 0);
-    var logging = rows.filter(function (r) { return r.t > 0; }).length;
+    var logging = rows.filter(function (r) { return r.t > 0 || r.fixed; }).length;
 
     var h = '';
     if (flash) h += '<div class="' + flash.kind + '">' + flash.msg + '</div>';
@@ -422,59 +414,116 @@ code{font-family:ui-monospace,Consolas,monospace;font-size:.85em;background:var(
       '<div class="tile"><b>' + logging + ' / ' + NAMES.length + '</b>girls logging</div></div>';
 
     h += '<div class="card" style="padding:0;overflow:hidden"><table>' +
-      '<thead><tr><th></th><th>Player</th><th>Times</th><th>Last</th><th style="text-align:right">Kicks</th></tr></thead><tbody>';
+      '<thead><tr><th></th><th>Player</th><th>Times</th><th>Last</th>' +
+      '<th style="text-align:right">Kicks</th>' + (canEdit ? '<th></th>' : '') +
+      '</tr></thead><tbody>';
+
     rows.forEach(function (r, i) {
+      if (canEdit && editP === r.n) {
+        h += '<tr><td class="rank"></td><td class="nm">' + esc(r.n) + '</td>' +
+          '<td colspan="2">Set the total to</td>' +
+          '<td class="k"><input class="adj" id="adjval" type="number" min="0" max="1000000" ' +
+          'step="1" inputmode="numeric" value="' + r.k + '"></td>' +
+          '<td class="act"><button class="mini" id="adjsave">Save</button> ' +
+          '<button class="mini ghost" id="adjcancel">Cancel</button></td></tr>';
+        return;
+      }
       var w = top > 0 ? Math.round(r.k / top * 100) : 0;
       h += '<tr><td class="rank">' + (r.k > 0 ? (i + 1) : '') + '</td>' +
         '<td class="nm">' + esc(r.n) + (r.k > 0 ? '<div class="bar" style="width:' + w + '%"></div>' : '') + '</td>' +
         '<td>' + (r.t || '&mdash;') + '</td>' +
         '<td>' + (r.last ? esc(pretty(r.last)) : '&mdash;') + '</td>' +
-        '<td class="k">' + r.k + '</td></tr>';
+        '<td class="k">' + r.k + (r.fixed ? '<abbr title="you corrected this total">*</abbr>' : '') + '</td>' +
+        (canEdit ? '<td class="act"><button class="mini ghost" data-adj="' + esc(r.n) + '">Adjust</button></td>' : '') +
+        '</tr>';
     });
     h += '</tbody></table></div>';
 
-    if (ONLINE) {
-      h += '<div class="row"><button id="reload">Refresh from the sheet</button>' +
-        '<button class="ghost" id="back">Back to the form</button></div>' +
-        '<div class="foot">Every entry any parent makes lands in your Google Sheet, so this is the same ' +
-        'leaderboard on every phone. Sorted by total kicks; a girl with no entries stays unranked.</div>';
+    if (canEdit) {
+      h += '<div class="row"><button id="reload">Refresh</button>' +
+        '<button class="ghost" id="back">Back to the form</button>' +
+        '<button class="' + (resetArmed ? 'danger' : 'ghost') + '" id="reset">' +
+        (resetArmed ? 'Tap again to wipe everything' : 'Reset the record') + '</button></div>' +
+        '<div class="foot">Every entry a parent makes lands here, so this is the same leaderboard on ' +
+        'every phone. <b>Adjust</b> sets a girl&rsquo;s total to whatever it should be without ' +
+        'rewriting what anybody logged &mdash; a star marks a total you have corrected. ' +
+        '<b>Reset the record</b> wipes every entry and every correction for the whole team, and ' +
+        'cannot be undone.</div>';
     } else {
-      h += '<div class="card"><h2>Add what a parent sent you</h2>' +
-        '<p class="note" style="margin-top:0">Paste the code from a parent&rsquo;s email. Pasting the same ' +
-        'one twice does not double-count.</p>' +
-        '<label for="paste">Code</label><textarea id="paste" placeholder="Paste the code here"></textarea>' +
-        '<div class="row"><button id="add">Add it in</button>' +
-        '<button class="ghost" id="back">Back to the form</button></div></div>' +
-        '<div class="foot">Stored in this browser only &mdash; clearing its data clears the leaderboard, ' +
-        'so keep the parents&rsquo; emails.</div>';
+      h += '<div class="row"><button class="ghost" id="back">Back to the form</button></div>' +
+        '<div class="foot">The team list cannot be reached from here, so this is only what this phone ' +
+        'is holding. Adjusting a total and resetting the record both need the connection.</div>';
     }
 
     root.innerHTML = h;
     flash = null;
 
     if (document.getElementById('reload')) {
-      document.getElementById('reload').addEventListener('click', function () { refresh(); });
+      document.getElementById('reload').addEventListener('click', function () { armReset(false); refresh(); });
     }
-    if (document.getElementById('add')) {
-      document.getElementById('add').addEventListener('click', function () {
-        var raw = document.getElementById('paste').value.trim();
-        if (!raw) return;
-        var got = null;
-        try { got = JSON.parse(b64d(raw.replace(/\s+/g, ''))); } catch (e) { got = null; }
-        if (!Array.isArray(got)) {
-          flash = { kind: 'warn', msg: 'That does not look like a code. Copy the whole line from the email.' };
-          return render();
-        }
-        var before = merge(read(MINE), read(POOL)).length;
-        var pool = merge(read(POOL), got);
-        write(POOL, pool);
-        var added = merge(read(MINE), pool).length - before;
-        flash = { kind: 'ok', msg: added ? ('Added ' + added + ' new ' + (added === 1 ? 'entry' : 'entries') + '.')
-                                         : 'Nothing new in that one &mdash; already counted.' };
+
+    Array.prototype.forEach.call(root.querySelectorAll('[data-adj]'), function (b) {
+      b.addEventListener('click', function () {
+        armReset(false);
+        editP = b.getAttribute('data-adj');
         render();
+        var box = document.getElementById('adjval');
+        if (box) { box.focus(); box.select(); }
+      });
+    });
+
+    if (document.getElementById('adjsave')) {
+      var box = document.getElementById('adjval');
+      var who = editP;
+      var send = function () {
+        var v = parseInt(box.value, 10);
+        if (isNaN(v) || v < 0) { box.focus(); return; }
+        busy = true;
+        apiSend({ op: 'set', p: who, k: v, key: KEY }).then(function (res) {
+          busy = false;
+          if (take(res)) {
+            editP = null;
+            flash = { kind: 'ok', msg: esc(who) + ' is now on ' + v + ' kicks.' };
+          } else {
+            flash = { kind: 'warn', msg: 'That did not go through. Try again in a moment.' };
+          }
+          render();
+        }, function () {
+          busy = false; link = 'down';
+          flash = { kind: 'warn', msg: 'No connection just now, so nothing was changed.' };
+          render();
+        });
+      };
+      document.getElementById('adjsave').addEventListener('click', send);
+      box.addEventListener('keydown', function (e) { if (e.key === 'Enter') send(); });
+      document.getElementById('adjcancel').addEventListener('click', function () {
+        editP = null; render();
       });
     }
-    document.getElementById('back').addEventListener('click', function () { view = 'parent'; render(); });
+
+    if (document.getElementById('reset')) {
+      document.getElementById('reset').addEventListener('click', function () {
+        if (!resetArmed) { armReset(true); render(); return; }
+        armReset(false);
+        apiSend({ op: 'reset', key: KEY }).then(function (res) {
+          if (take(res)) {
+            write(QUEUE, []);
+            flash = { kind: 'ok', msg: 'The record is empty. Everybody starts from nothing.' };
+          } else {
+            flash = { kind: 'warn', msg: 'That did not go through. Nothing was wiped.' };
+          }
+          render();
+        }, function () {
+          link = 'down';
+          flash = { kind: 'warn', msg: 'No connection just now. Nothing was wiped.' };
+          render();
+        });
+      });
+    }
+
+    document.getElementById('back').addEventListener('click', function () {
+      armReset(false); editP = null; view = 'parent'; render();
+    });
   }
 
   function render() {
@@ -484,10 +533,12 @@ code{font-family:ui-monospace,Consolas,monospace;font-size:.85em;background:var(
   }
 
   document.getElementById('coachlink').addEventListener('click', function () {
+    armReset(false); editP = null;
     view = (view === 'parent') ? 'gate' : 'parent';
     render();
   });
 
+  adoptOldLog();
   render();
   probe();
 })();

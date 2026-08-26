@@ -19,6 +19,16 @@
  * The entry itself is held in the key's METADATA, not its value. That means
  * one `list()` call returns every entry at once, instead of a `get()` per key.
  *
+ * A coach correction lives apart from the entries, at `adj:<player>`, holding
+ * the number that has to be added to that player's total to make it what the
+ * coach says it is. Keeping it separate means fixing a total never rewrites
+ * what a parent actually logged, and "times logged" stays honest.
+ *
+ * Adding an entry is open, because that is what parents do. Correcting a total
+ * and resetting the record are guarded by a shared key: env.COACH_KEY if you
+ * set one, otherwise 'coach8u', which is what the page ships holding. That is
+ * a speed bump, not a secret.
+ *
  * BINDING: Cloudflare Pages -> Settings -> Functions -> KV namespace bindings
  *          Variable name  KICKS   ->  your namespace
  */
@@ -37,28 +47,84 @@ const json = (data, status = 200) =>
     }
   });
 
-async function listAll(kv) {
+async function keysUnder(kv, prefix) {
   const out = [];
   let cursor;
   do {
-    const page = await kv.list({ prefix: 'e:', limit: 1000, cursor });
-    for (const k of page.keys) {
-      const m = k.metadata;
-      if (m && m.p) out.push({ p: m.p, d: m.d, k: Number(m.k) || 0, ts: Number(m.ts) || 0 });
-    }
+    const page = await kv.list({ prefix, limit: 1000, cursor });
+    out.push(...page.keys);
     cursor = page.list_complete ? null : page.cursor;
   } while (cursor);
+  return out;
+}
+
+async function listAll(kv) {
+  const out = [];
+  for (const k of await keysUnder(kv, 'e:')) {
+    const m = k.metadata;
+    if (m && m.p) out.push({ p: m.p, d: m.d, k: Number(m.k) || 0, ts: Number(m.ts) || 0 });
+  }
   out.sort((a, b) => (a.ts || 0) - (b.ts || 0));
   return out;
+}
+
+async function listAdjust(kv) {
+  const out = {};
+  for (const k of await keysUnder(kv, 'adj:')) {
+    const m = k.metadata || {};
+    const n = Number(m.k);
+    if (Number.isFinite(n) && n !== 0) out[k.name.slice(4)] = n;
+  }
+  return out;
+}
+
+async function everything(kv) {
+  return { entries: await listAll(kv), adjust: await listAdjust(kv) };
 }
 
 export async function onRequestGet({ env }) {
   if (!env.KICKS) return json({ ok: false, error: 'no KV binding named KICKS' }, 500);
   try {
-    return json({ ok: true, entries: await listAll(env.KICKS) });
+    return json({ ok: true, ...(await everything(env.KICKS)) });
   } catch (err) {
     return json({ ok: false, error: String(err && err.message || err) }, 500);
   }
+}
+
+/** Coach-only: make a player's total exactly what the coach says, and wipe
+ *  the record. Both need the key; adding an entry does not. */
+async function coachOp(body, env) {
+  const kv = env.KICKS;
+
+  if (String(body.key || '') !== String(env.COACH_KEY || 'coach8u')) {
+    return json({ ok: false, error: 'wrong coach key' }, 403);
+  }
+
+  if (body.op === 'reset') {
+    for (const k of await keysUnder(kv, 'e:')) await kv.delete(k.name);
+    for (const k of await keysUnder(kv, 'adj:')) await kv.delete(k.name);
+    return json({ ok: true, entries: [], adjust: {} });
+  }
+
+  const p = String(body.p || '').trim();
+  if (!PLAYERS.includes(p)) return json({ ok: false, error: 'unknown player' }, 400);
+
+  const target = Math.floor(Number(body.k));
+  if (!Number.isFinite(target) || target < 0 || target > 1000000) {
+    return json({ ok: false, error: 'bad total' }, 400);
+  }
+
+  /* The correction is the gap between what was logged and what it should be,
+     so the entries themselves are left exactly as the parents wrote them. */
+  const logged = (await listAll(kv))
+    .filter((e) => e.p === p)
+    .reduce((n, e) => n + e.k, 0);
+  const delta = target - logged;
+
+  if (delta === 0) await kv.delete('adj:' + p);
+  else await kv.put('adj:' + p, '', { metadata: { k: delta, ts: Date.now() } });
+
+  return json({ ok: true, ...(await everything(kv)) });
 }
 
 export async function onRequestPost({ request, env }) {
@@ -69,6 +135,14 @@ export async function onRequestPost({ request, env }) {
     body = await request.json();
   } catch {
     return json({ ok: false, error: 'bad json' }, 400);
+  }
+
+  if (body.op === 'reset' || body.op === 'set') {
+    try {
+      return await coachOp(body, env);
+    } catch (err) {
+      return json({ ok: false, error: String((err && err.message) || err) }, 500);
+    }
   }
 
   const id = String(body.id || '').replace(/[^A-Za-z0-9_-]/g, '').slice(0, 64);
@@ -90,7 +164,7 @@ export async function onRequestPost({ request, env }) {
 
   try {
     await env.KICKS.put('e:' + id, '', { metadata: { p, d, k, ts: now } });
-    return json({ ok: true, entries: await listAll(env.KICKS) });
+    return json({ ok: true, ...(await everything(env.KICKS)) });
   } catch (err) {
     return json({ ok: false, error: String(err && err.message || err) }, 500);
   }
