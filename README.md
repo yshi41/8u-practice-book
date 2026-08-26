@@ -33,6 +33,21 @@ Adjustments are saved in your browser, so they survive a reload. They are per-de
 
 All of it is hidden when printing.
 
+### Keeping an adjustment for good
+
+An adjustment starts life in one browser. To make it *the* practice — on your phone, on Moira's phone, on the printed sheet — hand it back to the book:
+
+1. Adjust the practice on the site.
+2. In the amber **This is your edited version** banner, tap **Copy it for Claude**. That copies the practice as a readable outline plus a one-line `CODE`.
+3. Paste it to Claude and ask to save it into the book. Claude runs
+   `python tools/bake-practice.py --paste <file>`, which rewrites that session
+   page so your version *is* the written session, then commits and pushes.
+   Pages republishes in about a minute.
+
+Baking bumps `data-edition` on the session card. Every browser holding an older private copy of that session quietly drops it on the next visit, so nobody is left looking at a version that no longer exists. The same check catches a `?p=` link built against an older edition — the page says so instead of showing a scrambled practice.
+
+**Working on the book with Claude:** the published site is the source of truth. Claude pulls `origin/main` before editing anything, because the site may be ahead of any local copy — a practice baked in from the field, or a change made from another machine.
+
 ## Wall Kicks tracker
 
 `wall-kicks.html` — parents log the wall kicks their daughter does at home.
@@ -97,7 +112,9 @@ Individual → individual against an opponent → scoring → with a teammate �
 
 ## Editing
 
-Eighteen self-contained HTML files — no build step, no dependencies, no external fonts or CDN, and every diagram is inline SVG. Edit, commit, push; Pages redeploys in about a minute. Each file carries its own copy of the stylesheet, so either one still works opened straight off disk.
+Self-contained HTML files — no build step, no dependencies, no external fonts or CDN, and every diagram is inline SVG. Edit, commit, push; Pages redeploys in about a minute. Each file carries its own copy of the stylesheet, so any one of them still works opened straight off disk.
+
+`tools/bake-practice.py` is the one script: it takes a practice code copied off the live site and writes that plan into the session page as the new written session (`--dry-run` shows the outline first). It refuses a code built from a different edition of the page rather than silently mismatching the blocks.
 
 ## Assumptions
 
