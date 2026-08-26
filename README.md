@@ -33,6 +33,16 @@ Adjustments are saved in your browser, so they survive a reload. They are per-de
 
 All of it is hidden when printing.
 
+## Wall Kicks tracker
+
+`wall-kicks.html` — parents log the wall kicks their daughter does at home.
+
+GitHub Pages is static, so there is no shared database: **each parent's entries save on their own phone** (localStorage). A **Send to coach** button turns that phone's log into a short code and opens an email; the coach page has a paste box that merges those codes into a leaderboard. Pasting the same code twice never double-counts.
+
+The coach page is behind a password, which is a speed bump and not security — everything on the page is readable by anyone with the link. The page carries first names only, and is marked `noindex`.
+
+A version with a genuinely live shared leaderboard exists as a private Claude artifact, where the page can rewrite itself; that one needs no emailing.
+
 ## Printing
 
 Open a session page and press **Ctrl+P** — it prints to a single sheet, with the navigation, share buttons and adjust controls dropped out and the background white.
