@@ -1,6 +1,6 @@
 # The 8U Practice Book
 
-Sixteen 75-minute practice plans for a **9v9 SBMSA 8U girls' season** — eight weeks, two sessions a week, for a **12-player roster** spanning complete beginners to experienced players.
+75-minute practice plans for a **9v9 SBMSA 8U girls' season**, for a **12-player roster** spanning complete beginners to experienced players. Sessions are written one at a time, from what the team needed at the last practice.
 
 **Live:** https://yshi41.github.io/8u-practice-book/
 
@@ -9,7 +9,7 @@ Sixteen 75-minute practice plans for a **9v9 SBMSA 8U girls' season** — eight 
 | File | What it is | When you use it |
 | --- | --- | --- |
 | [`index.html`](index.html) | **Contents** — the season at a glance, linking to each session | Finding the session you want. |
-| `session-1.html` … `session-16.html` | **One practice per page** — its own URL, with previous/next links | Working from a single session, or sending one to someone. |
+| `session-1.html`, `session-2.html`, … | **One practice per page** — its own URL. New ones are added as the season goes, built from feedback after the last practice. | Working from a single session, or sending one to someone. |
 | [`library.html`](library.html) | **The Coaching Library** — the season plan and every activity explained | At home, the night before. |
 
 Every activity name on a session card is a **link** into its library entry. Tap "The Toy Box" on Session 1 and you land on the diagram, the setup steps, and what it teaches.
@@ -53,11 +53,11 @@ There is no print-all page: every practice lives on its own page, so printing th
 | Houston heat | Operational requirements, not cautions |
 | The eight-week arc | Theme, sessions, and move of the week |
 
-**The drill library** — all 35 activities, each with an overhead diagram, numbered setup and run steps, what it teaches, and how to scale it up or down:
+**The drill library** — all 58 activities, each with an overhead diagram, numbered setup and run steps, what it teaches, and how to scale it up or down:
 
 - **Soccer words** — every coaching term in plain English (gate, grid, endzone, numbers-up, goal-side…)
 - **Diagram key** — how to read the pictures
-- **Arrival games** (6) · **Ball moves** (8) · **Skill blocks** (14) · **Small-sided games** (15) · **Team challenges** (8)
+- **Arrival games** (6) · **Ball moves** (8) · **Skill blocks** (15) · **Defending** (6) · **Small-sided games** (15) · **Team challenges** (8)
 - **Running a session** — odd attendance, and what to hand your assistant coaches
 
 All distances are given in **adult walking steps**. Nothing needs measuring.
