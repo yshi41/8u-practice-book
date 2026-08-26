@@ -89,12 +89,16 @@ code{font-family:ui-monospace,Consolas,monospace;font-size:.85em;background:var(
   'use strict';
 
   /* ------------------------------------------------------------------
-     Paste the Google Apps Script web-app URL between the quotes below and
-     every entry goes to the shared Sheet instead of staying on one phone.
-     It looks like  https://script.google.com/macros/s/AKfy..../exec
-     Setup steps are in wall-kicks-backend.gs.
+     The API is a Cloudflare Pages Function living at /api/entries on this
+     same origin, so this is an ordinary fetch: no CORS, no preflight.
+
+     The page probes it once on load. Served from Cloudflare, the probe
+     succeeds and every parent writes to the shared KV store. Served from
+     GitHub Pages, where no Function exists, the probe fails and the page
+     falls back to saving on the phone and emailing a code. One file, both
+     hosts, no configuration.
      ------------------------------------------------------------------ */
-  var API = '';
+  var API = '/api/entries';
 
   var NAMES = ["Abigael","Annabel","Annie","Catherine","Dafne","Davy","Helen","Louise","Madeline C.","Madeline S.","Riley W.","Riley Y."];
   var PASS = 'coach8u';
@@ -103,12 +107,12 @@ code{font-family:ui-monospace,Consolas,monospace;font-size:.85em;background:var(
   var POOL = 'wk.pool.v1';        // codes the coach merged in (offline mode)
   var QUEUE = 'wk.queue.v1';      // entries the server has not accepted yet
 
-  var ONLINE = !!API;
+  var ONLINE = false;          // set by the probe below
   var root = document.getElementById('root');
   var view = 'parent';
   var flash = null;
   var server = [];                 // entries from the Sheet
-  var link = ONLINE ? 'connecting' : 'offline';
+  var link = 'connecting';
   var busy = false;
 
   /* ---------- storage ---------- */
@@ -183,72 +187,69 @@ code{font-family:ui-monospace,Consolas,monospace;font-size:.85em;background:var(
     return merge(read(MINE), view === 'board' ? read(POOL) : []);
   }
 
-  /* ---------- talking to the Sheet ----------
-     JSONP rather than fetch: a script-tag GET never triggers a CORS
-     preflight, which is the usual reason a static page cannot reach an
-     Apps Script deployment. */
+  /* ---------- talking to the API ---------- */
 
-  function callApi(params, ok, fail) {
-    var name = 'wkcb_' + Math.random().toString(36).slice(2);
-    var tag = document.createElement('script');
-    var done = false;
-    var timer = setTimeout(function () { finish(null, new Error('timeout')); }, 15000);
+  function uid() {
+    if (window.crypto && crypto.randomUUID) return crypto.randomUUID().replace(/-/g, '');
+    return Date.now().toString(36) + Math.random().toString(36).slice(2, 10);
+  }
 
-    function finish(data, err) {
-      if (done) return;
-      done = true;
-      clearTimeout(timer);
-      try { delete window[name]; } catch (e) { window[name] = undefined; }
-      if (tag.parentNode) tag.parentNode.removeChild(tag);
-      if (err) { fail && fail(err); } else { ok && ok(data); }
-    }
+  function apiGet() {
+    return fetch(API, { method: 'GET', headers: { 'accept': 'application/json' } })
+      .then(function (r) { return r.ok ? r.json() : Promise.reject(new Error('http ' + r.status)); });
+  }
 
-    window[name] = function (data) { finish(data, null); };
-    tag.onerror = function () { finish(null, new Error('network')); };
+  function apiPost(entry) {
+    return fetch(API, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ id: entry.id, p: entry.p, d: entry.d, k: entry.k })
+    }).then(function (r) { return r.ok ? r.json() : Promise.reject(new Error('http ' + r.status)); });
+  }
 
-    var q = ['callback=' + name];
-    Object.keys(params).forEach(function (k) {
-      q.push(encodeURIComponent(k) + '=' + encodeURIComponent(params[k]));
+  /** One probe on load decides which world we are in. */
+  function probe() {
+    apiGet().then(function (res) {
+      if (res && res.ok && Array.isArray(res.entries)) {
+        ONLINE = true; link = 'live'; server = res.entries;
+        render();
+        flushQueue();
+      } else {
+        ONLINE = false; link = 'offline'; render();
+      }
+    }, function () {
+      ONLINE = false; link = 'offline'; render();
     });
-    tag.src = API + (API.indexOf('?') > -1 ? '&' : '?') + q.join('&');
-    document.head.appendChild(tag);
   }
 
   function refresh(then) {
     if (!ONLINE) { then && then(); return; }
-    callApi({ action: 'list' }, function (res) {
-      if (res && res.ok && Array.isArray(res.entries)) {
-        server = res.entries;
-        link = 'live';
-        flushQueue();
-      } else {
-        link = 'down';
-      }
+    apiGet().then(function (res) {
+      if (res && res.ok && Array.isArray(res.entries)) { server = res.entries; link = 'live'; }
+      else { link = 'down'; }
       render(); then && then();
-    }, function () {
-      link = 'down'; render(); then && then();
-    });
+    }, function () { link = 'down'; render(); then && then(); });
   }
 
-  /** Anything typed while the connection was down gets sent on the next chance. */
+  /** Anything typed while the connection was down goes on the next chance. */
   function flushQueue() {
+    if (!ONLINE) return;
     var q = read(QUEUE);
     if (!q.length) return;
-    var e = q[0];
-    callApi({ action: 'add', p: e.p, d: e.d, k: e.k }, function (res) {
+    apiPost(q[0]).then(function (res) {
       if (res && res.ok) {
         write(QUEUE, read(QUEUE).slice(1));
         if (Array.isArray(res.entries)) server = res.entries;
         render();
         flushQueue();
       }
-    });
+    }, function () { /* still offline; try again next load */ });
   }
 
   /* ---------- parent ---------- */
 
   function statusLine() {
-    if (!ONLINE) return '';
+    if (!ONLINE && link !== 'connecting') return '';
     var q = read(QUEUE).length;
     if (link === 'connecting') return '<div class="status"><span class="dot"></span>Checking the team list…</div>';
     if (link === 'live') return '<div class="status live"><span class="dot"></span>Saved online for the whole team</div>';
@@ -325,7 +326,7 @@ code{font-family:ui-monospace,Consolas,monospace;font-size:.85em;background:var(
     if (!when) { flash = { kind: 'warn', msg: 'Pick a date.' }; return render(); }
     if (isNaN(n) || n < 1) { flash = { kind: 'warn', msg: 'How many kicks? A whole number, at least 1.' }; return render(); }
 
-    var entry = { p: who, d: when, k: n, ts: Date.now() };
+    var entry = { id: uid(), p: who, d: when, k: n, ts: Date.now() };
 
     if (!ONLINE) {
       var mine = read(MINE);
@@ -339,14 +340,13 @@ code{font-family:ui-monospace,Consolas,monospace;font-size:.85em;background:var(
     }
 
     busy = true; render();
-    callApi({ action: 'add', p: who, d: when, k: n }, function (res) {
+    apiPost(entry).then(function (res) {
       busy = false;
       if (res && res.ok) {
         if (Array.isArray(res.entries)) server = res.entries;
         link = 'live';
-        flash = res.duplicate
-          ? { kind: 'ok', msg: 'Already had that one &mdash; nothing double-counted.' }
-          : { kind: 'ok', msg: 'Saved for the whole team &mdash; ' + esc(who) + ', ' + n + ' kicks on ' + esc(pretty(when)) + '.' };
+        flash = { kind: 'ok', msg: 'Saved for the whole team &mdash; ' + esc(who) + ', ' + n +
+                                   ' kicks on ' + esc(pretty(when)) + '.' };
       } else {
         queue(entry);
         flash = { kind: 'warn', msg: 'Kept on this phone for now &mdash; the team list did not answer. It will send itself next time you open this page.' };
@@ -489,7 +489,7 @@ code{font-family:ui-monospace,Consolas,monospace;font-size:.85em;background:var(
   });
 
   render();
-  if (ONLINE) refresh();
+  probe();
 })();
 </script>
 </body>
