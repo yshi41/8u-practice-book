@@ -111,12 +111,14 @@ h1, h2, h3, h4 { text-wrap: balance; line-height: 1.2; }
 .tb-seg:last-child { border-right: none; }
 .tb-tick { position: absolute; top: -3px; bottom: -3px; width: 2px; background: var(--warn); }
 
-/* colour by what the block IS, so the bar shows the shape of the session */
-.k-warm  { background: #C8641E; }   /* warm-up */
-.k-drill { background: #7A3E0F; }   /* drill / skill work */
-.k-game  { background: #1F5A34; }   /* small-sided game or scrimmage */
-.k-water { background: #2E6E8E; }   /* water and breaks */
-.k-talk  { background: #6B5334; }   /* huddle, team name, awards */
+/* Colour by what the block IS, so the bar shows the shape of the session.
+   SCOPED to the bar and its legend only — an unscoped .k-warm also matches
+   the .blk elements, which paints a solid background behind the text. */
+.tb-seg.k-warm,  .tb-key i.k-warm  { background: #C8641E; }   /* warm-up */
+.tb-seg.k-drill, .tb-key i.k-drill { background: #7A3E0F; }   /* drill */
+.tb-seg.k-game,  .tb-key i.k-game  { background: #1F5A34; }   /* game */
+.tb-seg.k-water, .tb-key i.k-water { background: #2E6E8E; }   /* water */
+.tb-seg.k-talk,  .tb-key i.k-talk  { background: #6B5334; }   /* talk */
 
 .tb-foot { display: flex; gap: 10px 18px; flex-wrap: wrap; align-items: baseline; margin-top: 7px; }
 .tb-label { font-size: .74em; font-weight: 700; letter-spacing: .03em; color: var(--muted); }
@@ -162,12 +164,11 @@ h1, h2, h3, h4 { text-wrap: balance; line-height: 1.2; }
 .adder .blurb b { color: var(--rust); }
 .custom[hidden] { display: none; }
 
-/* ---------- blocks, coloured by what they are ---------- */
-.blk.k-warm  .clock .t, .blk.k-warm  h4 { color: #A85117; }
-.blk.k-drill .clock .t, .blk.k-drill h4 { color: var(--rust); }
-.blk.k-game  .clock .t, .blk.k-game  h4 { color: #1A4C2C; }
-.blk.k-water .clock .t, .blk.k-water h4 { color: #2E6E8E; }
-.blk.k-talk  .clock .t, .blk.k-talk  h4 { color: #5C4729; }
+/* ---------- blocks the coach added ----------
+   Blocks keep their original look; only the time bar is colour coded. */
+.blk.added .clock .t, .blk.added h4 { color: var(--blue); }
+.blk.custom-blk .clock .t, .blk.custom-blk h4 { color: var(--purple); }
+.blk.water-blk .clock .t, .blk.water-blk h4 { color: #3F6A7D; }
 .blk .fromlib { font-size: .76em; color: var(--muted); margin-top: 7px; }
 .blk .fromlib a { color: var(--rust); font-weight: 700; }
 
@@ -582,7 +583,11 @@ var LIB = [{"id":"bodypart","n":"Body Part Stop","c":"Arrival games","w":"Sessio
     return 'drill';
   }
 
-  function kindClass(st, it) { return ' k-' + classify(st, it); }
+  /* the bar is colour coded; the blocks are not */
+  function barClass(st, it) { return ' k-' + classify(st, it); }
+  function blockClass(it) {
+    return it.k === 'l' ? ' added' : it.k === 'c' ? ' custom-blk' : it.k === 'w' ? ' water-blk' : '';
+  }
 
   /* ---------- the time bar ---------- */
 
@@ -599,7 +604,7 @@ var LIB = [{"id":"bodypart","n":"Body Part Stop","c":"Arrival games","w":"Sessio
     st.plan.forEach(function (it) {
       if (!it.d) return;
       var seg = document.createElement('span');
-      seg.className = 'tb-seg' + kindClass(st, it);
+      seg.className = 'tb-seg' + barClass(st, it);
       seg.style.width = (it.d / scale * 100) + '%';
       seg.title = itemTitle(st, it) + ' — ' + it.d + ' min';
       track.appendChild(seg);
@@ -655,7 +660,7 @@ var LIB = [{"id":"bodypart","n":"Body Part Stop","c":"Arrival games","w":"Sessio
 
     st.plan.forEach(function (it, n) {
       var blk = document.createElement('div');
-      blk.className = 'blk' + kindClass(st, it) + (st.editing ? ' editing' : '');
+      blk.className = 'blk' + blockClass(it) + (st.editing ? ' editing' : '');
       blk.dataset.idx = n;
 
       var cl = document.createElement('div');
