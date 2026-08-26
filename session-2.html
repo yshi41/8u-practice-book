@@ -145,6 +145,9 @@ h1, h2, h3, h4 { text-wrap: balance; line-height: 1.2; }
 .ibtn.danger:hover { background: #F6E2E2; color: #8B1A1A; border-color: #8B1A1A; }
 .ibtn:focus-visible { outline: 3px solid var(--forest); outline-offset: 2px; }
 .bctl .mins { font-size: .72em; color: var(--muted); font-weight: 700; letter-spacing: .05em; }
+.ibtn.swap { color: var(--rust); border-color: var(--rust); }
+.blk.targeted { box-shadow: inset 4px 0 0 0 var(--forest); }
+.adder.inline { margin: 2px 0 22px; border-color: var(--forest); }
 
 /* drag handle — pointer events, so it works with a finger too */
 .ibtn.grip { cursor: grab; touch-action: none; letter-spacing: -3px; padding-right: 13px; color: var(--rust); }
@@ -352,7 +355,7 @@ h1, h2, h3, h4 { text-wrap: balance; line-height: 1.2; }
   }
   body { background: #fff; }
   .wrap { max-width: none; padding: 0; }
-  .nav, .share, .tolib, .editor, .bctl, .solo, .timebar, .emptystate, .tb-yours { display: none; }
+  .nav, .share, .tolib, .editor, .adder, .bctl, .solo, .timebar, .emptystate, .tb-yours { display: none; }
   .card { break-inside: avoid; break-after: page; border: none; margin-bottom: 0; }
   .card:last-of-type { break-after: auto; }
   .card-hd { padding: 0 0 10px; }
@@ -692,6 +695,9 @@ var LIB = [{"id":"bodypart","n":"Body Part Stop","c":"Arrival games","w":"Sessio
 
   function render(id) {
     var st = cards[id];
+    /* the panel may be sitting inline against a block that is about to be
+       rebuilt — put it away first */
+    if (st.adderEl) { if (st.adderMode !== 'add') closeAdder(id); else homeAdder(id); }
     var wrap = st.card.querySelector('.blocks');
     Array.prototype.slice.call(wrap.querySelectorAll('.blk, .emptystate')).forEach(function (b) { b.remove(); });
 
@@ -751,6 +757,22 @@ var LIB = [{"id":"bodypart","n":"Body Part Stop","c":"Arrival games","w":"Sessio
           save(id); retime(id);
         });
         ctl.appendChild(inp);
+
+        var swap = document.createElement('button');
+        swap.type = 'button'; swap.className = 'ibtn swap';
+        swap.textContent = 'Change';
+        swap.title = 'Put something else in this slot, right here';
+        swap.setAttribute('aria-label', 'Change ' + itemTitle(st, it));
+        swap.addEventListener('click', function () { openAdder(id, 'replace', n); });
+        ctl.appendChild(swap);
+
+        var below = document.createElement('button');
+        below.type = 'button'; below.className = 'ibtn';
+        below.textContent = 'Add below';
+        below.title = 'Add a new activity straight after this one';
+        below.setAttribute('aria-label', 'Add an activity below ' + itemTitle(st, it));
+        below.addEventListener('click', function () { openAdder(id, 'insert', n); });
+        ctl.appendChild(below);
 
         var rm = document.createElement('button');
         rm.type = 'button'; rm.className = 'ibtn danger';
@@ -945,7 +967,10 @@ var LIB = [{"id":"bodypart","n":"Body Part Stop","c":"Arrival games","w":"Sessio
     }
   }
 
-  /* ---------- add an activity ---------- */
+  /* ---------- add, insert, or change an activity ----------
+     One panel, three jobs. It moves to sit under whichever block you are
+     working on, so a swap happens where you are looking instead of at the
+     bottom of the page. */
 
   function buildAdder(id) {
     var st = cards[id];
@@ -968,7 +993,7 @@ var LIB = [{"id":"bodypart","n":"Body Part Stop","c":"Arrival games","w":"Sessio
       });
       opts += '</optgroup>';
     });
-    opts += '<optgroup label="Or write your own"><option value="__custom">Custom activity…</option></optgroup>';
+    opts += '<optgroup label="Or write your own"><option value="__custom">Custom activity&hellip;</option></optgroup>';
 
     box.innerHTML =
       '<h5>Add to this practice</h5>' +
@@ -988,19 +1013,25 @@ var LIB = [{"id":"bodypart","n":"Body Part Stop","c":"Arrival games","w":"Sessio
         '<button type="button" class="sbtn ghost" data-act="cancel">Cancel</button>' +
       '</div>';
 
+    var head = box.querySelector('h5');
     var sel = box.querySelector('select');
     var blurb = box.querySelector('.blurb');
     var custom = box.querySelector('.custom');
     var dur = box.querySelector('#cd-' + id);
+    var titleIn = box.querySelector('#ct-' + id);
+    var notesIn = box.querySelector('#cx-' + id);
+    var addB = box.querySelector('[data-act=add]');
 
-    sel.addEventListener('change', function () {
+    /* withDur is false when we are filling the panel in from a block that
+       already exists — the coach's own minutes should survive the swap */
+    function describe(withDur) {
       var v = sel.value;
       custom.hidden = (v !== '__custom');
       if (v === '__water') {
-        dur.value = '3';
+        if (withDur) dur.value = '3';
         blurb.innerHTML = '<b>Break</b> &mdash; everybody drinks, in shade. Non-negotiable in Houston heat.';
       } else if (v === '__waterch') {
-        dur.value = '5';
+        if (withDur) dur.value = '5';
         blurb.innerHTML = '<b>Break</b> &mdash; water plus a short, loud team challenge. A rest disguised as a competition.';
       } else if (v === '__custom' || !v) {
         blurb.innerHTML = '';
@@ -1009,38 +1040,133 @@ var LIB = [{"id":"bodypart","n":"Body Part Stop","c":"Arrival games","w":"Sessio
         blurb.innerHTML = a ? '<b>' + esc(a.c) + '</b> &mdash; ' + esc(a.b) +
           (a.k ? '<br><b>You need</b> ' + esc(a.k) : '') : '';
       }
-    });
+    }
+
+    sel.addEventListener('change', function () { describe(true); });
 
     box.querySelector('[data-act=cancel]').addEventListener('click', function () {
-      box.hidden = true; sel.value = ''; custom.hidden = true; blurb.innerHTML = '';
+      closeAdder(id);
     });
 
-    box.querySelector('[data-act=add]').addEventListener('click', function () {
+    addB.addEventListener('click', function () {
       var v = sel.value;
       var d = parseInt(dur.value, 10);
       if (isNaN(d) || d < 0) d = 10;
+      var item;
+
       if (v === '__water') {
-        st.plan.push({ k: 'w', t: 'Water', d: d });
+        item = { k: 'w', t: 'Water', d: d };
       } else if (v === '__waterch') {
-        st.plan.push({ k: 'w', t: 'Water + team challenge', d: d,
-          x: 'Water, plus a short loud challenge from the game bank. The team competes against a number, not each other.' });
+        item = { k: 'w', t: 'Water + team challenge', d: d,
+          x: 'Water, plus a short loud challenge from the game bank. The team competes against a number, not each other.' };
       } else if (v === '__custom') {
-        var t = box.querySelector('#ct-' + id).value.trim();
-        var x = box.querySelector('#cx-' + id).value.trim();
-        if (!t) { box.querySelector('#ct-' + id).focus(); return; }
-        st.plan.push({ k: 'c', t: t, x: x, d: d });
+        var t = titleIn.value.trim();
+        var x = notesIn.value.trim();
+        if (!t) { titleIn.focus(); return; }
+        item = { k: 'c', t: t, x: x, d: d };
       } else if (v) {
-        st.plan.push({ k: 'l', r: v, d: d });
+        item = { k: 'l', r: v, d: d };
       } else { sel.focus(); return; }
 
-      box.hidden = true; sel.value = ''; custom.hidden = true; blurb.innerHTML = '';
-      box.querySelector('#ct-' + id).value = '';
-      box.querySelector('#cx-' + id).value = '';
-      dur.value = '10';
+      var at = st.adderIdx;
+      if (st.adderMode === 'replace' && at > -1 && st.plan[at]) st.plan.splice(at, 1, item);
+      else if (st.adderMode === 'insert' && at > -1) st.plan.splice(at + 1, 0, item);
+      else st.plan.push(item);
+
+      closeAdder(id);
       save(id); render(id);
     });
 
+    box.api = {
+      reset: function () {
+        sel.value = ''; custom.hidden = true; blurb.innerHTML = '';
+        titleIn.value = ''; notesIn.value = ''; dur.value = '10';
+      },
+      head: function (t) { head.textContent = t; },
+      button: function (t) { addB.textContent = t; },
+      focus: function () { sel.focus(); },
+      fill: function (it) {
+        if (!it) return;
+        dur.value = it.d;
+        if (it.k === 'l') {
+          sel.value = it.r; describe(false);
+        } else if (it.k === 'w') {
+          sel.value = /challenge/i.test(it.t || '') ? '__waterch' : '__water';
+          describe(false);
+        } else if (it.k === 'c') {
+          sel.value = '__custom'; describe(false);
+          titleIn.value = it.t || ''; notesIn.value = it.x || '';
+        } else {
+          /* a block written into the session: offer its name as a starting
+             point if the coach decides to rewrite it herself */
+          titleIn.value = itemTitle(st, it);
+          blurb.innerHTML = '<b>In this slot now:</b> ' + esc(itemTitle(st, it)) +
+            ' &mdash; from the written session. Pick what goes in its place.';
+        }
+      }
+    };
+
     return box;
+  }
+
+  /* park the panel back in the editor strip */
+  function homeAdder(id) {
+    var st = cards[id], box = st.adderEl;
+    if (!box || !st.adderHome) return;
+    if (box.parentNode !== st.adderHome) st.adderHome.appendChild(box);
+    box.className = 'adder';
+    Array.prototype.forEach.call(st.card.querySelectorAll('.blk.targeted'), function (b) {
+      b.classList.remove('targeted');
+    });
+  }
+
+  function closeAdder(id) {
+    var st = cards[id], box = st.adderEl;
+    if (!box) return;
+    box.hidden = true;
+    if (box.api) box.api.reset();
+    st.adderMode = 'add'; st.adderIdx = -1;
+    homeAdder(id);
+  }
+
+  /* mode: 'add' (on the end), 'insert' (below block idx), 'replace' (block idx) */
+  function openAdder(id, mode, idx) {
+    var st = cards[id], box = st.adderEl;
+    if (!box) return;
+    var api = box.api;
+
+    api.reset();
+    homeAdder(id);
+    st.adderMode = mode;
+    st.adderIdx = typeof idx === 'number' ? idx : -1;
+
+    var blk = st.adderIdx > -1
+      ? st.card.querySelector('.blocks .blk[data-idx="' + st.adderIdx + '"]')
+      : null;
+
+    if (mode !== 'add' && blk) {
+      blk.parentNode.insertBefore(box, blk.nextSibling);
+      box.className = 'adder inline';
+      blk.classList.add('targeted');
+    } else {
+      st.adderMode = mode = 'add';
+      st.adderIdx = -1;
+    }
+
+    if (mode === 'replace') {
+      api.head('Change this activity');
+      api.button('Save the change');
+      api.fill(st.plan[st.adderIdx]);
+    } else if (mode === 'insert') {
+      api.head('Add below ' + itemTitle(st, st.plan[st.adderIdx]));
+      api.button('Add it here');
+    } else {
+      api.head('Add to this practice');
+      api.button('Add it');
+    }
+
+    box.hidden = false;
+    api.focus();
   }
 
   /* ---------- wire up one card ---------- */
@@ -1104,6 +1230,7 @@ var LIB = [{"id":"bodypart","n":"Body Part Stop","c":"Arrival games","w":"Sessio
 
     var adder = buildAdder(id);
     ed.appendChild(adder);
+    st.adderEl = adder; st.adderHome = ed; st.adderMode = 'add'; st.adderIdx = -1;
 
     st.resetEl = reset; st.editedEl = flag;
 
@@ -1113,13 +1240,13 @@ var LIB = [{"id":"bodypart","n":"Body Part Stop","c":"Arrival games","w":"Sessio
       toggle.className = st.editing ? 'sbtn' : 'sbtn ghost';
       addBtn.hidden = !st.editing;
       wipe.hidden = !st.editing;
-      if (!st.editing) { adder.hidden = true; armWipe(false); }
+      if (!st.editing) { closeAdder(id); armWipe(false); }
       render(id);
     });
 
     addBtn.addEventListener('click', function () {
-      adder.hidden = !adder.hidden;
-      if (!adder.hidden) adder.querySelector('select').focus();
+      if (!adder.hidden && st.adderMode === 'add') { closeAdder(id); return; }
+      openAdder(id, 'add', -1);
     });
 
     /* two taps to wipe — one mis-tap should not destroy the session */
@@ -1136,8 +1263,7 @@ var LIB = [{"id":"bodypart","n":"Body Part Stop","c":"Arrival games","w":"Sessio
       armWipe(false);
       st.plan = [];
       save(id); render(id);
-      adder.hidden = false;
-      adder.querySelector('select').focus();
+      openAdder(id, 'add', -1);
     });
 
     reset.addEventListener('click', function () {
