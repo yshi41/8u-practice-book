@@ -137,6 +137,8 @@ h1, h2, h3, h4 { text-wrap: balance; line-height: 1.2; }
 .tb-yours.live .tb-restore:hover { background: var(--forest); color: #fff; }
 .tb-restore { font-family: inherit; font-size: .95em; font-weight: 700; cursor: pointer; border: 1px solid var(--warn); background: transparent; color: var(--warn); border-radius: 4px; padding: 6px 11px; min-height: 34px; }
 .tb-restore:hover { background: var(--warn); color: #fff; }
+.tb-yours .keyask { display: inline-flex; gap: 6px; align-items: center; }
+.tb-yours .keyin { font-family: inherit; font-size: .95em; padding: 6px 9px; width: 130px; border: 1px solid var(--warn); border-radius: 4px; background: var(--card); color: var(--text); }
 .tb-restore:focus-visible { outline: 3px solid var(--forest); outline-offset: 2px; }
 
 @media (prefers-reduced-motion: reduce) { .tb-seg { transition: none; } }
@@ -1031,8 +1033,14 @@ var LIB = [{"id":"bodypart","n":"Body Part Stop","c":"Arrival games","w":"Sessio
   function sayWhereItLives(id, yours) {
     var st = cards[id];
     var msg = yours.querySelector('.tb-msg');
-    var live = LINK === 'live' && !LINKVIEW && st.sync !== 'error' && st.sync !== 'empty';
+    var live = LINK === 'live' && !LINKVIEW &&
+               st.sync !== 'error' && st.sync !== 'empty' && st.sync !== 'locked';
     yours.className = 'tb-yours' + (live ? ' live' : '');
+
+    if (st.sync !== 'locked') {
+      var stale = yours.querySelector('.keyask');
+      if (stale) stale.remove();
+    }
 
     if (LINKVIEW) {
       msg.innerHTML = '<b>Somebody else\u2019s version</b> &mdash; this is the practice whoever ' +
@@ -1043,6 +1051,10 @@ var LIB = [{"id":"bodypart","n":"Body Part Stop","c":"Arrival games","w":"Sessio
     } else if (LINK === 'local') {
       msg.innerHTML = '<b>This is your edited version</b>, saved in this browser only &mdash; ' +
         'Moira and your other devices still see the written session.';
+    } else if (st.sync === 'locked') {
+      msg.innerHTML = '<b>Saved on this device</b> &mdash; the team still sees the written ' +
+        'session. Unlock with the coach key and it becomes theirs too.';
+      askForKey(id, yours);
     } else if (st.sync === 'empty') {
       msg.innerHTML = '<b>Nothing in this practice yet</b> &mdash; the team still sees the version ' +
         'you saved last. Add something and it goes up.';
@@ -1055,6 +1067,31 @@ var LIB = [{"id":"bodypart","n":"Body Part Stop","c":"Arrival games","w":"Sessio
       msg.innerHTML = '<b>Saved for the whole team</b> &mdash; anybody who opens this practice ' +
         'sees your version' + (st.serverTs ? ', changed ' + ago(st.serverTs) : '') + '.';
     }
+  }
+
+
+  /* One small field, in the banner, only when a save is actually waiting on it. */
+  function askForKey(id, yours) {
+    if (yours.querySelector('.keyask')) return;
+    var wrap = document.createElement('span');
+    wrap.className = 'keyask';
+    wrap.innerHTML = '<input type="password" autocomplete="off" placeholder="Coach key" ' +
+      'aria-label="Coach key" class="keyin"> ' +
+      '<button type="button" class="tb-restore" data-act="unlock">Unlock</button>';
+    yours.insertBefore(wrap, yours.querySelector('button'));
+
+    var box = wrap.querySelector('.keyin');
+    function tryIt() {
+      var k = box.value;
+      if (!k) { box.focus(); return; }
+      setCoachKey(k);
+      var st = cards[id];
+      st.sync = 'saving';
+      updateChrome(id);
+      pushNow(id);
+    }
+    wrap.querySelector('[data-act=unlock]').addEventListener('click', tryIt);
+    box.addEventListener('keydown', function (e) { if (e.key === 'Enter') tryIt(); });
   }
 
   /* ---------- add, insert, or change an activity ----------
@@ -1418,7 +1455,7 @@ var LIB = [{"id":"bodypart","n":"Body Part Stop","c":"Arrival games","w":"Sessio
      coach wants it written into the book for good. */
 
   var API = '/api/practice';
-  var KEY = 'coach8u';        /* the speed bump in functions/api/practice.js */
+  var COACHKEY = '8u.coachkey';   /* set by whichever page the coach unlocked */
   var LINK = 'connecting';    /* connecting | live | local */
   var LINKVIEW = false;       /* reading somebody's ?p= link, not editing ours */
   var pushTimer = {};
@@ -1435,6 +1472,18 @@ var LIB = [{"id":"bodypart","n":"Body Part Stop","c":"Arrival games","w":"Sessio
     var hhmm = then.getHours() + ':' + (then.getMinutes() < 10 ? '0' : '') + then.getMinutes();
     if (then.toDateString() === now.toDateString()) return 'today at ' + hhmm;
     return 'on ' + then.getDate() + ' ' + MONTHS[then.getMonth()];
+  }
+
+  /* The coach key is not in this page. She types it once -- here or on the
+     Kicking Club, same origin, same key -- and the device keeps it. Without it
+     an adjustment is still saved on this device; it just does not become the
+     team's until she unlocks. */
+  function coachKey() {
+    try { return localStorage.getItem(COACHKEY) || ''; } catch (e) { return ''; }
+  }
+  function setCoachKey(k) {
+    try { if (k) localStorage.setItem(COACHKEY, k); else localStorage.removeItem(COACHKEY); }
+    catch (e) { }
   }
 
   function apiGet(id) {
@@ -1498,6 +1547,8 @@ var LIB = [{"id":"bodypart","n":"Body Part Stop","c":"Arrival games","w":"Sessio
        them and say so, rather than publishing nothing. */
     if (!clear && !st.plan.length) { st.sync = 'empty'; updateChrome(id); return; }
 
+    if (!coachKey()) { st.sync = 'locked'; updateChrome(id); return; }
+
     var isDefault = clear || samePlan(st.plan, defaultPlan(st.base));
     st.sync = 'saving';
     updateChrome(id);
@@ -1509,7 +1560,13 @@ var LIB = [{"id":"bodypart","n":"Body Part Stop","c":"Arrival games","w":"Sessio
           st.serverTs = res.saved ? res.saved.ts : 0;
         } else { st.sync = 'error'; }
         updateChrome(id);
-      }, function () { st.sync = 'error'; updateChrome(id); });
+      }, function (err) {
+        /* a key that the server has stopped accepting is worse than no key,
+           because it looks like it is working */
+        if (/40[13]/.test(String(err))) { setCoachKey(''); st.sync = 'locked'; }
+        else { st.sync = 'error'; }
+        updateChrome(id);
+      });
   }
 
   /* Minutes are typed a digit at a time; the team copy does not need to hear
@@ -1517,7 +1574,8 @@ var LIB = [{"id":"bodypart","n":"Body Part Stop","c":"Arrival games","w":"Sessio
   function push(id) {
     if (LINK !== 'live' || LINKVIEW || !cards[id]) return;
     /* say so at the first keystroke, not when the write finally goes */
-    cards[id].sync = cards[id].plan.length ? 'saving' : 'empty';
+    cards[id].sync = !cards[id].plan.length ? 'empty'
+                   : !coachKey() ? 'locked' : 'saving';
     updateChrome(id);
     clearTimeout(pushTimer[id]);
     pushTimer[id] = setTimeout(function () { pushNow(id); }, 900);

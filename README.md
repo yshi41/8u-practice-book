@@ -75,13 +75,13 @@ Behind the password, and only when the team list is reachable:
 - **Adjust** sets a girl's total to whatever it should be — for a parent's typo, or kicks counted at practice. The correction is stored separately at `adj:<player>` as the gap between what was logged and the total the coach wants, so it never rewrites what a parent actually entered and "times logged" stays honest. A star marks a corrected total. Setting it again re-bases rather than stacking; setting it back to the logged number removes the correction.
 - **Reset the record** wipes every entry and every correction for the whole team. Two taps, and it cannot be undone.
 
-Both are guarded at the API by the same shared key as the practice copy (`COACH_KEY`, else `coach8u`). Adding an entry is open, because that is what parents do.
+Both are guarded at the API by the coach key. Adding an entry is open, because that is what parents do.
 
 ## The practice API
 
 `functions/api/practice.js` holds one adjusted plan per session at KV key `p:<sid>`, with the edition it was built against in the key's metadata — so the "which sessions are adjusted" listing costs one `list()` and no `get()`s.
 
-Writes are guarded by a shared key: `env.COACH_KEY` if you set one, otherwise `coach8u`, which is what the session pages ship holding. That stops a passer-by rewriting Tuesday's practice; it is not a secret, and if you set `COACH_KEY` in Cloudflare you must change `KEY` in the session pages to match. Every incoming plan is validated block by block — type, minutes, library id shape, text lengths — and anything unrecognised is rejected rather than stored.
+Writes need the coach key (below). Every incoming plan is validated block by block — type, minutes, library id shape, text lengths — and anything unrecognised is rejected rather than stored. Reading a practice stays open, because a shared plan is meant to be read by whoever has the link.
 
 Two coaches editing the same session at the same time is last-write-wins. With this squad that is the right amount of machinery.
 
@@ -123,7 +123,21 @@ cp *.html dist/ && npx wrangler pages deploy
 
 `dist/` is a throwaway staging folder and is gitignored. `wrangler.toml` holds the project name, the output folder and the two KV bindings. A new `session-N.html` is picked up by both the workflow and the manual command without editing anything.
 
-The coach password is a speed bump, not security — anyone with the link can read the page source, key included. The page carries first names only and is marked `noindex`.
+The page carries first names only and is marked `noindex`.
+
+## The coach key
+
+The one secret in the project. It guards everything that changes shared state: correcting a total, resetting the Kicking Club record, and saving a practice for the team. Logging kicks and reading anything are open.
+
+**It is not in the pages.** It lives only as `COACH_KEY` on the Cloudflare Pages project, and the coach types it once per device:
+
+```
+npx wrangler pages secret put COACH_KEY --project-name 8u-practice-book
+```
+
+A page holding a key would publish it to anyone who views source, whatever its value — so the coach types it, the server checks it, and the device remembers it under `8u.coachkey`. One unlock covers the whole book, since the Kicking Club and the session pages share an origin. *Forget the key on this device* on the coach screen clears it.
+
+There is **no default**. A server with no `COACH_KEY` answers those requests with `503 no coach key is set on the server` rather than falling back to something guessable, and the pages say so plainly. You can tell from outside which state a deployment is in without knowing the key: a wrong key gets `403`, an unconfigured server gets `503`.
 
 ## Printing
 

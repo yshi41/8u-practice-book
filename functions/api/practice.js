@@ -24,11 +24,11 @@
  * Baking into the book always wins over a plan saved here.
  *
  * WRITES
- * Guarded by a shared key, checked against env.COACH_KEY if you set one and
- * against 'coach8u' if you have not. The page ships holding that key, so this
- * stops a passer-by editing Tuesday's practice; it is not a secret and is not
- * meant to be one. If you set COACH_KEY in Cloudflare, change KEY in the
- * session pages to match or writes will start failing.
+ * Need the coach key: env.COACH_KEY, with no default, so a server without one
+ * refuses writes rather than accepting something anybody could read in the page
+ * source. The page does not hold the key -- a coach types it once per device
+ * and it is kept there. Reading a practice stays open, because a shared plan is
+ * meant to be read by whoever has the link.
  *
  * BINDING: Cloudflare Pages -> Settings -> Functions -> KV namespace bindings
  *          Variable name  PLANS  ->  your namespace
@@ -137,7 +137,11 @@ export async function onRequestPost({ request, env }) {
     return json({ ok: false, error: 'bad json' }, 400);
   }
 
-  if (String(body.key || '') !== String(env.COACH_KEY || 'coach8u')) {
+  const key = String(env.COACH_KEY || '');
+  if (!key) {
+    return json({ ok: false, error: 'no coach key is set on the server' }, 503);
+  }
+  if (String(body.key || '') !== key) {
     return json({ ok: false, error: 'wrong coach key' }, 403);
   }
 

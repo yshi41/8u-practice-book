@@ -135,8 +135,7 @@ td.k abbr{color:var(--rust);text-decoration:none;margin-left:2px}
   var API = '/api/entries';
 
   var NAMES = ["Abigael","Annabel","Annie","Catherine","Dafne","Davy","Helen","Louise","Madeline C.","Madeline S.","Riley W.","Riley Y."];
-  var PASS = 'coach8u';           // hides the coach screen from a casual tap
-  var KEY = 'coach8u';            // and guards the coach's writes at the API
+  var COACHKEY = '8u.coachkey';   // the key this device has been told, if any
   var QUEUE = 'wk.queue.v1';      // entries the team list has not taken yet
   var SENT = 'wk.sent.v1';        // entries it took, but cannot show us yet
   var OLDLOG = 'wk.mine.v1';      // where this phone used to keep its own log
@@ -153,6 +152,18 @@ td.k abbr{color:var(--rust);text-decoration:none;margin-left:2px}
   var resetArmed = false, resetTimer = null;
 
   function live() { return link === 'live'; }
+
+  /* The coach key is never in this page -- that is the whole point of it. She
+     types it once on a device, the server says whether it is right, and it is
+     kept here so she is not typing it every week. Shared with the practice
+     pages, which are the same origin, so one unlock covers the book. */
+  function coachKey() {
+    try { return localStorage.getItem(COACHKEY) || ''; } catch (e) { return ''; }
+  }
+  function setCoachKey(k) {
+    try { if (k) localStorage.setItem(COACHKEY, k); else localStorage.removeItem(COACHKEY); }
+    catch (e) { }
+  }
 
   /* ---------- storage ---------- */
 
@@ -424,17 +435,49 @@ td.k abbr{color:var(--rust);text-decoration:none;margin-left:2px}
   /* ---------- coach ---------- */
 
   function gateView() {
+    var note = live()
+      ? 'The key is checked by the server, not by this page, so it is worth ' +
+        'something. This device will remember it.'
+      : 'The team list cannot be reached, so the key cannot be checked. You can ' +
+        'still look at what this phone is holding.';
+
     root.innerHTML = '<div class="card"><h2>Coach login</h2>' +
-      '<label for="pw">Password</label><input id="pw" type="password" autocomplete="off">' +
-      '<div class="row"><button id="go">See the leaderboard</button>' +
+      (flash ? '<div class="' + flash.kind + '">' + flash.msg + '</div>' : '') +
+      '<label for="pw">Coach key</label>' +
+      '<input id="pw" type="password" autocomplete="off"' +
+      (live() ? '' : ' disabled') + '>' +
+      '<div class="row"><button id="go"' + (busy ? ' disabled' : '') + '>' +
+      (busy ? 'Checking&hellip;' : (live() ? 'Unlock the leaderboard' : 'Look anyway')) + '</button>' +
       '<button class="ghost" id="back">Back</button></div>' +
-      '<p class="note">This only hides the page from a casual tap. It is not real security &mdash; ' +
-      'anything on this page can be read by anyone who has the link.</p></div>';
+      '<p class="note">' + note + '</p></div>';
+    flash = null;
+
     var pw = document.getElementById('pw');
+
     function go() {
-      if (pw.value === PASS) { view = 'board'; if (live()) refresh(); else render(); }
-      else { pw.value = ''; pw.placeholder = 'Not that one'; pw.focus(); }
+      if (!live()) { view = 'board'; render(); return; }
+      var k = pw.value;
+      if (!k) { pw.focus(); return; }
+      busy = true; render();
+      apiSend({ op: 'check', key: k }).then(function (res) {
+        busy = false;
+        if (take(res)) {
+          setCoachKey(k);
+          view = 'board';
+        } else {
+          flash = { kind: 'warn', msg: 'That key was not accepted.' };
+        }
+        render();
+      }, function (err) {
+        busy = false;
+        flash = /503/.test(String(err))
+          ? { kind: 'warn', msg: 'No coach key is set on the server yet, so there is nothing to unlock. ' +
+                                 'It is set in Cloudflare, on the Pages project.' }
+          : { kind: 'warn', msg: 'That key was not accepted.' };
+        render();
+      });
     }
+
     document.getElementById('go').addEventListener('click', go);
     pw.addEventListener('keydown', function (e) { if (e.key === 'Enter') go(); });
     document.getElementById('back').addEventListener('click', function () { view = 'parent'; render(); });
@@ -450,7 +493,9 @@ td.k abbr{color:var(--rust);text-decoration:none;margin-left:2px}
   function boardView() {
     var entries = allEntries();
     var by = totals(entries);
-    var canEdit = live();
+    /* Changing the record needs both a reachable list and a key this device
+        has been told. Looking at it needs neither. */
+    var canEdit = live() && !!coachKey();
     var rows = NAMES.map(function (n) {
       return { n: n, k: by[n].kicks, t: by[n].times, last: by[n].last, fixed: by[n].fixed };
     }).sort(function (a, b) { return b.k - a.k || a.n.localeCompare(b.n); });
@@ -493,12 +538,14 @@ td.k abbr{color:var(--rust);text-decoration:none;margin-left:2px}
     h += '</tbody></table></div>';
 
     h += '<div class="row">' +
-      (canEdit ? '<button id="reload">Refresh</button>' : '') +
+      (live() ? '<button id="reload">Refresh</button>' : '') +
       '<button class="ghost" id="back">Back to the form</button>' +
       '<button class="' + (resetArmed ? 'danger' : 'ghost') + '" id="reset">' +
       (resetArmed ? (canEdit ? 'Tap again to wipe everything' : 'Tap again to clear this phone')
                   : (canEdit ? 'Reset the record' : 'Clear what this phone is holding')) +
-      '</button></div>';
+      '</button>' +
+      (coachKey() ? '<button class="ghost" id="forget">Forget the key on this device</button>' : '') +
+      '</div>';
 
     if (canEdit) {
       h += '<div class="foot">Every entry a parent makes lands here, so this is the same leaderboard on ' +
@@ -506,11 +553,15 @@ td.k abbr{color:var(--rust);text-decoration:none;margin-left:2px}
         'rewriting what anybody logged &mdash; a star marks a total you have corrected. ' +
         '<b>Reset the record</b> wipes every entry and every correction for the whole team, and ' +
         'cannot be undone.</div>';
-    } else {
+    } else if (!live()) {
       h += '<div class="warn" style="margin-top:16px"><b>The team list cannot be reached.</b>' +
         'So this is only what this phone is holding, and there is no shared total to correct &mdash; ' +
         '<b>Adjust</b> stays greyed out until the connection is back. The button above clears what ' +
         'is waiting on this phone, which is the only record here.</div>';
+    } else {
+      h += '<div class="warn" style="margin-top:16px"><b>This device does not have the coach key.</b>' +
+        'You can read the leaderboard, but correcting a total and resetting the record need it. ' +
+        'Go back and unlock with the key to change anything.</div>';
     }
 
     root.innerHTML = h;
@@ -537,7 +588,7 @@ td.k abbr{color:var(--rust);text-decoration:none;margin-left:2px}
         var v = parseInt(box.value, 10);
         if (isNaN(v) || v < 0) { box.focus(); return; }
         busy = true;
-        apiSend({ op: 'set', p: who, k: v, key: KEY }).then(function (res) {
+        apiSend({ op: 'set', p: who, k: v, key: coachKey() }).then(function (res) {
           busy = false;
           if (take(res)) {
             editP = null;
@@ -577,7 +628,7 @@ td.k abbr{color:var(--rust);text-decoration:none;margin-left:2px}
           return;
         }
 
-        apiSend({ op: 'reset', key: KEY }).then(function (res) {
+        apiSend({ op: 'reset', key: coachKey() }).then(function (res) {
           if (take(res)) {
             write(QUEUE, []);
             write(SENT, []);
@@ -597,6 +648,15 @@ td.k abbr{color:var(--rust);text-decoration:none;margin-left:2px}
     document.getElementById('back').addEventListener('click', function () {
       armReset(false); editP = null; view = 'parent'; render();
     });
+
+    if (document.getElementById('forget')) {
+      document.getElementById('forget').addEventListener('click', function () {
+        setCoachKey('');
+        armReset(false); editP = null; view = 'parent';
+        flash = { kind: 'ok', msg: 'This device has forgotten the coach key.' };
+        render();
+      });
+    }
   }
 
   function render() {
