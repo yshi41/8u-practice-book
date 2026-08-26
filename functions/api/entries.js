@@ -58,11 +58,22 @@ async function keysUnder(kv, prefix) {
   return out;
 }
 
-async function listAll(kv) {
+/* Deleting a key is eventually consistent too, so a wiped record can keep
+   listing its old rows for a while. The wipe therefore also writes down when
+   it happened, and anything older than that is ignored: Reset the record means
+   gone, immediately and on every phone, rather than gone-ish for a minute. */
+async function clearedAt(kv) {
+  const res = await kv.getWithMetadata('meta:cleared');
+  return Number(res && res.metadata && res.metadata.ts) || 0;
+}
+
+async function listAll(kv, cut = 0) {
   const out = [];
   for (const k of await keysUnder(kv, 'e:')) {
     const m = k.metadata;
-    if (m && m.p) out.push({ p: m.p, d: m.d, k: Number(m.k) || 0, ts: Number(m.ts) || 0 });
+    if (m && m.p && (Number(m.ts) || 0) > cut) {
+      out.push({ p: m.p, d: m.d, k: Number(m.k) || 0, ts: Number(m.ts) || 0 });
+    }
   }
   out.sort((a, b) => (a.ts || 0) - (b.ts || 0));
 
@@ -80,18 +91,19 @@ async function listAll(kv) {
   });
 }
 
-async function listAdjust(kv) {
+async function listAdjust(kv, cut = 0) {
   const out = {};
   for (const k of await keysUnder(kv, 'adj:')) {
     const m = k.metadata || {};
     const n = Number(m.k);
-    if (Number.isFinite(n) && n !== 0) out[k.name.slice(4)] = n;
+    if (Number.isFinite(n) && n !== 0 && (Number(m.ts) || 0) > cut) out[k.name.slice(4)] = n;
   }
   return out;
 }
 
 async function everything(kv) {
-  return { entries: await listAll(kv), adjust: await listAdjust(kv) };
+  const cut = await clearedAt(kv);
+  return { entries: await listAll(kv, cut), adjust: await listAdjust(kv, cut) };
 }
 
 export async function onRequestGet({ env }) {
@@ -113,6 +125,7 @@ async function coachOp(body, env) {
   }
 
   if (body.op === 'reset') {
+    await kv.put('meta:cleared', '', { metadata: { ts: Date.now() } });
     for (const k of await keysUnder(kv, 'e:')) await kv.delete(k.name);
     for (const k of await keysUnder(kv, 'adj:')) await kv.delete(k.name);
     return json({ ok: true, entries: [], adjust: {} });
@@ -128,7 +141,7 @@ async function coachOp(body, env) {
 
   /* The correction is the gap between what was logged and what it should be,
      so the entries themselves are left exactly as the parents wrote them. */
-  const logged = (await listAll(kv))
+  const logged = (await everything(kv)).entries
     .filter((e) => e.p === p)
     .reduce((n, e) => n + e.k, 0);
   const delta = target - logged;
@@ -136,7 +149,13 @@ async function coachOp(body, env) {
   if (delta === 0) await kv.delete('adj:' + p);
   else await kv.put('adj:' + p, '', { metadata: { k: delta, ts: Date.now() } });
 
-  return json({ ok: true, ...(await everything(kv)) });
+  /* Same eventual consistency, and it matters more here: if the correction
+     were missing from the reply the coach would see the old number, set it
+     again, and the second correction would be measured against stale ground. */
+  const data = await everything(kv);
+  if (delta === 0) delete data.adjust[p];
+  else data.adjust[p] = delta;
+  return json({ ok: true, ...data });
 }
 
 export async function onRequestPost({ request, env }) {
@@ -176,7 +195,17 @@ export async function onRequestPost({ request, env }) {
 
   try {
     await env.KICKS.put('e:' + id, '', { metadata: { p, d, k, ts: now } });
-    return json({ ok: true, ...(await everything(env.KICKS)) });
+
+    /* KV list() is eventually consistent: the row just written is often not in
+       it for a few seconds. Put it into this reply by hand, or the parent taps
+       Save and watches the total not move -- which looks exactly like losing
+       it. Everybody else picks it up on their next read. */
+    const data = await everything(env.KICKS);
+    if (!data.entries.some((e) => e.p === p && e.d === d && e.k === k)) {
+      data.entries.push({ p, d, k, ts: now });
+      data.entries.sort((a, b) => (a.ts || 0) - (b.ts || 0));
+    }
+    return json({ ok: true, ...data });
   } catch (err) {
     return json({ ok: false, error: String(err && err.message || err) }, 500);
   }

@@ -1,0 +1,21 @@
+# Cloudflare Pages configuration for the 8U practice book.
+#
+# The site is deployed by direct upload:  npx wrangler pages deploy
+# `dist` holds only the pages that should be served; `functions/` at the repo
+# root is compiled into the Pages Functions behind /api/*.
+#
+# Both bindings point at the same KV namespace on purpose. The keys do not
+# collide -- wall kicks live under `e:` and `adj:`, practices under `p:` --
+# and one namespace is one thing to look after.
+
+name = "8u-practice-book"
+compatibility_date = "2026-08-26"
+pages_build_output_dir = "dist"
+
+[[kv_namespaces]]
+binding = "KICKS"
+id = "c0027d8784e34c8c86bef167b05ac930"
+
+[[kv_namespaces]]
+binding = "PLANS"
+id = "c0027d8784e34c8c86bef167b05ac930"

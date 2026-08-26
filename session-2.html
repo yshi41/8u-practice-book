@@ -388,7 +388,7 @@ h1, h2, h3, h4 { text-wrap: balance; line-height: 1.2; }
    HOME empty = switched off, which is how this ships until the Cloudflare
    address is known. */
 (function () {
-  var HOME = '';
+  var HOME = 'https://8u-practice-book.pages.dev/';
   if (!HOME || location.hostname !== 'yshi41.github.io') return;
   if (/(^|[?&])stay=1(&|$)/.test(location.search)) return;
 
@@ -950,12 +950,15 @@ var LIB = [{"id":"bodypart","n":"Body Part Stop","c":"Arrival games","w":"Sessio
     return true;
   }
 
+  var LOADED = {};   /* when this device last wrote each plan */
+
   function save(id) {
     var st = cards[id];
+    st.localTs = new Date().getTime();
     try {
       var k = keyFor(id, st.edition);
       if (samePlan(st.plan, defaultPlan(st.base))) localStorage.removeItem(k);
-      else localStorage.setItem(k, JSON.stringify(st.plan));
+      else localStorage.setItem(k, JSON.stringify({ p: st.plan, t: st.localTs }));
     } catch (e) { }
     push(id);
   }
@@ -965,8 +968,13 @@ var LIB = [{"id":"bodypart","n":"Body Part Stop","c":"Arrival games","w":"Sessio
       for (var old = edition - 1; old >= 1; old--) localStorage.removeItem(keyFor(id, old));
       var raw = localStorage.getItem(keyFor(id, edition));
       if (raw) {
-        var p = JSON.parse(raw);
-        if (Array.isArray(p) && planFits(p, base)) return p;
+        var v = JSON.parse(raw);
+        /* older copies were the bare list; newer ones carry when they were written */
+        var p = Array.isArray(v) ? v : (v && v.p);
+        if (Array.isArray(p) && planFits(p, base)) {
+          LOADED[id] = Array.isArray(v) ? 0 : (Number(v && v.t) || 0);
+          return p;
+        }
         localStorage.removeItem(keyFor(id, edition));
       }
     } catch (e) { }
@@ -1311,12 +1319,13 @@ var LIB = [{"id":"bodypart","n":"Body Part Stop","c":"Arrival games","w":"Sessio
 
     cards[id] = {
       card: card, base: base, edition: edition,
-      plan: load(id, base, edition), editing: false, total: 0,
+      plan: load(id, base, edition), editing: false, total: 0, localTs: 0,
       title: titleEl.textContent.trim(),
       sess: sessEl ? sessEl.textContent.replace(/\s+/g, ' ').trim() : '',
       focus: focusEl ? focusEl.textContent.replace(/\s+/g, ' ').trim() : ''
     };
     var st = cards[id];
+    st.localTs = LOADED[id] || 0;
 
     /* the always-on time bar, directly under the header */
     var bar = document.createElement('div');
@@ -1499,10 +1508,20 @@ var LIB = [{"id":"bodypart","n":"Body Part Stop","c":"Arrival games","w":"Sessio
     }
 
     if (saved && Array.isArray(saved.plan) && planFits(saved.plan, st.base)) {
+      /* KV reads lag its writes by a few seconds, so a plan this device saved a
+         moment ago can come back looking like the old one. Never let that undo
+         an edit made here just now. The window is short on purpose: a device
+         with a badly wrong clock should not pin itself to its own copy. */
+      var justEdited = st.localTs && (new Date().getTime() - st.localTs) < 120000;
+      if (justEdited && saved.ts && saved.ts < st.localTs) { updateChrome(id); return; }
+
       st.serverTs = saved.ts;
       if (!samePlan(saved.plan, st.plan)) {
         st.plan = saved.plan;
-        try { localStorage.setItem(keyFor(id, st.edition), JSON.stringify(st.plan)); } catch (e) { }
+        try {
+          localStorage.setItem(keyFor(id, st.edition),
+            JSON.stringify({ p: st.plan, t: saved.ts || new Date().getTime() }));
+        } catch (e) { }
         render(id);
       } else { updateChrome(id); }
       return;

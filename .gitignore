@@ -17,3 +17,7 @@ $RECYCLE.BIN/
 SBMSA 8U Soccer/
 *.csv
 *.xlsx
+
+# built by 'wrangler pages deploy'
+dist/
+.wrangler/

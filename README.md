@@ -85,23 +85,41 @@ Writes are guarded by a shared key: `env.COACH_KEY` if you set one, otherwise `c
 
 Two coaches editing the same session at the same time is last-write-wins. With this squad that is the right amount of machinery.
 
-### Cloudflare setup (one time)
+### How it is set up
 
-1. Cloudflare dashboard → **Workers & Pages** → **Create** → **Pages** → **Connect to Git** → pick `yshi41/8u-practice-book`
-2. Build settings: **no build command**, output directory `/`
-3. **Workers & Pages → KV** → create a namespace (any name)
-4. The Pages project → **Settings → Functions → KV namespace bindings** → add `KICKS` and `PLANS`, both pointing at that namespace (one namespace is fine — the keys do not collide, and the practice API accepts either binding)
-5. Redeploy once so the bindings take effect
+Done, on the account `yshi41@gmail.com`:
 
-After that, `git push` deploys the site and the API together. No further logins.
+- Pages project **`8u-practice-book`** (direct upload, production branch `main`)
+- KV namespace **`8u`** (`c0027d8784e34c8c86bef167b05ac930`), bound as both **`KICKS`** and **`PLANS`** in `wrangler.toml`. One namespace on purpose: wall kicks live under `e:`, `adj:` and `meta:`, practices under `p:`, so nothing collides and there is one thing to look after.
+
+### Eventual consistency, and what it means here
+
+KV is eventually consistent: a write is durable immediately but can take a few seconds to show up in a later read, and `list()` lags most. Three things follow, all handled:
+
+- **Every write is echoed back in its own reply**, so whoever made a change sees it at once instead of watching the number not move.
+- **A sent kick is held on the phone** (`wk.sent.v1`) until the team list catches up, then dropped. Fifteen minutes is the giving-up point, so a wiped record cannot be haunted by one phone.
+- **A wipe writes down when it happened** (`meta:cleared`) and anything older is ignored, because deletes lag too. Reset means gone, not gone-ish.
+- On the practice pages, a stale read **cannot undo an edit this device made in the last two minutes**.
+
+Other people's phones converge within about a minute. That is the trade for a store with no server to run.
 
 ### One home
 
-Once Cloudflare is serving the book, both copies are live but only one of them can reach the shared practice and the Kicking Club list. Every page carries a short script at the top of its `<head>` that hands a reader on `github.io` over to the Cloudflare copy, keeping the page, the query and the anchor — so an edited-practice link or a library anchor lands where it was pointing.
-
-It ships switched off: `var HOME = '';` in that script is the only thing to fill in, and with it empty the script returns on its first line. Fill in the Cloudflare address in all five pages to turn it on.
+**The book lives at https://8u-practice-book.pages.dev.** That is the copy with the APIs behind it. `github.io` still serves the same files, but a script at the top of each `<head>` hands the reader over to Cloudflare, keeping the page, the query and the anchor — so an edited-practice link or a library anchor lands where it was pointing.
 
 Two deliberate properties: it redirects **only after the Cloudflare copy has answered**, so an outage there leaves `github.io` working rather than dead; and `?stay=1` on any address keeps you on `github.io` on purpose.
+
+## Deploying
+
+The Cloudflare project is **direct upload**, not connected to Git. That means:
+
+```
+npx wrangler pages deploy        # publishes to 8u-practice-book.pages.dev
+```
+
+`git push` still updates `github.io` by itself, but it does **not** update Cloudflare. Publishing a change means both: push, then `wrangler pages deploy`. `dist/` is a throwaway staging folder (`cp *.html dist/`) and is gitignored; `wrangler.toml` holds the project name, the output folder and the two KV bindings.
+
+Connecting the project to GitHub in the Cloudflare dashboard would make pushes deploy on their own — worth doing if this gets edited often.
 
 The coach password is a speed bump, not security — anyone with the link can read the page source, key included. The page carries first names only and is marked `noindex`.
 
