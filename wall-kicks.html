@@ -31,6 +31,7 @@ select:focus-visible,input:focus-visible,textarea:focus-visible,button:focus-vis
 button{font-family:inherit;font-size:.85em;font-weight:700;cursor:pointer;border-radius:5px;padding:13px 20px;
 min-height:48px;border:1px solid var(--rust);background:var(--rust);color:var(--card)}
 button:hover{background:var(--text);border-color:var(--text)}
+button[disabled]{opacity:.5;cursor:not-allowed}
 button.ghost{background:transparent;color:var(--rust)}
 button.ghost:hover{background:var(--tan);color:var(--rust)}
 .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:18px}
@@ -56,6 +57,10 @@ td.nm{font-weight:700;color:var(--text)}
 .foot{margin-top:26px;padding-top:16px;border-top:1px solid var(--rule);font-size:.76em;color:var(--muted)}
 .foot a{color:var(--rust);font-weight:700}
 .linky{background:none;border:none;color:var(--rust);font-weight:700;font-size:.78em;text-decoration:underline;cursor:pointer;padding:6px 2px;min-height:auto}
+.status{font-size:.74em;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);margin-bottom:12px}
+.status.live{color:var(--forest)}
+.status.off{color:var(--warn)}
+.dot{display:inline-block;width:9px;height:9px;border-radius:50%;background:currentColor;margin-right:6px;vertical-align:baseline}
 code{font-family:ui-monospace,Consolas,monospace;font-size:.85em;background:var(--tan);padding:2px 5px;border-radius:3px;word-break:break-all}
 [hidden]{display:none!important}
 </style>
@@ -83,31 +88,38 @@ code{font-family:ui-monospace,Consolas,monospace;font-size:.85em;background:var(
 (function () {
   'use strict';
 
+  /* ------------------------------------------------------------------
+     Paste the Google Apps Script web-app URL between the quotes below and
+     every entry goes to the shared Sheet instead of staying on one phone.
+     It looks like  https://script.google.com/macros/s/AKfy..../exec
+     Setup steps are in wall-kicks-backend.gs.
+     ------------------------------------------------------------------ */
+  var API = '';
+
   var NAMES = ["Abigael","Annabel","Annie","Catherine","Dafne","Davy","Helen","Louise","Madeline C.","Madeline S.","Riley W.","Riley Y."];
   var PASS = 'coach8u';
   var COACH_EMAIL = 'yshi41@gmail.com';
-  var MINE = 'wk.mine.v1';      // this phone's own log
-  var POOL = 'wk.pool.v1';      // codes the coach has merged in
+  var MINE = 'wk.mine.v1';        // this phone's own log (offline mode)
+  var POOL = 'wk.pool.v1';        // codes the coach merged in (offline mode)
+  var QUEUE = 'wk.queue.v1';      // entries the server has not accepted yet
 
+  var ONLINE = !!API;
   var root = document.getElementById('root');
   var view = 'parent';
   var flash = null;
+  var server = [];                 // entries from the Sheet
+  var link = ONLINE ? 'connecting' : 'offline';
+  var busy = false;
 
   /* ---------- storage ---------- */
 
   function read(key) {
-    try {
-      var raw = localStorage.getItem(key);
-      var v = raw ? JSON.parse(raw) : [];
-      return Array.isArray(v) ? v : [];
-    } catch (e) { return []; }
+    try { var v = JSON.parse(localStorage.getItem(key) || '[]'); return Array.isArray(v) ? v : []; }
+    catch (e) { return []; }
   }
-
   function write(key, v) {
-    try { localStorage.setItem(key, JSON.stringify(v)); return true; }
-    catch (e) { return false; }
+    try { localStorage.setItem(key, JSON.stringify(v)); return true; } catch (e) { return false; }
   }
-
   function storageWorks() {
     try { localStorage.setItem('wk.t', '1'); localStorage.removeItem('wk.t'); return true; }
     catch (e) { return false; }
@@ -119,26 +131,22 @@ code{font-family:ui-monospace,Consolas,monospace;font-size:.85em;background:var(
     return String(t == null ? '' : t)
       .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
   }
-
   function today() {
     var d = new Date();
     return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' +
            String(d.getDate()).padStart(2, '0');
   }
-
   function pretty(iso) {
     var p = String(iso).split('-');
     if (p.length !== 3) return iso;
     var m = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
     return Number(p[2]) + ' ' + (m[Number(p[1]) - 1] || '') + ' ' + p[0];
   }
-
   function b64e(s) {
     var b = new TextEncoder().encode(s), t = '';
     for (var i = 0; i < b.length; i++) t += String.fromCharCode(b[i]);
     return btoa(t).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
   }
-
   function b64d(s) {
     s = String(s).trim().replace(/-/g, '+').replace(/_/g, '/');
     while (s.length % 4) s += '=';
@@ -146,20 +154,17 @@ code{font-family:ui-monospace,Consolas,monospace;font-size:.85em;background:var(
     for (var i = 0; i < bin.length; i++) b[i] = bin.charCodeAt(i);
     return new TextDecoder().decode(b);
   }
-
-  function key(e) { return e.p + '|' + e.d + '|' + e.k + '|' + (e.ts || ''); }
-
+  function keyOf(e) { return e.p + '|' + e.d + '|' + e.k; }
   function merge(a, b) {
     var seen = {}, out = [];
     a.concat(b).forEach(function (e) {
       if (!e || !e.p) return;
-      var k = key(e);
+      var k = keyOf(e);
       if (seen[k]) return;
       seen[k] = 1; out.push(e);
     });
     return out;
   }
-
   function totals(entries) {
     var by = {};
     NAMES.forEach(function (n) { by[n] = { kicks: 0, times: 0, last: null }; });
@@ -172,16 +177,92 @@ code{font-family:ui-monospace,Consolas,monospace;font-size:.85em;background:var(
     return by;
   }
 
+  /** Everything we know about, wherever it came from. */
+  function allEntries() {
+    if (ONLINE) return merge(server, read(QUEUE));
+    return merge(read(MINE), view === 'board' ? read(POOL) : []);
+  }
+
+  /* ---------- talking to the Sheet ----------
+     JSONP rather than fetch: a script-tag GET never triggers a CORS
+     preflight, which is the usual reason a static page cannot reach an
+     Apps Script deployment. */
+
+  function callApi(params, ok, fail) {
+    var name = 'wkcb_' + Math.random().toString(36).slice(2);
+    var tag = document.createElement('script');
+    var done = false;
+    var timer = setTimeout(function () { finish(null, new Error('timeout')); }, 15000);
+
+    function finish(data, err) {
+      if (done) return;
+      done = true;
+      clearTimeout(timer);
+      try { delete window[name]; } catch (e) { window[name] = undefined; }
+      if (tag.parentNode) tag.parentNode.removeChild(tag);
+      if (err) { fail && fail(err); } else { ok && ok(data); }
+    }
+
+    window[name] = function (data) { finish(data, null); };
+    tag.onerror = function () { finish(null, new Error('network')); };
+
+    var q = ['callback=' + name];
+    Object.keys(params).forEach(function (k) {
+      q.push(encodeURIComponent(k) + '=' + encodeURIComponent(params[k]));
+    });
+    tag.src = API + (API.indexOf('?') > -1 ? '&' : '?') + q.join('&');
+    document.head.appendChild(tag);
+  }
+
+  function refresh(then) {
+    if (!ONLINE) { then && then(); return; }
+    callApi({ action: 'list' }, function (res) {
+      if (res && res.ok && Array.isArray(res.entries)) {
+        server = res.entries;
+        link = 'live';
+        flushQueue();
+      } else {
+        link = 'down';
+      }
+      render(); then && then();
+    }, function () {
+      link = 'down'; render(); then && then();
+    });
+  }
+
+  /** Anything typed while the connection was down gets sent on the next chance. */
+  function flushQueue() {
+    var q = read(QUEUE);
+    if (!q.length) return;
+    var e = q[0];
+    callApi({ action: 'add', p: e.p, d: e.d, k: e.k }, function (res) {
+      if (res && res.ok) {
+        write(QUEUE, read(QUEUE).slice(1));
+        if (Array.isArray(res.entries)) server = res.entries;
+        render();
+        flushQueue();
+      }
+    });
+  }
+
   /* ---------- parent ---------- */
 
+  function statusLine() {
+    if (!ONLINE) return '';
+    var q = read(QUEUE).length;
+    if (link === 'connecting') return '<div class="status"><span class="dot"></span>Checking the team list…</div>';
+    if (link === 'live') return '<div class="status live"><span class="dot"></span>Saved online for the whole team</div>';
+    return '<div class="status off"><span class="dot"></span>Cannot reach the team list' +
+      (q ? ' &mdash; ' + q + ' waiting to send' : '') + '</div>';
+  }
+
   function parentView() {
-    var mine = read(MINE);
-    var by = totals(mine);
+    var entries = allEntries();
+    var by = totals(entries);
     var h = '';
 
     if (flash) h += '<div class="' + flash.kind + '">' + flash.msg + '</div>';
-
-    if (!storageWorks()) {
+    if (!storageWorks() && !ONLINE) {
       h += '<div class="warn"><b>This browser is not saving anything.</b>Private or incognito mode blocks ' +
            'storage. Open this page in a normal window and it will remember.</div>';
     }
@@ -190,24 +271,25 @@ code{font-family:ui-monospace,Consolas,monospace;font-size:.85em;background:var(
       return '<option value="' + esc(n) + '">' + esc(n) + '</option>';
     })).join('');
 
-    h += '<div class="card"><h2>Log some kicks</h2>' +
+    h += '<div class="card">' + statusLine() + '<h2>Log some kicks</h2>' +
       '<label for="who">Who kicked?</label><select id="who">' + opts + '</select>' +
       '<label for="when">What day?</label><input id="when" type="date" value="' + today() + '">' +
       '<label for="howmany">How many wall kicks?</label>' +
       '<input id="howmany" type="number" min="1" max="5000" step="1" inputmode="numeric" placeholder="e.g. 20">' +
-      '<div class="row"><button id="save">Save it</button></div>' +
+      '<div class="row"><button id="save"' + (busy ? ' disabled' : '') + '>' +
+      (busy ? 'Saving…' : 'Save it') + '</button></div>' +
       '<div id="mine"></div>' +
       '<p class="note">Twenty passes against a wall counts as twenty kicks. Log it whenever she does it &mdash; ' +
       'a few minutes a week adds up faster than anything we can do at practice.</p></div>';
 
-    var all = mine.reduce(function (n, e) { return n + (Number(e.k) || 0); }, 0);
-    if (mine.length) {
+    var sum = entries.reduce(function (n, e) { return n + (Number(e.k) || 0); }, 0);
+    h += '<div class="tot"><div class="tile"><b>' + sum + '</b>kicks by the team</div>' +
+         '<div class="tile"><b>' + entries.length + '</b>times logged</div></div>';
+
+    if (!ONLINE && read(MINE).length) {
       h += '<div class="card"><h2>Send it to the coach</h2>' +
-        '<p class="note" style="margin-top:0">This page saves on <b>this phone only</b>, so the coach cannot see ' +
-        'it until you send it. One tap makes an email with your numbers in it. Send it whenever you like &mdash; ' +
-        'once a week is plenty, and sending twice never double-counts.</p>' +
-        '<div class="tot" style="margin-top:14px"><div class="tile"><b>' + all + '</b>kicks logged here</div>' +
-        '<div class="tile"><b>' + mine.length + '</b>times</div></div>' +
+        '<p class="note" style="margin-top:0">This page saves on <b>this phone only</b>, so the coach cannot ' +
+        'see it until you send it. Sending twice never double-counts.</p>' +
         '<div class="row"><button id="send">Email my numbers to the coach</button>' +
         '<button class="ghost" id="copy">Copy the code instead</button></div></div>';
     }
@@ -219,10 +301,10 @@ code{font-family:ui-monospace,Consolas,monospace;font-size:.85em;background:var(
     who.addEventListener('change', function () {
       var t = by[who.value], box = document.getElementById('mine');
       if (!who.value || !t || !t.times) { box.innerHTML = ''; return; }
-      var recent = mine.filter(function (e) { return e.p === who.value; })
+      var recent = entries.filter(function (e) { return e.p === who.value; })
         .sort(function (a, b) { return a.d < b.d ? 1 : -1; }).slice(0, 6);
-      box.innerHTML = '<div class="mine">' + esc(who.value) + ' has <b>' + t.kicks +
-        '</b> kicks logged on this phone</div><div class="log">' +
+      box.innerHTML = '<div class="mine">' + esc(who.value) + ' has <b>' + t.kicks + '</b> kicks' +
+        (ONLINE ? '' : ' logged on this phone') + '</div><div class="log">' +
         recent.map(function (e) { return '<span>' + esc(pretty(e.d)) + ' &middot; ' + e.k + '</span>'; }).join('') +
         '</div>';
     });
@@ -239,34 +321,58 @@ code{font-family:ui-monospace,Consolas,monospace;font-size:.85em;background:var(
     var when = document.getElementById('when').value;
     var n = parseInt(document.getElementById('howmany').value, 10);
 
-    if (!who) { flash = { kind: 'warn', msg: 'Pick who kicked first.' }; return parentView(); }
-    if (!when) { flash = { kind: 'warn', msg: 'Pick a date.' }; return parentView(); }
-    if (isNaN(n) || n < 1) { flash = { kind: 'warn', msg: 'How many kicks? A whole number, at least 1.' }; return parentView(); }
+    if (!who) { flash = { kind: 'warn', msg: 'Pick who kicked first.' }; return render(); }
+    if (!when) { flash = { kind: 'warn', msg: 'Pick a date.' }; return render(); }
+    if (isNaN(n) || n < 1) { flash = { kind: 'warn', msg: 'How many kicks? A whole number, at least 1.' }; return render(); }
 
-    var mine = read(MINE);
-    mine.push({ p: who, d: when, k: n, ts: Date.now() });
-    if (!write(MINE, mine)) {
-      flash = { kind: 'warn', msg: 'This browser would not save it. Try a normal (not private) window.' };
-      return parentView();
+    var entry = { p: who, d: when, k: n, ts: Date.now() };
+
+    if (!ONLINE) {
+      var mine = read(MINE);
+      mine.push(entry);
+      if (!write(MINE, mine)) {
+        flash = { kind: 'warn', msg: 'This browser would not save it. Try a normal (not private) window.' };
+        return render();
+      }
+      flash = { kind: 'ok', msg: 'Saved &mdash; ' + esc(who) + ', ' + n + ' kicks on ' + esc(pretty(when)) + '.' };
+      return render();
     }
-    flash = { kind: 'ok', msg: 'Saved &mdash; ' + esc(who) + ', ' + n + ' kicks on ' + esc(pretty(when)) + '.' };
-    parentView();
+
+    busy = true; render();
+    callApi({ action: 'add', p: who, d: when, k: n }, function (res) {
+      busy = false;
+      if (res && res.ok) {
+        if (Array.isArray(res.entries)) server = res.entries;
+        link = 'live';
+        flash = res.duplicate
+          ? { kind: 'ok', msg: 'Already had that one &mdash; nothing double-counted.' }
+          : { kind: 'ok', msg: 'Saved for the whole team &mdash; ' + esc(who) + ', ' + n + ' kicks on ' + esc(pretty(when)) + '.' };
+      } else {
+        queue(entry);
+        flash = { kind: 'warn', msg: 'Kept on this phone for now &mdash; the team list did not answer. It will send itself next time you open this page.' };
+      }
+      render();
+    }, function () {
+      busy = false; link = 'down';
+      queue(entry);
+      flash = { kind: 'warn', msg: 'Kept on this phone for now &mdash; no connection. It will send itself next time you open this page.' };
+      render();
+    });
+  }
+
+  function queue(entry) {
+    var q = read(QUEUE); q.push(entry); write(QUEUE, q);
   }
 
   function code() { return b64e(JSON.stringify(read(MINE))); }
 
   function sendToCoach() {
-    var mine = read(MINE);
-    var by = totals(mine);
+    var by = totals(read(MINE));
     var lines = NAMES.filter(function (n) { return by[n].times; }).map(function (n) {
       return '  ' + n + ': ' + by[n].kicks + ' kicks over ' + by[n].times + ' sessions';
     }).join('\n');
-
-    var body = 'Wall kicks so far:\n\n' + lines + '\n\n' +
-      'Paste this code into the coach page to add them in:\n\n' + code() + '\n';
-
-    window.location.href = 'mailto:' + COACH_EMAIL +
-      '?subject=' + encodeURIComponent('Wall kicks') +
+    var body = 'Wall kicks so far:\n\n' + lines + '\n\nPaste this code into the coach page:\n\n' + code() + '\n';
+    window.location.href = 'mailto:' + COACH_EMAIL + '?subject=' + encodeURIComponent('Wall kicks') +
       '&body=' + encodeURIComponent(body);
   }
 
@@ -289,7 +395,7 @@ code{font-family:ui-monospace,Consolas,monospace;font-size:.85em;background:var(
       'anything on this page can be read by anyone who has the link.</p></div>';
     var pw = document.getElementById('pw');
     function go() {
-      if (pw.value === PASS) { view = 'board'; render(); }
+      if (pw.value === PASS) { view = 'board'; if (ONLINE) refresh(); else render(); }
       else { pw.value = ''; pw.placeholder = 'Not that one'; pw.focus(); }
     }
     document.getElementById('go').addEventListener('click', go);
@@ -299,8 +405,8 @@ code{font-family:ui-monospace,Consolas,monospace;font-size:.85em;background:var(
   }
 
   function boardView() {
-    var all = merge(read(MINE), read(POOL));
-    var by = totals(all);
+    var entries = allEntries();
+    var by = totals(entries);
     var rows = NAMES.map(function (n) {
       return { n: n, k: by[n].kicks, t: by[n].times, last: by[n].last };
     }).sort(function (a, b) { return b.k - a.k || a.n.localeCompare(b.n); });
@@ -311,7 +417,7 @@ code{font-family:ui-monospace,Consolas,monospace;font-size:.85em;background:var(
 
     var h = '';
     if (flash) h += '<div class="' + flash.kind + '">' + flash.msg + '</div>';
-
+    h += statusLine();
     h += '<div class="tot"><div class="tile"><b>' + sum + '</b>kicks in total</div>' +
       '<div class="tile"><b>' + logging + ' / ' + NAMES.length + '</b>girls logging</div></div>';
 
@@ -327,37 +433,47 @@ code{font-family:ui-monospace,Consolas,monospace;font-size:.85em;background:var(
     });
     h += '</tbody></table></div>';
 
-    h += '<div class="card"><h2>Add what a parent sent you</h2>' +
-      '<p class="note" style="margin-top:0">Paste the code from a parent&rsquo;s email. You can paste several, ' +
-      'one after another. Pasting the same one twice does not double-count.</p>' +
-      '<label for="paste">Code</label><textarea id="paste" placeholder="Paste the code here"></textarea>' +
-      '<div class="row"><button id="add">Add it in</button>' +
-      '<button class="ghost" id="back">Back to the form</button></div></div>';
-
-    h += '<div class="foot">Sorted by total kicks. A girl with no entries stays unranked rather than sitting ' +
-      'at the bottom of a list. Everything here is stored in this browser &mdash; if you clear its data, the ' +
-      'leaderboard goes with it, so keep the parents&rsquo; emails.</div>';
+    if (ONLINE) {
+      h += '<div class="row"><button id="reload">Refresh from the sheet</button>' +
+        '<button class="ghost" id="back">Back to the form</button></div>' +
+        '<div class="foot">Every entry any parent makes lands in your Google Sheet, so this is the same ' +
+        'leaderboard on every phone. Sorted by total kicks; a girl with no entries stays unranked.</div>';
+    } else {
+      h += '<div class="card"><h2>Add what a parent sent you</h2>' +
+        '<p class="note" style="margin-top:0">Paste the code from a parent&rsquo;s email. Pasting the same ' +
+        'one twice does not double-count.</p>' +
+        '<label for="paste">Code</label><textarea id="paste" placeholder="Paste the code here"></textarea>' +
+        '<div class="row"><button id="add">Add it in</button>' +
+        '<button class="ghost" id="back">Back to the form</button></div></div>' +
+        '<div class="foot">Stored in this browser only &mdash; clearing its data clears the leaderboard, ' +
+        'so keep the parents&rsquo; emails.</div>';
+    }
 
     root.innerHTML = h;
     flash = null;
 
-    document.getElementById('add').addEventListener('click', function () {
-      var raw = document.getElementById('paste').value.trim();
-      if (!raw) return;
-      var got = null;
-      try { got = JSON.parse(b64d(raw.replace(/\s+/g, ''))); } catch (e) { got = null; }
-      if (!Array.isArray(got)) {
-        flash = { kind: 'warn', msg: 'That does not look like a code. Copy the whole line from the email.' };
-        return render();
-      }
-      var before = merge(read(MINE), read(POOL)).length;
-      var pool = merge(read(POOL), got);
-      write(POOL, pool);
-      var added = merge(read(MINE), pool).length - before;
-      flash = { kind: 'ok', msg: added ? ('Added ' + added + ' new ' + (added === 1 ? 'entry' : 'entries') + '.')
-                                       : 'Nothing new in that one &mdash; already counted.' };
-      render();
-    });
+    if (document.getElementById('reload')) {
+      document.getElementById('reload').addEventListener('click', function () { refresh(); });
+    }
+    if (document.getElementById('add')) {
+      document.getElementById('add').addEventListener('click', function () {
+        var raw = document.getElementById('paste').value.trim();
+        if (!raw) return;
+        var got = null;
+        try { got = JSON.parse(b64d(raw.replace(/\s+/g, ''))); } catch (e) { got = null; }
+        if (!Array.isArray(got)) {
+          flash = { kind: 'warn', msg: 'That does not look like a code. Copy the whole line from the email.' };
+          return render();
+        }
+        var before = merge(read(MINE), read(POOL)).length;
+        var pool = merge(read(POOL), got);
+        write(POOL, pool);
+        var added = merge(read(MINE), pool).length - before;
+        flash = { kind: 'ok', msg: added ? ('Added ' + added + ' new ' + (added === 1 ? 'entry' : 'entries') + '.')
+                                         : 'Nothing new in that one &mdash; already counted.' };
+        render();
+      });
+    }
     document.getElementById('back').addEventListener('click', function () { view = 'parent'; render(); });
   }
 
@@ -373,6 +489,7 @@ code{font-family:ui-monospace,Consolas,monospace;font-size:.85em;background:var(
   });
 
   render();
+  if (ONLINE) refresh();
 })();
 </script>
 </body>
