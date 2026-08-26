@@ -533,10 +533,10 @@ var LIB = [{"id":"bodypart","n":"Body Part Stop","c":"Arrival games","w":"Sessio
     return null;
   }
 
-  function copy(text, btn, original) {
+  function copy(text, btn, original, okLabel) {
     function ok() {
-      btn.textContent = 'Copied';
-      setTimeout(function () { btn.textContent = original; }, 1800);
+      btn.textContent = okLabel || 'Copied';
+      setTimeout(function () { btn.textContent = original; }, 2400);
     }
     function manual() {
       var ta = document.createElement('textarea');
@@ -564,6 +564,7 @@ var LIB = [{"id":"bodypart","n":"Body Part Stop","c":"Arrival games","w":"Sessio
       if (d) { var m = /(\d+)/.exec(d.textContent); if (m) mins = parseInt(m[1], 10); }
       base.push({
         dur: mins,
+        kind: b.getAttribute('data-kind') || '',
         title: h ? h.textContent.replace(/\s+/g, ' ').trim() : '',
         html: body ? body.innerHTML : ''
       });
@@ -628,6 +629,9 @@ var LIB = [{"id":"bodypart","n":"Body Part Stop","c":"Arrival games","w":"Sessio
       if (c === 'Small-sided games') return 'game';
       return 'drill';
     }
+    /* a block baked into the page says what it is, so a published edit keeps
+       the colour it had when the coach built it */
+    if (it.k === 'o' && (st.base[it.i] || {}).kind) return st.base[it.i].kind;
     var t = itemTitle(st, it).toLowerCase();
     if (/water/.test(t)) return 'water';
     if (/huddle|team name|award|showcase|talk|the last thing/.test(t)) return 'talk';
@@ -885,23 +889,61 @@ var LIB = [{"id":"bodypart","n":"Body Part Stop","c":"Arrival games","w":"Sessio
 
   /* ---------- persistence ---------- */
 
+  function keyFor(id, edition) {
+    return STORE + id + (edition > 1 ? '@' + edition : '');
+  }
+
+  /* An 'o' item is a pointer into the written blocks, so a saved plan only
+     means anything against the session it was built from. Publishing a new
+     version of a session bumps data-edition, which retires every stale copy
+     sitting in a phone — the published book wins. */
+  function planFits(p, base) {
+    for (var i = 0; i < p.length; i++) {
+      var it = p[i];
+      if (!it || typeof it !== 'object') return false;
+      if (it.k === 'o' && !(it.i >= 0 && it.i < base.length)) return false;
+      if (it.k === 'l' && !libById(it.r)) return false;
+    }
+    return true;
+  }
+
   function save(id) {
     var st = cards[id];
     try {
-      if (samePlan(st.plan, defaultPlan(st.base))) localStorage.removeItem(STORE + id);
-      else localStorage.setItem(STORE + id, JSON.stringify(st.plan));
+      var k = keyFor(id, st.edition);
+      if (samePlan(st.plan, defaultPlan(st.base))) localStorage.removeItem(k);
+      else localStorage.setItem(k, JSON.stringify(st.plan));
     } catch (e) { }
   }
 
-  function load(id, base) {
+  function load(id, base, edition) {
     try {
-      var raw = localStorage.getItem(STORE + id);
+      for (var old = edition - 1; old >= 1; old--) localStorage.removeItem(keyFor(id, old));
+      var raw = localStorage.getItem(keyFor(id, edition));
       if (raw) {
         var p = JSON.parse(raw);
-        if (Array.isArray(p)) return p;
+        if (Array.isArray(p) && planFits(p, base)) return p;
+        localStorage.removeItem(keyFor(id, edition));
       }
     } catch (e) { }
     return defaultPlan(base);
+  }
+
+  /* ---------- handing an edit back to the book ----------
+     The site is static: nothing on this page can write to the book itself.
+     So an edit travels as a code the coach pastes to Claude, which bakes it
+     into the published session for good, on every device. */
+
+  function planCode(id) {
+    var st = cards[id];
+    return id + '.' + st.edition + '.' + b64enc(JSON.stringify(st.plan));
+  }
+
+  function bookPayload(id) {
+    var st = cards[id];
+    return '8U PRACTICE BOOK \u2014 please save these changes into the book.\n\n' +
+      st.sess + ' \u00b7 ' + st.title + '  (' + st.total + ' min)\n' +
+      outlineText(id) + '\n\nCODE ' + planCode(id) + '\n';
   }
 
   /* ---------- sharing ---------- */
@@ -956,9 +998,17 @@ var LIB = [{"id":"bodypart","n":"Body Part Stop","c":"Arrival games","w":"Sessio
     if (yours) {
       yours.hidden = !edited;
       if (edited && !yours.dataset.wired) {
-        yours.innerHTML = '<b>This is your edited version</b>, saved in this browser &mdash; not the ' +
-          'written session. <button type="button" class="tb-restore">Put the original back</button>';
-        yours.querySelector('.tb-restore').addEventListener('click', function () {
+        yours.innerHTML = '<b>This is your edited version</b>, saved in this browser only ' +
+          '&mdash; Moira and your other devices still see the written session. ' +
+          '<button type="button" class="tb-restore" data-act="tobook">Copy it for Claude</button>' +
+          '<button type="button" class="tb-restore" data-act="undo">Put the original back</button>';
+        var toBook = yours.querySelector('[data-act=tobook]');
+        toBook.title = 'Copies this practice as a code. Paste it to Claude and it becomes ' +
+                       'the published session, on every device.';
+        toBook.addEventListener('click', function () {
+          copy(bookPayload(id), toBook, 'Copy it for Claude', 'Copied \u2014 paste it to Claude');
+        });
+        yours.querySelector('[data-act=undo]').addEventListener('click', function () {
           st.plan = defaultPlan(st.base);
           save(id); render(id);
         });
@@ -1182,8 +1232,11 @@ var LIB = [{"id":"bodypart","n":"Body Part Stop","c":"Arrival games","w":"Sessio
     var focusEl = card.querySelector('.focus');
     var base = readBase(card);
 
+    var edition = parseInt(card.getAttribute('data-edition') || '1', 10) || 1;
+
     cards[id] = {
-      card: card, base: base, plan: load(id, base), editing: false, total: 0,
+      card: card, base: base, edition: edition,
+      plan: load(id, base, edition), editing: false, total: 0,
       title: titleEl.textContent.trim(),
       sess: sessEl ? sessEl.textContent.replace(/\s+/g, ' ').trim() : '',
       focus: focusEl ? focusEl.textContent.replace(/\s+/g, ' ').trim() : ''
@@ -1321,7 +1374,9 @@ var LIB = [{"id":"bodypart","n":"Body Part Stop","c":"Arrival games","w":"Sessio
     if (!cards[id] || !encoded) return false;
     try {
       var p = JSON.parse(b64dec(encoded));
-      if (Array.isArray(p)) { cards[id].plan = p; render(id); return true; }
+      if (Array.isArray(p) && planFits(p, cards[id].base)) {
+        cards[id].plan = p; render(id); return true;
+      }
     } catch (e) { }
     return false;
   }
@@ -1345,6 +1400,12 @@ var LIB = [{"id":"bodypart","n":"Body Part Stop","c":"Arrival games","w":"Sessio
         '<a href="' + SITE + 'session-' + n + '.html" style="color:var(--rust);font-weight:700">' +
         'See the original</a>';
       only.parentNode.insertBefore(banner, only);
+    } else {
+      var stale = document.createElement('div');
+      stale.className = 'solo';
+      stale.innerHTML = '<b>That link did not fit this session</b> &mdash; it was built from an ' +
+        'earlier version of the practice, so the written one is showing instead.';
+      only.parentNode.insertBefore(stale, only);
     }
   }
 
