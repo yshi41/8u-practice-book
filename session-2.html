@@ -1595,8 +1595,8 @@ var LIB = [{"id":"bodypart","n":"Body Part Stop","c":"Arrival games","w":"Sessio
     var isDefault = clear || samePlan(st.plan, defaultPlan(st.base));
     st.sync = 'saving';
     updateChrome(id);
-    apiPost(isDefault ? { s: id, edition: st.edition, clear: true, key: KEY }
-                      : { s: id, edition: st.edition, plan: st.plan, key: KEY })
+    apiPost(isDefault ? { s: id, edition: st.edition, clear: true, key: coachKey() }
+                      : { s: id, edition: st.edition, plan: st.plan, key: coachKey() })
       .then(function (res) {
         if (res && res.ok) {
           st.sync = 'ok';
