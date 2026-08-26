@@ -83,7 +83,7 @@ td.k abbr{color:var(--rust);text-decoration:none;margin-left:2px}
    HOME empty = switched off, which is how this ships until the Cloudflare
    address is known. */
 (function () {
-  var HOME = '';
+  var HOME = 'https://8u-practice-book.pages.dev/';
   if (!HOME || location.hostname !== 'yshi41.github.io') return;
   if (/(^|[?&])stay=1(&|$)/.test(location.search)) return;
 
@@ -138,6 +138,7 @@ td.k abbr{color:var(--rust);text-decoration:none;margin-left:2px}
   var PASS = 'coach8u';           // hides the coach screen from a casual tap
   var KEY = 'coach8u';            // and guards the coach's writes at the API
   var QUEUE = 'wk.queue.v1';      // entries the team list has not taken yet
+  var SENT = 'wk.sent.v1';        // entries it took, but cannot show us yet
   var OLDLOG = 'wk.mine.v1';      // where this phone used to keep its own log
   var OLDPOOL = 'wk.pool.v1';     // and where the coach used to paste codes
 
@@ -217,9 +218,30 @@ td.k abbr{color:var(--rust);text-decoration:none;margin-left:2px}
     return by;
   }
 
-  /** Everything we know about: the team list, plus anything still waiting. */
+  /** Everything we know about: the team list, anything still waiting, and
+      anything just sent that the list has not caught up with. */
   function allEntries() {
-    return merge(server, read(QUEUE));
+    return merge(merge(server, read(QUEUE)), read(SENT));
+  }
+
+  /* Cloudflare KV is eventually consistent, so kicks that certainly saved can
+     be missing from the next read for a few seconds. Holding onto them here
+     means the parent never watches her own entry disappear. They are dropped
+     as soon as the team list shows them, and given up on after fifteen
+     minutes so a wiped record cannot be haunted by one phone. */
+  function remember(entry) {
+    var sent = read(SENT);
+    sent.push(entry);
+    write(SENT, sent);
+  }
+
+  function pruneSent() {
+    var have = {};
+    server.forEach(function (e) { have[keyOf(e)] = 1; });
+    var cutoff = Date.now() - 15 * 60 * 1000;
+    write(SENT, read(SENT).filter(function (e) {
+      return !have[keyOf(e)] && (Number(e.ts) || 0) > cutoff;
+    }));
   }
 
   /* Kicks logged before this page could save them for the team were kept in
@@ -262,6 +284,7 @@ td.k abbr{color:var(--rust);text-decoration:none;margin-left:2px}
     if (Array.isArray(res.entries)) server = res.entries;
     adjust = (res.adjust && typeof res.adjust === 'object') ? res.adjust : {};
     link = 'live';
+    pruneSent();
     return true;
   }
 
@@ -289,6 +312,7 @@ td.k abbr{color:var(--rust);text-decoration:none;margin-left:2px}
     if (!q.length) return;
     apiPost(q[0]).then(function (res) {
       if (take(res)) {
+        remember(q[0]);
         write(QUEUE, read(QUEUE).slice(1));
         render();
         flushQueue();
@@ -372,8 +396,10 @@ td.k abbr{color:var(--rust);text-decoration:none;margin-left:2px}
     busy = true; render();
     apiPost(entry).then(function (res) {
       busy = false;
-      if (take(res)) flash = { kind: 'ok', msg: 'Saved for the whole team &mdash; ' + said };
-      else keep(entry, said);
+      if (take(res)) {
+        remember(entry);
+        flash = { kind: 'ok', msg: 'Saved for the whole team &mdash; ' + said };
+      } else { keep(entry, said); }
       render();
     }, function () {
       busy = false; link = 'down';
@@ -554,6 +580,7 @@ td.k abbr{color:var(--rust);text-decoration:none;margin-left:2px}
         apiSend({ op: 'reset', key: KEY }).then(function (res) {
           if (take(res)) {
             write(QUEUE, []);
+            write(SENT, []);
             flash = { kind: 'ok', msg: 'The record is empty. Everybody starts from nothing.' };
           } else {
             flash = { kind: 'warn', msg: 'That did not go through. Nothing was wiped.' };
