@@ -460,7 +460,19 @@ var LIB = [{"id":"bodypart","n":"Body Part Stop","c":"Arrival games","w":"Sessio
 (function () {
   'use strict';
 
-  var SITE = 'https://yshi41.github.io/8u-practice-book/';
+  /* Where this copy of the book lives. Served from a host that carries the
+     whole book, that is this folder on this host: a practice link copied on
+     Cloudflare stays on Cloudflare, where the team's shared copy is, instead
+     of sending everybody back to a page that cannot see it. A file opened off
+     disk has no useful address, so it hands out the published one. */
+  var SITE = (function () {
+    var p = location.protocol, h = location.hostname;
+    var here = h === 'yshi41.github.io' || /(^|\.)pages\.dev$/.test(h) ||
+               h === 'localhost' || h === '127.0.0.1';
+    return ((p === 'http:' || p === 'https:') && here)
+      ? location.origin + location.pathname.replace(/[^/]*$/, '')
+      : 'https://yshi41.github.io/8u-practice-book/';
+  })();
   var LIBURL = SITE + 'library.html';
   var STORE = '8u:plan:';
   var TARGET = 75;
