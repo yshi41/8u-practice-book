@@ -25,9 +25,10 @@
  * what a parent actually logged, and "times logged" stays honest.
  *
  * Adding an entry is open, because that is what parents do. Correcting a total
- * and resetting the record are guarded by a shared key: env.COACH_KEY if you
- * set one, otherwise 'coach8u', which is what the page ships holding. That is
- * a speed bump, not a secret.
+ * and resetting the record need the coach key, which is env.COACH_KEY and
+ * nothing else -- no default, so a server without one refuses those operations
+ * rather than falling back to something anybody could read. The key never
+ * appears in the page: the coach types it, and it is checked here.
  *
  * BINDING: Cloudflare Pages -> Settings -> Functions -> KV namespace bindings
  *          Variable name  KICKS   ->  your namespace
@@ -120,9 +121,17 @@ export async function onRequestGet({ env }) {
 async function coachOp(body, env) {
   const kv = env.KICKS;
 
-  if (String(body.key || '') !== String(env.COACH_KEY || 'coach8u')) {
+  const key = String(env.COACH_KEY || '');
+  if (!key) {
+    return json({ ok: false, error: 'no coach key is set on the server' }, 503);
+  }
+  if (String(body.key || '') !== key) {
     return json({ ok: false, error: 'wrong coach key' }, 403);
   }
+
+  /* Just asking whether this key is any good, so the coach screen can let her
+     in -- or not -- without changing anything. */
+  if (body.op === 'check') return json({ ok: true, ...(await everything(kv)) });
 
   if (body.op === 'reset') {
     await kv.put('meta:cleared', '', { metadata: { ts: Date.now() } });
@@ -168,7 +177,7 @@ export async function onRequestPost({ request, env }) {
     return json({ ok: false, error: 'bad json' }, 400);
   }
 
-  if (body.op === 'reset' || body.op === 'set') {
+  if (body.op === 'reset' || body.op === 'set' || body.op === 'check') {
     try {
       return await coachOp(body, env);
     } catch (err) {
