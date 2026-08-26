@@ -83,7 +83,6 @@ h1, h2, h3, h4 { text-wrap: balance; line-height: 1.2; }
 .blk h4 a em { color: var(--muted); }
 .blk h4 a:hover em { color: var(--rust); }
 /* ---------- share + practice builder ---------- */
-/* ---------- share + practice builder ---------- */
 /* these sit as direct children of .card, so they carry the card's own
    horizontal padding rather than sitting flush against its border */
 .editor { padding: 17px 24px 0; border-top: 1px solid var(--rule); }
@@ -93,10 +92,42 @@ h1, h2, h3, h4 { text-wrap: balance; line-height: 1.2; }
 .sbtn:hover { background: var(--text); border-color: var(--text); }
 .sbtn.ghost { background: transparent; color: var(--rust); }
 .sbtn.ghost:hover { background: var(--tan); color: var(--rust); border-color: var(--rust); }
+.sbtn.danger-btn { background: #8B1A1A; border-color: #8B1A1A; color: #fff; }
+.sbtn.danger-btn:hover { background: #6E1414; border-color: #6E1414; }
 .sbtn:focus-visible { outline: 3px solid var(--forest); outline-offset: 2px; }
 .sbtn[hidden] { display: none; }
 
-/* per-block edit controls */
+/* ---------- the time bar ----------
+   Sticks to the top of the viewport so it stays with you while you scroll
+   a long practice. Requires .card NOT to be overflow:hidden. */
+.timebar {
+  position: sticky; top: 0; z-index: 30;
+  padding: 12px 24px 10px;
+  background: var(--card);
+  border-bottom: 1px solid var(--rule);
+}
+.tb-track { position: relative; display: flex; height: 16px; border-radius: 8px; overflow: hidden; background: var(--tan); border: 1px solid var(--rule-hi); }
+.tb-seg { display: block; height: 100%; border-right: 1px solid rgba(251,246,232,.9); transition: width .12s ease; }
+.tb-seg:last-child { border-right: none; }
+.tb-tick { position: absolute; top: -3px; bottom: -3px; width: 2px; background: var(--warn); }
+
+/* colour by what the block IS, so the bar shows the shape of the session */
+.k-warm  { background: #C8641E; }   /* warm-up */
+.k-drill { background: #7A3E0F; }   /* drill / skill work */
+.k-game  { background: #1F5A34; }   /* small-sided game or scrimmage */
+.k-water { background: #2E6E8E; }   /* water and breaks */
+.k-talk  { background: #6B5334; }   /* huddle, team name, awards */
+
+.tb-foot { display: flex; gap: 10px 18px; flex-wrap: wrap; align-items: baseline; margin-top: 7px; }
+.tb-label { font-size: .74em; font-weight: 700; letter-spacing: .03em; color: var(--muted); }
+.tb-label.ok { color: var(--forest); }
+.tb-label.over { color: var(--warn); }
+.tb-legend { display: flex; gap: 11px; flex-wrap: wrap; }
+.tb-key { display: inline-flex; align-items: center; gap: 5px; font-size: .68em; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: var(--muted); }
+.tb-key i { width: 11px; height: 11px; border-radius: 2px; display: inline-block; }
+@media (prefers-reduced-motion: reduce) { .tb-seg { transition: none; } }
+
+/* ---------- per-block edit controls ---------- */
 .blk.editing { background: var(--bg); border-radius: 5px; padding-left: 12px; padding-right: 12px; }
 .bctl { display: flex; gap: 7px; align-items: center; margin-top: 11px; flex-wrap: wrap; }
 .bctl input.dur { font-family: inherit; font-size: .8em; width: 66px; padding: 7px 9px; border: 1px solid var(--rule-hi); border-radius: 4px; background: var(--card); color: var(--text); text-align: center; }
@@ -106,10 +137,19 @@ h1, h2, h3, h4 { text-wrap: balance; line-height: 1.2; }
 .ibtn:focus-visible { outline: 3px solid var(--forest); outline-offset: 2px; }
 .bctl .mins { font-size: .72em; color: var(--muted); font-weight: 700; letter-spacing: .05em; }
 
-/* editor panel */
+/* drag handle — pointer events, so it works with a finger too */
+.ibtn.grip { cursor: grab; touch-action: none; letter-spacing: -3px; padding-right: 13px; color: var(--rust); }
+.ibtn.grip:active { cursor: grabbing; }
+.blk.dragging { opacity: .45; }
+.card.dragging-now { user-select: none; }
+.blk.drop-before { box-shadow: 0 -3px 0 0 var(--forest); }
+.blk.drop-after { box-shadow: 0 3px 0 0 var(--forest); }
+
+/* ---------- editor panel ---------- */
 .editor .erow { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
-.total { font-size: .78em; font-weight: 700; color: var(--sec); background: var(--tan); border-radius: 4px; padding: 9px 14px; }
-.total.off { background: #F8EFDC; color: var(--warn); }
+.emptystate { border: 2px dashed var(--rule-hi); border-radius: 6px; padding: 22px 20px; margin: 8px 0 4px; font-size: .9em; color: var(--sec); background: var(--bg); }
+.emptystate b { color: var(--rust); }
+.emptystate em { font-style: normal; font-weight: 700; color: var(--text); }
 .adder { margin-top: 16px; padding: 16px 18px; border: 1px solid var(--rule-hi); border-radius: 5px; background: var(--bg); }
 .adder[hidden] { display: none; }
 .adder h5 { font-size: .8em; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; color: var(--rust); margin-bottom: 12px; }
@@ -122,13 +162,16 @@ h1, h2, h3, h4 { text-wrap: balance; line-height: 1.2; }
 .adder .blurb b { color: var(--rust); }
 .custom[hidden] { display: none; }
 
-/* blocks the coach added */
-.blk.added .clock .t, .blk.added h4 { color: var(--blue); }
-.blk.custom-blk .clock .t, .blk.custom-blk h4 { color: var(--purple); }
+/* ---------- blocks, coloured by what they are ---------- */
+.blk.k-warm  .clock .t, .blk.k-warm  h4 { color: #A85117; }
+.blk.k-drill .clock .t, .blk.k-drill h4 { color: var(--rust); }
+.blk.k-game  .clock .t, .blk.k-game  h4 { color: #1A4C2C; }
+.blk.k-water .clock .t, .blk.k-water h4 { color: #2E6E8E; }
+.blk.k-talk  .clock .t, .blk.k-talk  h4 { color: #5C4729; }
 .blk .fromlib { font-size: .76em; color: var(--muted); margin-top: 7px; }
 .blk .fromlib a { color: var(--rust); font-weight: 700; }
 
-/* a single practice on its own page */
+/* ---------- a single practice on its own page ---------- */
 .pnav { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-bottom: 24px; padding-bottom: 14px; border-bottom: 2px solid var(--rule); }
 .pnav a { font-size: .74em; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: var(--sec); text-decoration: none; border: 1px solid var(--rule-hi); border-radius: 4px; padding: 9px 13px; min-height: 40px; display: inline-flex; align-items: center; white-space: nowrap; }
 .pnav a:hover { background: var(--rust); color: var(--card); border-color: var(--rust); }
@@ -197,7 +240,8 @@ h1, h2, h3, h4 { text-wrap: balance; line-height: 1.2; }
    ============================================================ */
 .card {
   background: var(--card); border: 1px solid var(--rule-hi);
-  border-radius: 6px; margin-bottom: 24px; overflow: hidden;
+  border-radius: 6px; margin-bottom: 24px;
+  /* NOT overflow:hidden — it would clip the sticky time bar */
 }
 .card-hd { padding: 20px 24px 16px; border-bottom: 3px solid var(--rust); }
 .card-hd .line1 { display: flex; align-items: center; gap: 11px; flex-wrap: wrap; }
@@ -266,6 +310,8 @@ h1, h2, h3, h4 { text-wrap: balance; line-height: 1.2; }
   .blocks { padding: 4px 17px 16px; }
   .editor { padding: 15px 17px 0; }
   .share { padding: 15px 17px 18px; margin-top: 15px; }
+  .timebar { padding: 10px 17px 8px; }
+  .timebar { padding: 12px 17px 0; }
   .pnav { gap: 6px; }
   /* time rail becomes a chip above the content */
   .blk { flex-direction: column; gap: 9px; }
@@ -298,7 +344,7 @@ h1, h2, h3, h4 { text-wrap: balance; line-height: 1.2; }
   }
   body { background: #fff; }
   .wrap { max-width: none; padding: 0; }
-  .nav, .share, .tolib, .editor, .bctl, .solo { display: none; }
+  .nav, .share, .tolib, .editor, .bctl, .solo, .timebar, .emptystate { display: none; }
   .card { break-inside: avoid; break-after: page; border: none; margin-bottom: 0; }
   .card:last-of-type { break-after: auto; }
   .card-hd { padding: 0 0 10px; }
@@ -397,12 +443,13 @@ var LIB = [{"id":"bodypart","n":"Body Part Stop","c":"Arrival games","w":"Sessio
   var SITE = 'https://yshi41.github.io/8u-practice-book/';
   var LIBURL = SITE + 'library.html';
   var STORE = '8u:plan:';
+  var TARGET = 75;
 
   /* ---------- helpers ---------- */
 
-  function clock(mins) {
-    var h = Math.floor(mins / 60), m = mins % 60;
-    return h + ':' + (m < 10 ? '0' : '') + m;
+  function clock(m) {
+    var h = Math.floor(m / 60), s = m % 60;
+    return h + ':' + (s < 10 ? '0' : '') + s;
   }
 
   function esc(t) {
@@ -447,8 +494,6 @@ var LIB = [{"id":"bodypart","n":"Body Part Stop","c":"Arrival games","w":"Sessio
     } else { manual(); }
   }
 
-  /* ---------- per-card state ---------- */
-
   var cards = {};
 
   function readBase(card) {
@@ -474,11 +519,12 @@ var LIB = [{"id":"bodypart","n":"Body Part Stop","c":"Arrival games","w":"Sessio
 
   function samePlan(a, b) { return JSON.stringify(a) === JSON.stringify(b); }
 
-  /* ---------- rendering ---------- */
+  /* ---------- what each block is ---------- */
 
   function itemTitle(st, it) {
     if (it.k === 'o') return (st.base[it.i] || {}).title || '';
     if (it.k === 'l') { var a = libById(it.r); return a ? a.n : 'Activity'; }
+    if (it.k === 'w') return it.t || 'Water';
     return it.t || 'Custom activity';
   }
 
@@ -489,30 +535,129 @@ var LIB = [{"id":"bodypart","n":"Body Part Stop","c":"Arrival games","w":"Sessio
       if (!a) return '<h4>Activity</h4>';
       var h = '<h4>' + esc(a.n) + '</h4>';
       if (a.b) h += '<p>' + esc(a.b) + '</p>';
-      if (a.k) h += '<p class="fromlib"><b>You need</b> — ' + esc(a.k) + '</p>';
+      if (a.k) h += '<p class="fromlib"><b>You need</b> &mdash; ' + esc(a.k) + '</p>';
       h += '<p class="fromlib">From the library: <a href="' + LIBURL + '#' + a.id + '">' +
-           esc(a.n) + '</a> · ' + esc(a.c) + '</p>';
+           esc(a.n) + '</a> &middot; ' + esc(a.c) + '</p>';
       return h;
     }
-    var out = '<h4>' + esc(it.t || 'Custom activity') + '</h4>';
-    if (it.x) out += '<p>' + esc(it.x).replace(/\n/g, '<br>') + '</p>';
-    return out;
+    if (it.k === 'w') {
+      var out = '<h4>' + esc(it.t || 'Water') + ' <em>&mdash; in shade</em></h4>';
+      out += '<p>' + esc(it.x || 'Everybody drinks. Move them into shade even if it costs thirty seconds.') + '</p>';
+      return out;
+    }
+    var o = '<h4>' + esc(it.t || 'Custom activity') + '</h4>';
+    if (it.x) o += '<p>' + esc(it.x).replace(/\n/g, '<br>') + '</p>';
+    return o;
   }
+
+  /* What KIND of thing is this block? Colour follows the answer, so the bar
+     shows at a glance whether a practice is all drills and no games. */
+  var KINDS = [
+    ['warm',  'Warm-up'],
+    ['drill', 'Drill'],
+    ['game',  'Game'],
+    ['water', 'Water'],
+    ['talk',  'Talk']
+  ];
+
+  function classify(st, it) {
+    if (it.k === 'w') return 'water';
+    if (it.k === 'l') {
+      var a = libById(it.r);
+      var c = a ? a.c : '';
+      if (c === 'Arrival games') return 'warm';
+      if (c === 'Team challenges') return 'warm';
+      if (c === 'Small-sided games') return 'game';
+      return 'drill';
+    }
+    var t = itemTitle(st, it).toLowerCase();
+    if (/water/.test(t)) return 'water';
+    if (/huddle|team name|award|showcase|talk|the last thing/.test(t)) return 'talk';
+    if (/scrimmage|small-sided|world cup|coaches vs|shootout|shape/.test(t)) return 'game';
+    if (/arrival|traffic light|sharks|number freeze|rescue tag|follow the leader|body part/.test(t)) return 'warm';
+    return 'drill';
+  }
+
+  function kindClass(st, it) { return ' k-' + classify(st, it); }
+
+  /* ---------- the time bar ---------- */
+
+  function renderBar(id) {
+    var st = cards[id];
+    if (!st.barEl) return;
+    var total = st.plan.reduce(function (n, it) { return n + (it.d || 0); }, 0);
+    st.total = total;
+
+    var scale = Math.max(TARGET, total);
+    var track = st.barEl.querySelector('.tb-track');
+    track.innerHTML = '';
+
+    st.plan.forEach(function (it) {
+      if (!it.d) return;
+      var seg = document.createElement('span');
+      seg.className = 'tb-seg' + kindClass(st, it);
+      seg.style.width = (it.d / scale * 100) + '%';
+      seg.title = itemTitle(st, it) + ' — ' + it.d + ' min';
+      track.appendChild(seg);
+    });
+
+    if (total > TARGET) {
+      var tick = document.createElement('span');
+      tick.className = 'tb-tick';
+      tick.style.left = (TARGET / scale * 100) + '%';
+      tick.title = TARGET + ' minutes';
+      track.appendChild(tick);
+    }
+
+    var legend = st.barEl.querySelector('.tb-legend');
+    if (legend && !legend.dataset.built) {
+      var used = {};
+      KINDS.forEach(function (k) { used[k[0]] = 0; });
+      legend.innerHTML = KINDS.map(function (k) {
+        return '<span class="tb-key"><i class="k-' + k[0] + '"></i>' + k[1] + '</span>';
+      }).join('');
+      legend.dataset.built = '1';
+    }
+
+    var left = TARGET - total;
+    var lbl = st.barEl.querySelector('.tb-label');
+    var word = left > 0 ? left + ' min still to fill'
+             : left < 0 ? Math.abs(left) + ' min over'
+             : 'exactly full';
+    lbl.textContent = total + ' of ' + TARGET + ' min · ' + word;
+    lbl.className = 'tb-label' + (total === TARGET ? ' ok' : total > TARGET ? ' over' : '');
+    st.barEl.className = 'timebar' + (total > TARGET ? ' over' : '');
+  }
+
+  /* ---------- rendering ---------- */
 
   function render(id) {
     var st = cards[id];
     var wrap = st.card.querySelector('.blocks');
+    Array.prototype.slice.call(wrap.querySelectorAll('.blk, .emptystate')).forEach(function (b) { b.remove(); });
+
+    if (!st.plan.length) {
+      var e = document.createElement('div');
+      e.className = 'emptystate';
+      e.innerHTML = '<b>This practice is empty.</b> Use <em>Add an activity</em> to build it up from the ' +
+                    'library, or <em>Put the original back</em> to restore the written session.';
+      wrap.insertBefore(e, wrap.firstChild);
+      renderBar(id);
+      updateChrome(id);
+      return;
+    }
+
     var at = 0, frag = document.createDocumentFragment();
 
     st.plan.forEach(function (it, n) {
       var blk = document.createElement('div');
-      blk.className = 'blk' + (it.k === 'l' ? ' added' : it.k === 'c' ? ' custom-blk' : '');
-      if (st.editing) blk.className += ' editing';
+      blk.className = 'blk' + kindClass(st, it) + (st.editing ? ' editing' : '');
+      blk.dataset.idx = n;
 
       var cl = document.createElement('div');
       cl.className = 'clock';
       cl.innerHTML = '<span class="t">' + clock(at) + '</span><span class="d">' +
-                     (it.d ? it.d + ' min' : '—') + '</span>';
+                     (it.d ? it.d + ' min' : '&mdash;') + '</span>';
       blk.appendChild(cl);
 
       var body = document.createElement('div');
@@ -523,9 +668,18 @@ var LIB = [{"id":"bodypart","n":"Body Part Stop","c":"Arrival games","w":"Sessio
         var ctl = document.createElement('div');
         ctl.className = 'bctl';
 
+        var grip = document.createElement('button');
+        grip.type = 'button';
+        grip.className = 'ibtn grip';
+        grip.innerHTML = '&#8942;&#8942;';
+        grip.title = 'Drag to move, or focus and use the arrow keys';
+        grip.setAttribute('aria-label', 'Move ' + itemTitle(st, it) + '. Drag, or use arrow keys.');
+        wireDrag(grip, blk, id, n);
+        ctl.appendChild(grip);
+
         var lab = document.createElement('span');
         lab.className = 'mins';
-        lab.textContent = 'MINUTES';
+        lab.textContent = 'MIN';
         ctl.appendChild(lab);
 
         var inp = document.createElement('input');
@@ -539,12 +693,14 @@ var LIB = [{"id":"bodypart","n":"Body Part Stop","c":"Arrival games","w":"Sessio
         });
         ctl.appendChild(inp);
 
-        ctl.appendChild(mkBtn('↑', 'Move earlier', function () { move(id, n, -1); }));
-        ctl.appendChild(mkBtn('↓', 'Move later', function () { move(id, n, 1); }));
-        var rm = mkBtn('✕', 'Remove this block', function () {
+        var rm = document.createElement('button');
+        rm.type = 'button'; rm.className = 'ibtn danger';
+        rm.textContent = '✕';
+        rm.title = 'Remove this block';
+        rm.setAttribute('aria-label', 'Remove ' + itemTitle(st, it));
+        rm.addEventListener('click', function () {
           st.plan.splice(n, 1); save(id); render(id);
         });
-        rm.className += ' danger';
         ctl.appendChild(rm);
 
         body.appendChild(ctl);
@@ -555,9 +711,8 @@ var LIB = [{"id":"bodypart","n":"Body Part Stop","c":"Arrival games","w":"Sessio
       at += it.d;
     });
 
-    Array.prototype.slice.call(wrap.querySelectorAll('.blk')).forEach(function (b) { b.remove(); });
     wrap.insertBefore(frag, wrap.firstChild);
-    st.total = at;
+    renderBar(id);
     updateChrome(id);
   }
 
@@ -571,25 +726,80 @@ var LIB = [{"id":"bodypart","n":"Body Part Stop","c":"Arrival games","w":"Sessio
       b.querySelector('.clock .d').textContent = it.d ? it.d + ' min' : '—';
       at += it.d;
     });
-    st.total = at;
+    renderBar(id);
     updateChrome(id);
   }
 
-  function mkBtn(label, title, fn) {
-    var b = document.createElement('button');
-    b.type = 'button'; b.className = 'ibtn';
-    b.textContent = label; b.title = title;
-    b.setAttribute('aria-label', title);
-    b.addEventListener('click', fn);
-    return b;
-  }
+  /* ---------- drag to reorder (pointer events: mouse and touch alike) ---------- */
 
-  function move(id, n, dir) {
-    var st = cards[id], to = n + dir;
-    if (to < 0 || to >= st.plan.length) return;
-    var x = st.plan.splice(n, 1)[0];
-    st.plan.splice(to, 0, x);
-    save(id); render(id);
+  function wireDrag(grip, blk, id, index) {
+    var st = cards[id];
+
+    grip.addEventListener('keydown', function (e) {
+      var dir = e.key === 'ArrowUp' ? -1 : e.key === 'ArrowDown' ? 1 : 0;
+      if (!dir) return;
+      e.preventDefault();
+      var to = index + dir;
+      if (to < 0 || to >= st.plan.length) return;
+      var x = st.plan.splice(index, 1)[0];
+      st.plan.splice(to, 0, x);
+      save(id); render(id);
+      var grips = st.card.querySelectorAll('.blocks .blk .grip');
+      if (grips[to]) grips[to].focus();
+    });
+
+    grip.addEventListener('pointerdown', function (e) {
+      if (e.button !== undefined && e.button !== 0) return;
+      e.preventDefault();
+      try { grip.setPointerCapture(e.pointerId); } catch (err) { }
+
+      blk.classList.add('dragging');
+      st.card.classList.add('dragging-now');
+
+      function blocks() {
+        return Array.prototype.slice.call(st.card.querySelectorAll('.blocks .blk'));
+      }
+
+      function targetFor(y) {
+        var bs = blocks();
+        for (var i = 0; i < bs.length; i++) {
+          var r = bs[i].getBoundingClientRect();
+          if (y < r.top + r.height / 2) return i;
+        }
+        return bs.length;
+      }
+
+      function paint(t) {
+        var bs = blocks();
+        bs.forEach(function (b) { b.classList.remove('drop-before', 'drop-after'); });
+        if (t >= bs.length) { if (bs.length) bs[bs.length - 1].classList.add('drop-after'); }
+        else bs[t].classList.add('drop-before');
+      }
+
+      function move(ev) { paint(targetFor(ev.clientY)); }
+
+      function up(ev) {
+        grip.removeEventListener('pointermove', move);
+        grip.removeEventListener('pointerup', up);
+        grip.removeEventListener('pointercancel', up);
+        blk.classList.remove('dragging');
+        st.card.classList.remove('dragging-now');
+        blocks().forEach(function (b) { b.classList.remove('drop-before', 'drop-after'); });
+
+        var to = targetFor(ev.clientY);
+        if (to > index) to--;
+        if (to !== index && to >= 0 && to < st.plan.length) {
+          var x = st.plan.splice(index, 1)[0];
+          st.plan.splice(to, 0, x);
+          save(id);
+        }
+        render(id);
+      }
+
+      grip.addEventListener('pointermove', move);
+      grip.addEventListener('pointerup', up);
+      grip.addEventListener('pointercancel', up);
+    });
   }
 
   /* ---------- persistence ---------- */
@@ -599,7 +809,7 @@ var LIB = [{"id":"bodypart","n":"Body Part Stop","c":"Arrival games","w":"Sessio
     try {
       if (samePlan(st.plan, defaultPlan(st.base))) localStorage.removeItem(STORE + id);
       else localStorage.setItem(STORE + id, JSON.stringify(st.plan));
-    } catch (e) { /* private mode — edits still work for this visit */ }
+    } catch (e) { }
   }
 
   function load(id, base) {
@@ -607,16 +817,17 @@ var LIB = [{"id":"bodypart","n":"Body Part Stop","c":"Arrival games","w":"Sessio
       var raw = localStorage.getItem(STORE + id);
       if (raw) {
         var p = JSON.parse(raw);
-        if (Array.isArray(p) && p.length) return p;
+        if (Array.isArray(p)) return p;
       }
     } catch (e) { }
     return defaultPlan(base);
   }
 
-  /* ---------- email + links ---------- */
+  /* ---------- sharing ---------- */
 
   function outlineText(id) {
     var st = cards[id], at = 0, rows = [];
+    if (!st.plan.length) return '(empty — nothing planned yet)';
     st.plan.forEach(function (it) {
       rows.push(clock(at) + ' (' + it.d + ' min)  ' + itemTitle(st, it));
       at += it.d;
@@ -653,20 +864,13 @@ var LIB = [{"id":"bodypart","n":"Body Part Stop","c":"Arrival games","w":"Sessio
   function updateChrome(id) {
     var st = cards[id];
     var edited = !samePlan(st.plan, defaultPlan(st.base));
-
-    if (st.totalEl) {
-      st.totalEl.textContent = 'Total ' + st.total + ' min';
-      st.totalEl.className = 'total' + (st.total === 75 ? '' : ' off');
-      st.totalEl.title = st.total === 75 ? 'A full 75-minute session' :
-        (st.total > 75 ? 'Longer than 75 minutes' : 'Shorter than 75 minutes');
-    }
     if (st.mailEl) st.mailEl.href = mailHref(id);
     if (st.editedEl) st.editedEl.textContent = edited ? 'Adjusted' : '';
     if (st.copyEditsEl) st.copyEditsEl.hidden = !edited;
     if (st.resetEl) st.resetEl.hidden = !edited;
   }
 
-  /* ---------- the add-activity panel ---------- */
+  /* ---------- add an activity ---------- */
 
   function buildAdder(id) {
     var st = cards[id];
@@ -676,7 +880,12 @@ var LIB = [{"id":"bodypart","n":"Body Part Stop","c":"Arrival games","w":"Sessio
 
     var cats = [];
     LIB.forEach(function (a) { if (cats.indexOf(a.c) === -1) cats.push(a.c); });
-    var opts = '<option value="">— choose an activity —</option>';
+
+    var opts = '<option value="">&mdash; choose &mdash;</option>' +
+      '<optgroup label="Breaks">' +
+        '<option value="__water">Water break (3 min)</option>' +
+        '<option value="__waterch">Water + team challenge (5 min)</option>' +
+      '</optgroup>';
     cats.forEach(function (c) {
       opts += '<optgroup label="' + esc(c) + '">';
       LIB.forEach(function (a) {
@@ -687,34 +896,44 @@ var LIB = [{"id":"bodypart","n":"Body Part Stop","c":"Arrival games","w":"Sessio
     opts += '<optgroup label="Or write your own"><option value="__custom">Custom activity…</option></optgroup>';
 
     box.innerHTML =
-      '<h5>Add an activity</h5>' +
-      '<label for="pick-' + id + '">From the library, or write your own</label>' +
+      '<h5>Add to this practice</h5>' +
+      '<label for="pick-' + id + '">A break, something from the library, or your own</label>' +
       '<select id="pick-' + id + '">' + opts + '</select>' +
       '<div class="blurb"></div>' +
       '<div class="custom" hidden>' +
         '<label for="ct-' + id + '">What is it called?</label>' +
-        '<input type="text" id="ct-' + id + '" placeholder="e.g. Water break, or Penalty shootout">' +
-        '<label for="cx-' + id + '">Notes for you and your assistant coaches</label>' +
+        '<input type="text" id="ct-' + id + '" placeholder="e.g. Penalty shootout, or Team photo">' +
+        '<label for="cx-' + id + '">Notes for you and Moira</label>' +
         '<textarea id="cx-' + id + '" placeholder="What happens, and anything you want to remember to say."></textarea>' +
       '</div>' +
       '<div class="arow">' +
         '<div><label for="cd-' + id + '">Minutes</label>' +
         '<input type="text" inputmode="numeric" id="cd-' + id + '" value="10" style="width:90px"></div>' +
-        '<button type="button" class="sbtn" data-act="add">Add to this practice</button>' +
+        '<button type="button" class="sbtn" data-act="add">Add it</button>' +
         '<button type="button" class="sbtn ghost" data-act="cancel">Cancel</button>' +
       '</div>';
 
     var sel = box.querySelector('select');
     var blurb = box.querySelector('.blurb');
     var custom = box.querySelector('.custom');
+    var dur = box.querySelector('#cd-' + id);
 
     sel.addEventListener('change', function () {
       var v = sel.value;
       custom.hidden = (v !== '__custom');
-      if (!v || v === '__custom') { blurb.innerHTML = ''; return; }
-      var a = libById(v);
-      blurb.innerHTML = a ? '<b>' + esc(a.c) + '</b> — ' + esc(a.b) +
-        (a.k ? '<br><b>You need</b> ' + esc(a.k) : '') : '';
+      if (v === '__water') {
+        dur.value = '3';
+        blurb.innerHTML = '<b>Break</b> &mdash; everybody drinks, in shade. Non-negotiable in Houston heat.';
+      } else if (v === '__waterch') {
+        dur.value = '5';
+        blurb.innerHTML = '<b>Break</b> &mdash; water plus a short, loud team challenge. A rest disguised as a competition.';
+      } else if (v === '__custom' || !v) {
+        blurb.innerHTML = '';
+      } else {
+        var a = libById(v);
+        blurb.innerHTML = a ? '<b>' + esc(a.c) + '</b> &mdash; ' + esc(a.b) +
+          (a.k ? '<br><b>You need</b> ' + esc(a.k) : '') : '';
+      }
     });
 
     box.querySelector('[data-act=cancel]').addEventListener('click', function () {
@@ -723,21 +942,26 @@ var LIB = [{"id":"bodypart","n":"Body Part Stop","c":"Arrival games","w":"Sessio
 
     box.querySelector('[data-act=add]').addEventListener('click', function () {
       var v = sel.value;
-      var d = parseInt(box.querySelector('#cd-' + id).value, 10);
+      var d = parseInt(dur.value, 10);
       if (isNaN(d) || d < 0) d = 10;
-      if (v === '__custom') {
+      if (v === '__water') {
+        st.plan.push({ k: 'w', t: 'Water', d: d });
+      } else if (v === '__waterch') {
+        st.plan.push({ k: 'w', t: 'Water + team challenge', d: d,
+          x: 'Water, plus a short loud challenge from the game bank. The team competes against a number, not each other.' });
+      } else if (v === '__custom') {
         var t = box.querySelector('#ct-' + id).value.trim();
         var x = box.querySelector('#cx-' + id).value.trim();
         if (!t) { box.querySelector('#ct-' + id).focus(); return; }
         st.plan.push({ k: 'c', t: t, x: x, d: d });
       } else if (v) {
         st.plan.push({ k: 'l', r: v, d: d });
-      } else {
-        sel.focus(); return;
-      }
+      } else { sel.focus(); return; }
+
       box.hidden = true; sel.value = ''; custom.hidden = true; blurb.innerHTML = '';
       box.querySelector('#ct-' + id).value = '';
       box.querySelector('#cx-' + id).value = '';
+      dur.value = '10';
       save(id); render(id);
     });
 
@@ -750,7 +974,8 @@ var LIB = [{"id":"bodypart","n":"Body Part Stop","c":"Arrival games","w":"Sessio
     var id = card.id;
     var titleEl = card.querySelector('.card-hd h3');
     var blocksEl = card.querySelector('.blocks');
-    if (!titleEl || !blocksEl) return;
+    var hd = card.querySelector('.card-hd');
+    if (!titleEl || !blocksEl || !hd) return;
 
     var sessEl = card.querySelector('.sess');
     var focusEl = card.querySelector('.focus');
@@ -764,7 +989,15 @@ var LIB = [{"id":"bodypart","n":"Body Part Stop","c":"Arrival games","w":"Sessio
     };
     var st = cards[id];
 
-    /* editor panel */
+    /* the always-on time bar, directly under the header */
+    var bar = document.createElement('div');
+    bar.className = 'timebar';
+    bar.innerHTML = '<div class="tb-track"></div>' +
+      '<div class="tb-foot"><div class="tb-label"></div><div class="tb-legend"></div></div>';
+    hd.parentNode.insertBefore(bar, hd.nextSibling);
+    st.barEl = bar;
+
+    /* editor */
     var ed = document.createElement('div');
     ed.className = 'editor';
     var erow = document.createElement('div');
@@ -778,31 +1011,33 @@ var LIB = [{"id":"bodypart","n":"Body Part Stop","c":"Arrival games","w":"Sessio
     addBtn.type = 'button'; addBtn.className = 'sbtn'; addBtn.hidden = true;
     addBtn.textContent = 'Add an activity';
 
+    var wipe = document.createElement('button');
+    wipe.type = 'button'; wipe.className = 'sbtn ghost'; wipe.hidden = true;
+    wipe.textContent = 'Clear the whole practice';
+
     var reset = document.createElement('button');
     reset.type = 'button'; reset.className = 'sbtn ghost'; reset.hidden = true;
-    reset.textContent = 'Reset to original';
-
-    var total = document.createElement('span');
-    total.className = 'total';
+    reset.textContent = 'Put the original back';
 
     var flag = document.createElement('span');
     flag.className = 'edited-flag';
 
     erow.appendChild(toggle); erow.appendChild(addBtn);
-    erow.appendChild(reset); erow.appendChild(total); erow.appendChild(flag);
+    erow.appendChild(wipe); erow.appendChild(reset); erow.appendChild(flag);
     ed.appendChild(erow);
 
     var adder = buildAdder(id);
     ed.appendChild(adder);
 
-    st.totalEl = total; st.resetEl = reset; st.editedEl = flag;
+    st.resetEl = reset; st.editedEl = flag;
 
     toggle.addEventListener('click', function () {
       st.editing = !st.editing;
       toggle.textContent = st.editing ? 'Done adjusting' : 'Adjust this practice';
       toggle.className = st.editing ? 'sbtn' : 'sbtn ghost';
       addBtn.hidden = !st.editing;
-      if (!st.editing) adder.hidden = true;
+      wipe.hidden = !st.editing;
+      if (!st.editing) { adder.hidden = true; armWipe(false); }
       render(id);
     });
 
@@ -811,12 +1046,30 @@ var LIB = [{"id":"bodypart","n":"Body Part Stop","c":"Arrival games","w":"Sessio
       if (!adder.hidden) adder.querySelector('select').focus();
     });
 
+    /* two taps to wipe — one mis-tap should not destroy the session */
+    var wipeArmed = false, wipeTimer = null;
+    function armWipe(on) {
+      wipeArmed = on;
+      clearTimeout(wipeTimer);
+      wipe.textContent = on ? 'Tap again to clear everything' : 'Clear the whole practice';
+      wipe.className = on ? 'sbtn danger-btn' : 'sbtn ghost';
+      if (on) wipeTimer = setTimeout(function () { armWipe(false); }, 5000);
+    }
+    wipe.addEventListener('click', function () {
+      if (!wipeArmed) { armWipe(true); return; }
+      armWipe(false);
+      st.plan = [];
+      save(id); render(id);
+      adder.hidden = false;
+      adder.querySelector('select').focus();
+    });
+
     reset.addEventListener('click', function () {
       st.plan = defaultPlan(st.base);
       save(id); render(id);
     });
 
-    /* share row */
+    /* share */
     var share = document.createElement('div');
     share.className = 'share';
 
@@ -846,7 +1099,6 @@ var LIB = [{"id":"bodypart","n":"Body Part Stop","c":"Arrival games","w":"Sessio
     share.appendChild(editsBtn);
     st.copyEditsEl = editsBtn;
 
-    /* on the full book, offer the practice's own page */
     if (document.querySelectorAll('article.card').length > 1) {
       var own = document.createElement('a');
       own.className = 'sbtn ghost';
@@ -861,13 +1113,13 @@ var LIB = [{"id":"bodypart","n":"Body Part Stop","c":"Arrival games","w":"Sessio
     render(id);
   }
 
-  /* ---------- plans that arrive by link ---------- */
+  /* ---------- plans arriving by link ---------- */
 
   function applyEncoded(id, encoded) {
     if (!cards[id] || !encoded) return false;
     try {
       var p = JSON.parse(b64dec(encoded));
-      if (Array.isArray(p) && p.length) { cards[id].plan = p; render(id); return true; }
+      if (Array.isArray(p)) { cards[id].plan = p; render(id); return true; }
     } catch (e) { }
     return false;
   }
@@ -880,14 +1132,13 @@ var LIB = [{"id":"bodypart","n":"Body Part Stop","c":"Arrival games","w":"Sessio
   var q = new URLSearchParams(location.search);
   var p = q.get('p');
 
-  /* a single-practice page carrying someone else's adjustments */
   if (p && all.length === 1) {
     var only = all[0];
     if (applyEncoded(only.id, p)) {
       var n = only.id.replace(/^s/, '');
       var banner = document.createElement('div');
       banner.className = 'solo';
-      banner.innerHTML = '<b>Adjusted practice</b> — the timings and activities below are ' +
+      banner.innerHTML = '<b>Adjusted practice</b> &mdash; the timings and activities below are ' +
         'the version whoever sent you this link put together. ' +
         '<a href="' + SITE + 'session-' + n + '.html" style="color:var(--rust);font-weight:700">' +
         'See the original</a>';
@@ -895,7 +1146,6 @@ var LIB = [{"id":"bodypart","n":"Body Part Stop","c":"Arrival games","w":"Sessio
     }
   }
 
-  /* links of the older ?s=N form still land in the right place */
   var s = q.get('s');
   if (s && /^\d+$/.test(s) && all.length > 1) {
     location.replace(SITE + 'session-' + s + '.html' + (p ? '?p=' + encodeURIComponent(p) : ''));
