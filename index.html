@@ -148,6 +148,17 @@ h1, h2, h3, h4 { text-wrap: balance; line-height: 1.2; }
 .wkhead h3 { font-size: 1.05em; font-weight: 700; text-transform: uppercase; color: var(--rust); }
 .slist { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
 .scard { display: block; background: var(--card); border: 1px solid var(--rule-hi); border-radius: 6px; padding: 17px 19px; text-decoration: none; color: var(--sec); }
+.scard.added .num { color: var(--blue); }
+.newbox { margin-top: 14px; padding: 16px 18px; border: 2px dashed var(--rule-hi); border-radius: 6px; background: var(--card); }
+.newbox[hidden] { display: none; }
+.newbox label { display: block; font-size: .74em; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; color: var(--muted); margin: 0 0 6px; }
+.newbox input { font-family: inherit; font-size: .9em; width: 100%; max-width: 380px; padding: 10px 11px; border: 1px solid var(--rule-hi); border-radius: 4px; background: var(--bg); color: var(--text); }
+.newbox .row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-top: 12px; }
+.newbox button { font-family: inherit; font-size: .82em; font-weight: 700; cursor: pointer; border-radius: 4px; padding: 10px 16px; min-height: 42px; border: 1px solid var(--rust); background: var(--rust); color: var(--card); }
+.newbox button.ghost { background: transparent; color: var(--rust); }
+.newbox .say { font-size: .82em; color: var(--sec); margin-top: 10px; }
+.newbox .say b { color: var(--rust); }
+@media (max-width: 620px) { .newbox input { max-width: none; } }
 .scard:hover { border-color: var(--rust); background: #FDFAF2; }
 .scard:focus-visible { outline: 3px solid var(--forest); outline-offset: 2px; }
 .scard .top { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 8px; }
@@ -362,7 +373,7 @@ h1, h2, h3, h4 { text-wrap: balance; line-height: 1.2; }
 <div class="wrap">
 
 <header class="mast">
-  <div class="eyebrow">Spring Branch Memorial Sports Association &middot; 8U Girls</div>
+  <div class="eyebrow">Heat Waves &middot; SBMSA 8U Girls</div>
   <h1>The 8U<br>Practice Book</h1>
   <p class="sub">Each practice on its own page. Open one, print it, adjust the timings, or email it to Moira. New sessions get added as the season goes, built from what the team needed at the last one.</p>
   <p class="sub" style="margin-top:10px">Everything else &mdash; the season plan, the 12-player rotation grid, what the rulebook actually says, and all 52 activities explained with diagrams &mdash; lives in the Coaching Library.</p>
@@ -401,11 +412,37 @@ h1, h2, h3, h4 { text-wrap: balance; line-height: 1.2; }
 </div>
 
 
+<div class="wkgroup" id="added" hidden>
+  <div class="wkhead"><span class="wknum">Added in the season</span><h3>Written from the field</h3></div>
+  <div class="slist" id="addedlist"></div>
+</div>
+
+<div class="wkgroup">
+  <div class="wkhead"><span class="wknum">Next</span><h3>Add a session</h3></div>
+  <p style="font-size:.88em;color:var(--sec)">A new session starts as the shape of a practice with
+  nothing in it &mdash; arrival, ball mastery, water, skill block, break, small-sided, scrimmage,
+  huddle, seventy-five minutes. Open it and swap any block for something from the library.</p>
+  <div style="margin-top:14px"><button class="tolib" id="addbtn" type="button"
+    style="border:none;cursor:pointer;font-family:inherit;margin-top:0">Add a session</button></div>
+
+  <div class="newbox" id="newbox" hidden>
+    <label for="newtitle">What is this session for?</label>
+    <input id="newtitle" type="text" maxlength="60" placeholder="e.g. Turning Away From Trouble">
+    <label for="newkey" id="newkeylabel" style="margin-top:14px">Coach key</label>
+    <input id="newkey" type="password" autocomplete="off" placeholder="Only needed once on this device">
+    <div class="row">
+      <button type="button" id="newgo">Create it</button>
+      <button type="button" class="ghost" id="newcancel">Cancel</button>
+    </div>
+    <div class="say" id="newsay"></div>
+  </div>
+</div>
+
 <div class="panel" style="margin-top:30px">
   <h3>Printing</h3>
   <p>Each session page prints to a single sheet &mdash; open it and press Ctrl+P. The navigation, the share buttons and the adjust controls all drop out, and the background goes white.</p>
 </div>
-<p class="foot">Built for a 9v9 SBMSA 8U girls&#39; season &mdash; twelve players. Rules checked against the SBMSA Soccer Rulebook (Sept 2023), plus two the league enforces that it does not print: no punting, and any head contact stops play.</p>
+<p class="foot">Built for the <b>Heat Waves</b> &mdash; a 9v9 SBMSA 8U girls&#39; season, twelve players. Rules checked against the SBMSA Soccer Rulebook (Sept 2023), plus two the league enforces that it does not print: no punting, and any head contact stops play.</p>
 
 </div>
 <script>
@@ -414,8 +451,124 @@ h1, h2, h3, h4 { text-wrap: balance; line-height: 1.2; }
   var s = q.get('s');
   if (s && /^\d+$/.test(s)) {
     var p = q.get('p');
-    location.replace('session-' + s + '.html' + (p ? '?p=' + encodeURIComponent(p) : ''));
+    /* 1 and 2 are written pages; anything after that was added during the
+       season and lives on the shared session page. */
+    var to = Number(s) <= 2 ? 'session-' + s + '.html' : 'session.html?s=' + s;
+    if (p) to += (to.indexOf('?') > -1 ? '&' : '?') + 'p=' + encodeURIComponent(p);
+    location.replace(to);
   }
+})();
+</script>
+<script>
+/* ---------- sessions added during the season ----------
+   The written sessions are in the repository. These are made on a touchline:
+   the button creates the record, the page it links to builds the blank
+   template, and filling it in is the same editing the written sessions have.
+
+   The coach key is not in this page. She types it once and the device keeps
+   it -- the same key the Kicking Club and the session pages use. */
+(function () {
+  'use strict';
+
+  var COACHKEY = '8u.coachkey';
+  var list = document.getElementById('addedlist');
+  var group = document.getElementById('added');
+  var box = document.getElementById('newbox');
+  var btn = document.getElementById('addbtn');
+  var say = document.getElementById('newsay');
+  var title = document.getElementById('newtitle');
+  var keyIn = document.getElementById('newkey');
+  var keyLabel = document.getElementById('newkeylabel');
+
+  function coachKey() {
+    try { return localStorage.getItem(COACHKEY) || ''; } catch (e) { return ''; }
+  }
+  function setCoachKey(k) {
+    try { if (k) localStorage.setItem(COACHKEY, k); else localStorage.removeItem(COACHKEY); }
+    catch (e) { }
+  }
+  function esc(t) {
+    return String(t == null ? '' : t)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+
+  function draw(sessions) {
+    if (!sessions || !sessions.length) { group.hidden = true; return; }
+    list.innerHTML = sessions.map(function (x) {
+      return '<a class="scard added" href="session.html?s=' + x.n + '">' +
+        '<div class="top"><span class="num">Session ' + x.n + '</span>' +
+        '<span class="tag sun">Build</span></div>' +
+        '<h4>' + esc(x.title) + '</h4>' +
+        '<p>' + esc(x.focus || '') + '</p>' +
+        '<div class="meta">8 blocks &middot; 75 minutes &middot; blank template</div></a>';
+    }).join('');
+    group.hidden = false;
+  }
+
+  function load() {
+    fetch('/api/sessions', { headers: { accept: 'application/json' } })
+      .then(function (r) { return r.ok ? r.json() : Promise.reject(new Error('http ' + r.status)); })
+      .then(function (res) { if (res && res.ok) draw(res.sessions); },
+            function () { btn.hidden = true; });   /* no API here; the button would only disappoint */
+  }
+
+  btn.addEventListener('click', function () {
+    box.hidden = !box.hidden;
+    if (box.hidden) return;
+    var have = !!coachKey();
+    keyIn.hidden = have; keyLabel.hidden = have;
+    say.innerHTML = '';
+    title.focus();
+  });
+
+  document.getElementById('newcancel').addEventListener('click', function () {
+    box.hidden = true; title.value = ''; keyIn.value = ''; say.innerHTML = '';
+  });
+
+  function create() {
+    var t = title.value.trim();
+    if (!t) { say.innerHTML = 'Give it a name first &mdash; what is the session for?'; title.focus(); return; }
+    var k = coachKey() || keyIn.value;
+    if (!k) { say.innerHTML = 'The coach key is needed to add a session.'; keyIn.focus(); return; }
+
+    say.innerHTML = 'Creating&hellip;';
+    fetch('/api/sessions', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ op: 'create', title: t, key: k })
+    }).then(function (r) {
+      return r.json().then(function (j) { return { status: r.status, body: j }; },
+                           function () { return { status: r.status, body: null }; });
+    }).then(function (res) {
+      if (res.status === 403) {
+        setCoachKey('');
+        keyIn.hidden = false; keyLabel.hidden = false; keyIn.value = '';
+        say.innerHTML = 'That key was not accepted.';
+        keyIn.focus();
+        return;
+      }
+      if (res.status === 503) {
+        say.innerHTML = 'No coach key is set on the server, so nothing can be added yet.';
+        return;
+      }
+      if (!res.body || !res.body.ok) {
+        say.innerHTML = esc((res.body && res.body.error) || 'That did not work.');
+        return;
+      }
+      setCoachKey(k);
+      draw(res.body.sessions);
+      box.hidden = true; title.value = ''; keyIn.value = ''; say.innerHTML = '';
+      location.href = 'session.html?s=' + res.body.n;
+    }, function () {
+      say.innerHTML = 'Could not reach the team list just now.';
+    });
+  }
+
+  document.getElementById('newgo').addEventListener('click', create);
+  title.addEventListener('keydown', function (e) { if (e.key === 'Enter') create(); });
+  keyIn.addEventListener('keydown', function (e) { if (e.key === 'Enter') create(); });
+
+  load();
 })();
 </script>
 <script>

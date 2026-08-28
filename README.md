@@ -1,6 +1,6 @@
 # The 8U Practice Book
 
-75-minute practice plans for a **9v9 SBMSA 8U girls' season**, for a **12-player roster** spanning complete beginners to experienced players. Sessions are written one at a time, from what the team needed at the last practice.
+75-minute practice plans for the **Heat Waves** — a **9v9 SBMSA 8U girls' season**, **12-player roster** spanning complete beginners to experienced players. Sessions are written one at a time, from what the team needed at the last practice.
 
 **Live:** https://yshi41.github.io/8u-practice-book/
 
@@ -9,7 +9,8 @@
 | File | What it is | When you use it |
 | --- | --- | --- |
 | [`index.html`](index.html) | **Contents** — the season at a glance, linking to each session | Finding the session you want. |
-| `session-1.html`, `session-2.html`, … | **One practice per page** — its own URL. New ones are added as the season goes, built from feedback after the last practice. | Working from a single session, or sending one to someone. |
+| `session-1.html`, `session-2.html` | **One written practice per page** — its own URL, prose and all. | Working from a single session, or sending one to someone. |
+| `session.html?s=N` | **Sessions added during the season.** One page, any number: it builds the blank template and takes its name and plan from the API. | The sessions made on a touchline rather than written at a desk. |
 | [`library.html`](library.html) | **The Coaching Library** — the season plan and every activity explained | At home, the night before. |
 
 Every activity name on a session card is a **link** into its library entry. Tap "The Toy Box" on Session 1 and you land on the diagram, the setup steps, and what it teaches.
@@ -55,6 +56,18 @@ A shared copy is still a copy: it is not in the book, it does not print, and it 
 Baking bumps `data-edition` on the session card. Every browser holding an older private copy of that session quietly drops it on the next visit, and the shared copy stored against the old edition is cleared too — **the book always wins over a saved plan.** The same check catches a `?p=` link built against an older edition: the page says so instead of showing a scrambled practice.
 
 **Working on the book with Claude:** the published site is the source of truth. Claude pulls `origin/main` before editing anything, because the site may be ahead of any local copy — a practice baked in from the field, or a change made from another machine.
+
+## Adding a session
+
+The contents page has an **Add a session** button. It asks what the session is for, takes the coach key once per device, and creates the next number — then opens it.
+
+A new session starts as the shape of a practice with nothing in it: arrival, ball mastery, water, skill block, break, small-sided, scrimmage, huddle. Eight blocks, seventy-five minutes exactly. Every one is swappable with *Change*, so filling it in is the same editing the written sessions already have, and it saves for the team the same way.
+
+`functions/api/sessions.js` holds the session record — title, focus, when it was made — at KV key `t:s<n>`. Its **plan lives separately**, at `p:s<n>`, owned by the practice API. That separation is deliberate: a plan is retired when the page it was built against changes edition, and retiring a plan must never delete the session it belongs to.
+
+`session.html` shares session-1's stylesheet, library and editing script verbatim — it builds the template into the DOM before that script runs, so the code reads it as the written session in exactly the way it reads session-1's blocks. The template carries an edition of its own, so changing its shape later retires stale plans rather than misreading them.
+
+Creating and deleting need the coach key; reading does not. Where there is no API — GitHub Pages, or a file opened off disk — the button hides itself rather than offering something that cannot work, and `session.html` still renders the blank template as something to print and fill in by hand.
 
 ## Kicking Club
 
