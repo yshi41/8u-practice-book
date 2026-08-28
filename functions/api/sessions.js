@@ -43,6 +43,16 @@ function numberOf(v) {
   return Number.isFinite(n) && n > WRITTEN && n <= MAX_SESSION ? n : null;
 }
 
+/* A single key read is far more current than a list, and asking about one
+   session is the common case: a page that has just been created and is being
+   opened for the first time. */
+async function readOne(kv, n) {
+  const res = await kv.getWithMetadata('t:s' + n);
+  const m = (res && res.metadata) || null;
+  if (!m || !m.title) return null;
+  return { n, title: m.title, focus: m.focus || '', created: Number(m.created) || 0 };
+}
+
 async function listAll(kv) {
   const out = [];
   let cursor;
@@ -61,10 +71,12 @@ async function listAll(kv) {
   return out;
 }
 
-export async function onRequestGet({ env }) {
+export async function onRequestGet({ request, env }) {
   const kv = store(env);
   if (!kv) return json({ ok: false, error: 'no KV binding named PLANS' }, 500);
   try {
+    const one = numberOf(new URL(request.url).searchParams.get('s'));
+    if (one) return json({ ok: true, written: WRITTEN, session: await readOne(kv, one) });
     return json({ ok: true, written: WRITTEN, sessions: await listAll(kv) });
   } catch (err) {
     return json({ ok: false, error: String((err && err.message) || err) }, 500);
@@ -123,8 +135,15 @@ export async function onRequestPost({ request, env }) {
     };
     await kv.put('t:s' + n, '', { metadata: record });
 
-    return json({ ok: true, n, session: { n, ...record }, written: WRITTEN,
-                  sessions: await listAll(kv) });
+    /* KV list() lags its writes, so the session just made is usually missing
+       from a list read taken a moment later. Put it into this reply by hand,
+       or the contents page comes back without the thing it just created. */
+    const sessions = await listAll(kv);
+    if (!sessions.some((x) => x.n === n)) {
+      sessions.push({ n, ...record });
+      sessions.sort((a, b) => a.n - b.n);
+    }
+    return json({ ok: true, n, session: { n, ...record }, written: WRITTEN, sessions });
   } catch (err) {
     return json({ ok: false, error: String((err && err.message) || err) }, 500);
   }

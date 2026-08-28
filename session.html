@@ -520,30 +520,49 @@ h1, h2, h3, h4 { text-wrap: balance; line-height: 1.2; }
 
   window.__SESSION = { n: n, generated: true };
 
-  fetch('/api/sessions', { headers: { accept: 'application/json' } })
-    .then(function (r) { return r.ok ? r.json() : Promise.reject(new Error('http ' + r.status)); })
-    .then(function (res) {
-      var mine = null;
-      if (res && res.ok) {
-        for (var i = 0; i < res.sessions.length; i++) {
-          if (res.sessions[i].n === n) { mine = res.sessions[i]; break; }
-        }
-      }
-      if (!mine) {
+  function show(mine) {
+    card.querySelector('h3').textContent = mine.title;
+    card.querySelector('.focus').textContent = mine.focus || '';
+    document.title = 'Session ' + n + ' \u2014 ' + mine.title;
+    if (window.__renameCard) window.__renameCard(mine.title);
+  }
+
+  /* The contents page leaves the record it just made here, because a session
+     opened the instant it is created is the one case the server cannot answer
+     for yet -- see the retry below. */
+  var handed = null;
+  try {
+    var raw = sessionStorage.getItem('8u.newsession');
+    if (raw) {
+      var h = JSON.parse(raw);
+      if (h && h.n === n) { handed = h; show(h); }
+      sessionStorage.removeItem('8u.newsession');
+    }
+  } catch (e) { }
+
+  /* Asks about this one session rather than the whole list: a single key read
+     is far more current, which matters most in the seconds after it is made.
+     Then it tries twice more before giving up, because KV can be a few seconds
+     behind its own write and "there is no session 3" would be a lie. */
+  function look(triesLeft) {
+    fetch('/api/sessions?s=' + n, { headers: { accept: 'application/json' } })
+      .then(function (r) { return r.ok ? r.json() : Promise.reject(new Error('http ' + r.status)); })
+      .then(function (res) {
+        if (res && res.ok && res.session) { show(res.session); return; }
+        if (triesLeft > 0) { setTimeout(function () { look(triesLeft - 1); }, 1500); return; }
+        if (handed) return;   /* handed it on the way in; trust that over a stale read */
         giveUp('<b>There is no session ' + n + '.</b> It may have been deleted.');
-        return;
-      }
-      card.querySelector('h3').textContent = mine.title;
-      card.querySelector('.focus').textContent = mine.focus || '';
-      document.title = 'Session ' + n + ' \u2014 ' + mine.title;
-      if (window.__renameCard) window.__renameCard(mine.title);
-    }, function () {
-      /* No API here (opened off disk, or GitHub Pages): the template still
-         works as a page to print and fill in by hand. */
-      card.querySelector('.focus').textContent =
-        'Added during the season. The team copy cannot be reached from here, so ' +
-        'this is the blank template.';
-    });
+      }, function () {
+        /* No API here (opened off disk, or GitHub Pages): the template still
+           works as a page to print and fill in by hand. */
+        if (!handed) {
+          card.querySelector('.focus').textContent =
+            'Added during the season. The team copy cannot be reached from here, ' +
+            'so this is the blank template.';
+        }
+      });
+  }
+  look(2);
 })();
 </script>
 <script>
