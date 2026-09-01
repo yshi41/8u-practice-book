@@ -161,13 +161,38 @@ h1, h2, h3, h4 { text-wrap: balance; line-height: 1.2; }
 .blk.targeted { box-shadow: inset 4px 0 0 0 var(--forest); }
 .adder.inline { margin: 2px 0 22px; border-color: var(--forest); }
 
-/* drag handle — pointer events, so it works with a finger too */
-.ibtn.grip { cursor: grab; touch-action: none; letter-spacing: -3px; padding-right: 13px; color: var(--rust); }
+/* ---------- moving a block ----------
+   The handle sits against the right edge of the block, the way a phone's list
+   screens put it, and is a proper thumb-sized target. */
+.blk.editing { position: relative; padding-right: 46px; }
+.ibtn.grip {
+  position: absolute; right: 6px; top: 50%; transform: translateY(-50%);
+  display: flex; align-items: center; justify-content: center;
+  width: 34px; min-width: 34px; height: 54px; min-height: 54px; padding: 0;
+  cursor: grab; touch-action: none; color: var(--muted);
+  background: transparent; border: 1px solid transparent;
+}
+.ibtn.grip:hover { background: var(--tan); border-color: var(--rule-hi); color: var(--rust); }
 .ibtn.grip:active { cursor: grabbing; }
-.blk.dragging { opacity: .45; }
+.blk.lifted .ibtn.grip { color: var(--rust); }
+
+/* the block being carried: off the page, under the finger, casting a shadow */
+.blk.lifted {
+  z-index: 5;
+  background: var(--card);
+  border-radius: 6px;
+  box-shadow: 0 12px 28px rgba(36, 22, 8, .22), 0 2px 6px rgba(36, 22, 8, .12);
+  transition: none !important;
+}
+/* everything else slides out of its way in real time */
 .card.dragging-now { user-select: none; }
-.blk.drop-before { box-shadow: 0 -3px 0 0 var(--forest); }
-.blk.drop-after { box-shadow: 0 3px 0 0 var(--forest); }
+.card.dragging-now .blk { transition: transform 170ms cubic-bezier(.2, .7, .3, 1); }
+.card.dragging-now .blk.lifted { transition: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  .card.dragging-now .blk { transition: none; }
+  .blk.lifted { box-shadow: 0 0 0 2px var(--forest); }
+}
 
 /* ---------- editor panel ---------- */
 .editor .erow { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
@@ -368,7 +393,9 @@ h1, h2, h3, h4 { text-wrap: balance; line-height: 1.2; }
   }
   body { background: #fff; }
   .wrap { max-width: none; padding: 0; }
-  .nav, .share, .tolib, .editor, .adder, .bctl, .solo, .timebar, .emptystate, .tb-yours { display: none; }
+  .nav, .share, .tolib, .editor, .adder, .bctl, .grip, .solo, .timebar, .emptystate,
+  .tb-yours { display: none; }
+  .blk.editing { padding-right: 0; }
   .card { break-inside: avoid; break-after: page; border: none; margin-bottom: 0; }
   .card:last-of-type { break-after: auto; }
   .card-hd { padding: 0 0 10px; }
@@ -832,11 +859,16 @@ var LIB = [{"id":"bodypart","n":"Body Part Stop","c":"Arrival games","w":"Sessio
         var grip = document.createElement('button');
         grip.type = 'button';
         grip.className = 'ibtn grip';
-        grip.innerHTML = '&#8942;&#8942;';
+        grip.innerHTML =
+          '<svg viewBox="0 0 14 22" width="14" height="22" aria-hidden="true" focusable="false">' +
+          '<path d="M3 9 L7 4.5 L11 9" fill="none" stroke="currentColor" stroke-width="1.9" ' +
+          'stroke-linecap="round" stroke-linejoin="round"/>' +
+          '<path d="M3 13 L7 17.5 L11 13" fill="none" stroke="currentColor" stroke-width="1.9" ' +
+          'stroke-linecap="round" stroke-linejoin="round"/></svg>';
         grip.title = 'Drag to move, or focus and use the arrow keys';
         grip.setAttribute('aria-label', 'Move ' + itemTitle(st, it) + '. Drag, or use arrow keys.');
         wireDrag(grip, blk, id, n);
-        ctl.appendChild(grip);
+        blk.appendChild(grip);          /* against the side, not in the control row */
 
         var lab = document.createElement('span');
         lab.className = 'mins';
@@ -912,15 +944,21 @@ var LIB = [{"id":"bodypart","n":"Body Part Stop","c":"Arrival games","w":"Sessio
   function wireDrag(grip, blk, id, index) {
     var st = cards[id];
 
+    function moveTo(to) {
+      if (to < 0 || to >= st.plan.length || to === index) return false;
+      var x = st.plan.splice(index, 1)[0];
+      st.plan.splice(to, 0, x);
+      save(id);
+      return true;
+    }
+
     grip.addEventListener('keydown', function (e) {
       var dir = e.key === 'ArrowUp' ? -1 : e.key === 'ArrowDown' ? 1 : 0;
       if (!dir) return;
       e.preventDefault();
       var to = index + dir;
-      if (to < 0 || to >= st.plan.length) return;
-      var x = st.plan.splice(index, 1)[0];
-      st.plan.splice(to, 0, x);
-      save(id); render(id);
+      if (!moveTo(to)) return;
+      render(id);
       var grips = st.card.querySelectorAll('.blocks .blk .grip');
       if (grips[to]) grips[to].focus();
     });
@@ -930,52 +968,97 @@ var LIB = [{"id":"bodypart","n":"Body Part Stop","c":"Arrival games","w":"Sessio
       e.preventDefault();
       try { grip.setPointerCapture(e.pointerId); } catch (err) { }
 
-      blk.classList.add('dragging');
+      var bs = Array.prototype.slice.call(st.card.querySelectorAll('.blocks .blk'));
+      if (bs.length < 2) return;
+
+      /* Measured once, in page coordinates, so that scrolling during the drag
+         does not move the goalposts. */
+      var top = window.pageYOffset;
+      var rects = bs.map(function (b) {
+        var r = b.getBoundingClientRect();
+        return { top: r.top + top, height: r.height };
+      });
+
+      var mine = rects[index];
+      var gap = 0;
+      if (index + 1 < rects.length) gap = rects[index + 1].top - (mine.top + mine.height);
+      else if (index > 0) gap = mine.top - (rects[index - 1].top + rects[index - 1].height);
+      var step = mine.height + Math.max(0, gap);
+
+      var startPageY = e.clientY + top;
+      var lastClientY = e.clientY;
+      var to = index;
+      var scrolling = null;
+
+      blk.classList.add('lifted');
       st.card.classList.add('dragging-now');
 
-      function blocks() {
-        return Array.prototype.slice.call(st.card.querySelectorAll('.blocks .blk'));
-      }
+      function apply() {
+        var pageY = lastClientY + window.pageYOffset;
+        var dy = pageY - startPageY;
+        blk.style.transform = 'translateY(' + dy + 'px)';
 
-      function targetFor(y) {
-        var bs = blocks();
-        for (var i = 0; i < bs.length; i++) {
-          var r = bs[i].getBoundingClientRect();
-          if (y < r.top + r.height / 2) return i;
+        /* where it would land: how many other blocks has its middle passed? */
+        var centre = mine.top + mine.height / 2 + dy;
+        var t = index;
+        for (var i = 0; i < rects.length; i++) {
+          if (i === index) continue;
+          var c = rects[i].top + rects[i].height / 2;
+          if (i < index && centre < c) t = Math.min(t, i);
+          else if (i > index && centre > c) t = Math.max(t, i);
         }
-        return bs.length;
+        to = t;
+
+        /* and the others open a gap for it, right now rather than on release */
+        for (var j = 0; j < bs.length; j++) {
+          if (j === index) continue;
+          var shift = 0;
+          if (to > index && j > index && j <= to) shift = -step;
+          else if (to < index && j >= to && j < index) shift = step;
+          bs[j].style.transform = shift ? 'translateY(' + shift + 'px)' : '';
+        }
       }
 
-      function paint(t) {
-        var bs = blocks();
-        bs.forEach(function (b) { b.classList.remove('drop-before', 'drop-after'); });
-        if (t >= bs.length) { if (bs.length) bs[bs.length - 1].classList.add('drop-after'); }
-        else bs[t].classList.add('drop-before');
+      /* A practice is taller than a phone, so dragging to the far end means
+         the page has to come with you. */
+      function edgeScroll() {
+        var margin = 70, speed = 0;
+        if (lastClientY < margin) speed = -Math.ceil((margin - lastClientY) / 6);
+        else if (lastClientY > window.innerHeight - margin) {
+          speed = Math.ceil((lastClientY - (window.innerHeight - margin)) / 6);
+        }
+        if (speed) window.scrollBy(0, speed);
+        apply();
+        scrolling = window.requestAnimationFrame(edgeScroll);
       }
 
-      function move(ev) { paint(targetFor(ev.clientY)); }
+      function move(ev) {
+        lastClientY = ev.clientY;
+        apply();
+      }
 
-      function up(ev) {
+      function up() {
         grip.removeEventListener('pointermove', move);
         grip.removeEventListener('pointerup', up);
         grip.removeEventListener('pointercancel', up);
-        blk.classList.remove('dragging');
-        st.card.classList.remove('dragging-now');
-        blocks().forEach(function (b) { b.classList.remove('drop-before', 'drop-after'); });
+        if (scrolling) window.cancelAnimationFrame(scrolling);
 
-        var to = targetFor(ev.clientY);
-        if (to > index) to--;
-        if (to !== index && to >= 0 && to < st.plan.length) {
-          var x = st.plan.splice(index, 1)[0];
-          st.plan.splice(to, 0, x);
-          save(id);
-        }
+        blk.classList.remove('lifted');
+        st.card.classList.remove('dragging-now');
+        bs.forEach(function (b) { b.style.transform = ''; });
+
+        moveTo(to);
         render(id);
+
+        /* keep the handle under the thumb that was holding it */
+        var grips = st.card.querySelectorAll('.blocks .blk .grip');
+        if (grips[to] && document.activeElement === document.body) grips[to].focus({ preventScroll: true });
       }
 
       grip.addEventListener('pointermove', move);
       grip.addEventListener('pointerup', up);
       grip.addEventListener('pointercancel', up);
+      scrolling = window.requestAnimationFrame(edgeScroll);
     });
   }
 
