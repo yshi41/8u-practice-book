@@ -9,64 +9,83 @@
 <title>Kicking Club</title>
 <style>
 :root{color-scheme:light;--bg:#F4ECD8;--card:#FBF6E8;--tan:#EDE0BF;--rule:#D2C09C;--rule-hi:#B9A275;
---text:#241608;--sec:#46331C;--muted:#6B5334;--rust:#7A3E0F;--forest:#1F5A34;--warn:#7A4A08;--fs:19px;
+--text:#241608;--sec:#46331C;--muted:#6B5334;--rust:#7A3E0F;--forest:#1F5A34;--warn:#7A4A08;--fs:20px;
+  --f-h3:    1em;    /* card + section headings */
+  --f-title: .95em;  /* row titles, definition terms */
+  --f-body:  .92em;  /* body copy, table cells */
+  --f-meta:  .85em;  /* captions, tabs, legends, footer */
+  --f-badge: .78em;  /* badges, tile labels, table th — FLOOR */
 --font:Verdana,Tahoma,"DejaVu Sans",Geneva,sans-serif}
 *{box-sizing:border-box;margin:0;padding:0}
 html{-webkit-text-size-adjust:100%}
 body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:var(--fs);line-height:1.6;overflow-wrap:break-word}
 .wrap{max-width:660px;margin:0 auto;padding:26px 18px 70px}
 .mast{border-bottom:3px solid var(--rust);padding-bottom:16px;margin-bottom:20px}
-.eyebrow{font-size:.7em;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.eyebrow{font-size:var(--f-badge);font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
 h1{font-size:1.7em;font-weight:700;text-transform:uppercase;color:var(--rust);margin:8px 0 10px;line-height:1.1}
-.sub{font-size:.92em;color:var(--sec);max-width:56ch}
+.sub{font-size:var(--f-title);color:var(--sec);max-width:56ch}
 .card{background:var(--card);border:1px solid var(--rule-hi);border-radius:6px;padding:20px;margin-bottom:16px}
-h2{font-size:.9em;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--rust);
+h2{font-size:var(--f-title);font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--rust);
 border-bottom:1px solid var(--rule);padding-bottom:9px;margin-bottom:14px}
-label{display:block;font-size:.72em;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:14px 0 6px}
+label{display:block;font-size:var(--f-meta);font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:14px 0 6px}
 label:first-of-type{margin-top:0}
 select,input,textarea{font-family:inherit;font-size:1em;width:100%;padding:12px;border:1px solid var(--rule-hi);
 border-radius:5px;background:#fff;color:var(--text);min-height:48px}
-textarea{min-height:96px;font-size:.8em;line-height:1.45;resize:vertical}
+textarea{min-height:96px;font-size:var(--f-body);line-height:1.45;resize:vertical}
 select:focus-visible,input:focus-visible,textarea:focus-visible,button:focus-visible{outline:3px solid var(--forest);outline-offset:2px}
-button{font-family:inherit;font-size:.85em;font-weight:700;cursor:pointer;border-radius:5px;padding:13px 20px;
+button{font-family:inherit;font-size:var(--f-body);font-weight:700;cursor:pointer;border-radius:5px;padding:13px 20px;
 min-height:48px;border:1px solid var(--rust);background:var(--rust);color:var(--card)}
 button:hover{background:var(--text);border-color:var(--text)}
 button[disabled]{opacity:.5;cursor:not-allowed}
 button.ghost{background:transparent;color:var(--rust)}
 button.ghost:hover{background:var(--tan);color:var(--rust)}
 .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:18px}
-.note{font-size:.82em;color:var(--sec);margin-top:12px}
-.ok{background:#EDF3E6;border:1px solid var(--forest);color:var(--forest);border-radius:5px;padding:13px 16px;font-size:.86em;font-weight:700;margin-bottom:16px}
-.warn{background:#F8EFDC;border:1px solid var(--warn);color:var(--warn);border-radius:5px;padding:13px 16px;font-size:.84em;margin-bottom:16px}
+.note{font-size:var(--f-body);color:var(--sec);margin-top:12px}
+.ok{background:#EDF3E6;border:1px solid var(--forest);color:var(--forest);border-radius:5px;padding:13px 16px;font-size:var(--f-title);font-weight:700;margin-bottom:16px}
+.warn{background:#F8EFDC;border:1px solid var(--warn);color:var(--warn);border-radius:5px;padding:13px 16px;font-size:var(--f-body);margin-bottom:16px}
 .warn b{display:block;margin-bottom:4px}
 table{width:100%;border-collapse:collapse}
-th{background:var(--tan);color:var(--rust);font-size:.68em;font-weight:700;letter-spacing:.07em;text-transform:uppercase;text-align:left;padding:10px 11px;border-bottom:2px solid var(--rule-hi)}
-td{padding:11px;border-bottom:1px solid var(--rule);font-size:.86em;color:var(--sec)}
+th{background:var(--tan);color:var(--rust);font-size:var(--f-badge);font-weight:700;letter-spacing:.07em;text-transform:uppercase;text-align:left;padding:10px 11px;border-bottom:2px solid var(--rule-hi)}
+td{padding:11px;border-bottom:1px solid var(--rule);font-size:var(--f-title);color:var(--sec)}
 tr:last-child td{border-bottom:none}
 td.k{font-weight:700;color:var(--text);font-variant-numeric:tabular-nums;text-align:right;white-space:nowrap}
 td.rank{width:34px;color:var(--muted);font-weight:700;font-variant-numeric:tabular-nums}
 td.nm{font-weight:700;color:var(--text)}
 .bar{height:8px;border-radius:4px;background:var(--rust);margin-top:5px}
 .tot{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:14px}
-.tile{background:var(--tan);border-radius:5px;padding:10px 15px;font-size:.8em;color:var(--sec)}
+.tile{background:var(--tan);border-radius:5px;padding:10px 15px;font-size:var(--f-body);color:var(--sec)}
 .tile b{display:block;font-size:1.5em;color:var(--rust);font-variant-numeric:tabular-nums}
-.mine{font-size:.88em;color:var(--sec);margin-top:10px}
+.mine{font-size:var(--f-title);color:var(--sec);margin-top:10px}
 .mine b{color:var(--rust);font-size:1.2em}
-.log{font-size:.8em;color:var(--muted);margin-top:10px}
+.log{font-size:var(--f-body);color:var(--muted);margin-top:10px}
 .log span{display:inline-block;background:var(--tan);border-radius:4px;padding:3px 9px;margin:3px 4px 0 0}
-.foot{margin-top:26px;padding-top:16px;border-top:1px solid var(--rule);font-size:.76em;color:var(--muted)}
-.foot a{color:var(--rust);font-weight:700}
-.linky{background:none;border:none;color:var(--rust);font-weight:700;font-size:.78em;text-decoration:underline;cursor:pointer;padding:6px 2px;min-height:auto}
-.status{font-size:.74em;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);margin-bottom:12px}
+.foot{margin-top:26px;padding-top:16px;border-top:1px solid var(--rule);font-size:var(--f-meta);color:var(--muted)}
+.foot a{color:var(--rust);font-weight:700;display:inline-block;padding:6px 2px}
+.linky{background:none;border:none;color:var(--rust);font-weight:700;font-size:var(--f-meta);text-decoration:underline;cursor:pointer;padding:6px 2px;min-height:auto}
+.status{font-size:var(--f-meta);font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);margin-bottom:12px}
 .status.live{color:var(--forest)}
 .status.off{color:var(--warn)}
 .dot{display:inline-block;width:9px;height:9px;border-radius:50%;background:currentColor;margin-right:6px;vertical-align:baseline}
-code{font-family:ui-monospace,Consolas,monospace;font-size:.85em;background:var(--tan);padding:2px 5px;border-radius:3px;word-break:break-all}
-.mini{font-size:.74em;padding:7px 11px;min-height:36px}
-.adj{width:104px;padding:8px 10px;font-size:.9em;text-align:right}
+code{font-family:ui-monospace,Consolas,monospace;font-size:var(--f-body);background:var(--tan);padding:2px 5px;border-radius:3px;word-break:break-all}
+.mini{font-size:var(--f-meta);padding:7px 11px;min-height:36px}
+.adj{width:104px;padding:8px 10px;font-size:var(--f-title);text-align:right}
 button.danger{border-color:#8B1A1A;color:#8B1A1A;background:transparent}
 button.danger:hover{background:#8B1A1A;color:#fff;border-color:#8B1A1A}
 td.act{text-align:right;white-space:nowrap}
+.rowmeta{display:none;font-size:.88em;color:var(--muted);font-weight:400;margin-top:3px}
+.editnote{font-size:.88em;color:var(--muted);font-weight:400;margin-top:3px}
+.tablewrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+@media (max-width:560px){
+  /* the sessions and the last date move under the name; the number and the
+     button are what the coach came for, so they keep their columns */
+  th.tcol,td.tcol{display:none}
+  .rowmeta{display:block}
+  th,td{padding:10px 8px}
+  td.rank{width:24px}
+  .mini{padding:7px 9px}
+  .adj{width:84px}
+  td.act{white-space:normal}
+}
 td.k abbr{color:var(--rust);text-decoration:none;margin-left:2px}
 [hidden]{display:none!important}
 </style>
@@ -196,6 +215,14 @@ td.k abbr{color:var(--rust);text-decoration:none;margin-left:2px}
     var m = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
     return Number(p[2]) + ' ' + (m[Number(p[1]) - 1] || '') + ' ' + p[0];
   }
+  /* On a phone the year is noise: every entry is this season. */
+  function shortDate(iso) {
+    var p = String(iso).split('-');
+    if (p.length !== 3) return iso;
+    var m = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    return Number(p[2]) + ' ' + (m[Number(p[1]) - 1] || '');
+  }
+
   function keyOf(e) { return e.p + '|' + e.d + '|' + e.k; }
   function merge(a, b) {
     var seen = {}, out = [];
@@ -510,15 +537,17 @@ td.k abbr{color:var(--rust);text-decoration:none;margin-left:2px}
     h += '<div class="tot"><div class="tile"><b>' + sum + '</b>kicks in total</div>' +
       '<div class="tile"><b>' + logging + ' / ' + NAMES.length + '</b>girls logging</div></div>';
 
-    h += '<div class="card" style="padding:0;overflow:hidden"><table>' +
-      '<thead><tr><th></th><th>Player</th><th>Times</th><th>Last</th>' +
+    h += '<div class="card" style="padding:0;overflow:hidden"><div class="tablewrap"><table>' +
+      '<thead><tr><th></th><th>Player</th><th class="tcol">Times</th>' +
+      '<th class="tcol">Last</th>' +
       '<th style="text-align:right">Kicks</th><th></th>' +
       '</tr></thead><tbody>';
 
     rows.forEach(function (r, i) {
       if (canEdit && editP === r.n) {
-        h += '<tr><td class="rank"></td><td class="nm">' + esc(r.n) + '</td>' +
-          '<td colspan="2">Set the total to</td>' +
+        h += '<tr><td class="rank"></td>' +
+          '<td class="nm">' + esc(r.n) + '<div class="editnote">Set the total to</div></td>' +
+          '<td class="tcol"></td><td class="tcol"></td>' +
           '<td class="k"><input class="adj" id="adjval" type="number" min="0" max="1000000" ' +
           'step="1" inputmode="numeric" value="' + r.k + '"></td>' +
           '<td class="act"><button class="mini" id="adjsave">Save</button> ' +
@@ -526,16 +555,22 @@ td.k abbr{color:var(--rust);text-decoration:none;margin-left:2px}
         return;
       }
       var w = top > 0 ? Math.round(r.k / top * 100) : 0;
+      var meta = r.t
+        ? r.t + (r.t === 1 ? ' session' : ' sessions') +
+          (r.last ? ' &middot; ' + esc(shortDate(r.last)) : '')
+        : 'nothing logged yet';
       h += '<tr><td class="rank">' + (r.k > 0 ? (i + 1) : '') + '</td>' +
-        '<td class="nm">' + esc(r.n) + (r.k > 0 ? '<div class="bar" style="width:' + w + '%"></div>' : '') + '</td>' +
-        '<td>' + (r.t || '&mdash;') + '</td>' +
-        '<td>' + (r.last ? esc(pretty(r.last)) : '&mdash;') + '</td>' +
+        '<td class="nm">' + esc(r.n) +
+          '<div class="rowmeta">' + meta + '</div>' +
+          (r.k > 0 ? '<div class="bar" style="width:' + w + '%"></div>' : '') + '</td>' +
+        '<td class="tcol">' + (r.t || '&mdash;') + '</td>' +
+        '<td class="tcol">' + (r.last ? esc(pretty(r.last)) : '&mdash;') + '</td>' +
         '<td class="k">' + r.k + (r.fixed ? '<abbr title="you corrected this total">*</abbr>' : '') + '</td>' +
         '<td class="act"><button class="mini ghost" data-adj="' + esc(r.n) + '"' +
         (canEdit ? '' : ' disabled title="Needs the team list"') + '>Adjust</button></td>' +
         '</tr>';
     });
-    h += '</tbody></table></div>';
+    h += '</tbody></table></div></div>';
 
     h += '<div class="row">' +
       (live() ? '<button id="reload">Refresh</button>' : '') +
