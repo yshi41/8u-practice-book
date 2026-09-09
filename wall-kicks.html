@@ -90,11 +90,18 @@ td.k abbr{color:var(--rust);text-decoration:none;margin-left:2px}
 /* ring pops */
 .pops{font-size:var(--f-body);color:var(--sec);margin-top:4px}
 .pops b{color:var(--rust)}
-.cardhead{padding:20px 20px 4px}
-.cardhead h2{margin-bottom:10px}
-.cardhead .note{margin:0 0 12px}
-.owed{color:var(--rust)}
-.square{color:var(--forest);font-weight:400;font-size:var(--f-meta)}
+.popline{font-size:.88em;color:var(--sec);font-weight:400;margin-top:3px}
+.popline .owed{color:var(--rust);font-weight:700}
+.popline .square{color:var(--forest)}
+td.act .mini{margin:2px 0}
+td.act .hold{visibility:hidden}
+/* the row being corrected: kicks and ring pops given, side by side */
+td.editcell{padding:12px 11px}
+.editrow{display:flex;gap:10px 16px;flex-wrap:wrap;align-items:flex-end}
+.editrow .nm2{flex:1 0 100%;font-weight:700;color:var(--text)}
+.editrow label{margin:0;font-size:var(--f-badge)}
+.editrow .adj{display:block;width:104px;text-align:left}
+.editrow .btns{display:flex;gap:8px;align-items:center}
 [hidden]{display:none!important}
 </style>
 <script>
@@ -559,10 +566,7 @@ td.k abbr{color:var(--rust);text-decoration:none;margin-left:2px}
                earned: earned, given: given, owed: earned - given };
     }).sort(function (a, b) { return b.k - a.k || a.n.localeCompare(b.n); });
 
-    /* Only the girls a ring pop concerns, the ones owed first. */
-    var popRows = rows.filter(function (r) { return r.earned > 0 || r.given > 0; })
-      .sort(function (a, b) { return b.owed - a.owed || b.earned - a.earned || a.n.localeCompare(b.n); });
-    var owedTotal = popRows.reduce(function (s, r) { return s + Math.max(0, r.owed); }, 0);
+    var owedTotal = rows.reduce(function (s, r) { return s + Math.max(0, r.owed); }, 0);
 
     var top = rows.length ? rows[0].k : 0;
     var sum = rows.reduce(function (s, r) { return s + r.k; }, 0);
@@ -582,13 +586,15 @@ td.k abbr{color:var(--rust);text-decoration:none;margin-left:2px}
 
     rows.forEach(function (r, i) {
       if (canEdit && editP === r.n) {
-        h += '<tr><td class="rank"></td>' +
-          '<td class="nm">' + esc(r.n) + '<div class="editnote">Set the total to</div></td>' +
-          '<td class="tcol"></td><td class="tcol"></td>' +
-          '<td class="k"><input class="adj" id="adjval" type="number" min="0" max="1000000" ' +
-          'step="1" inputmode="numeric" value="' + r.k + '"></td>' +
-          '<td class="act"><button class="mini" id="adjsave">Save</button> ' +
-          '<button class="mini ghost" id="adjcancel">Cancel</button></td></tr>';
+        h += '<tr><td class="rank"></td><td class="editcell" colspan="5"><div class="editrow">' +
+          '<div class="nm2">' + esc(r.n) + '</div>' +
+          '<label>Kicks in total<input class="adj" id="adjval" type="number" min="0" max="1000000" ' +
+          'step="1" inputmode="numeric" value="' + r.k + '"></label>' +
+          '<label>Ring pops given<input class="adj" id="adjpops" type="number" min="0" max="1000" ' +
+          'step="1" inputmode="numeric" value="' + r.given + '"></label>' +
+          '<div class="btns"><button class="mini" id="adjsave">Save</button> ' +
+          '<button class="mini ghost" id="adjcancel">Cancel</button></div>' +
+          '</div></td></tr>';
         return;
       }
       var w = top > 0 ? Math.round(r.k / top * 100) : 0;
@@ -596,52 +602,36 @@ td.k abbr{color:var(--rust);text-decoration:none;margin-left:2px}
         ? r.t + (r.t === 1 ? ' session' : ' sessions') +
           (r.last ? ' &middot; ' + esc(shortDate(r.last)) : '')
         : 'nothing logged yet';
-      if (r.owed > 0) meta += ' &middot; <span class="owed">ring pop owed</span>';
+      /* Ring pops, on the girl's own row: how many she has earned and
+         whether one is waiting. The words change; the row does not move. */
+      var popline = '';
+      if (r.earned > 0 || r.given > 0) {
+        popline = '<div class="popline">' + plural(r.earned, 'ring pop', 'ring pops') + ' earned &middot; ' +
+          (r.owed > 0 ? '<span class="owed">' + (r.owed === 1 ? 'one to give' : r.owed + ' to give') + '</span>'
+           : r.owed === 0 ? '<span class="square">all given</span>'
+           : '<span class="square">' + r.given + ' given</span>') + '</div>';
+      }
       h += '<tr><td class="rank">' + (r.k > 0 ? (i + 1) : '') + '</td>' +
         '<td class="nm">' + esc(r.n) +
-          '<div class="rowmeta">' + meta + '</div>' +
+          '<div class="rowmeta">' + meta + '</div>' + popline +
           (r.k > 0 ? '<div class="bar" style="width:' + w + '%"></div>' : '') + '</td>' +
         '<td class="tcol">' + (r.t || '&mdash;') + '</td>' +
         '<td class="tcol">' + (r.last ? esc(pretty(r.last)) : '&mdash;') + '</td>' +
         '<td class="k">' + r.k + (r.fixed ? '<abbr title="you corrected this total">*</abbr>' : '') + '</td>' +
-        '<td class="act"><button class="mini ghost" data-adj="' + esc(r.n) + '"' +
+        '<td class="act">' +
+        /* When nothing is owed the button is still there, invisible, so the
+           row keeps its height and the rows below it stay where they were. */
+        (r.owed > 0
+          ? '<button class="mini" data-pop="' + esc(r.n) + '"' +
+            (canEdit ? '' : ' disabled title="Needs the team list and the key"') + '>Gave one</button> '
+          : (r.earned > 0 || r.given > 0
+              ? '<button class="mini hold" tabindex="-1" aria-hidden="true" disabled>Gave one</button> '
+              : '')) +
+        '<button class="mini ghost" data-adj="' + esc(r.n) + '"' +
         (canEdit ? '' : ' disabled title="Needs the team list"') + '>Adjust</button></td>' +
         '</tr>';
     });
     h += '</tbody></table></div></div>';
-
-    var dis = canEdit ? '' : ' disabled title="Needs the team list and the key"';
-    h += '<div class="card" style="padding:0;overflow:hidden"><div class="cardhead"><h2>Ring pops</h2>';
-    if (!popRows.length) {
-      h += '<p class="note">Nobody has reached 500 kicks yet. The first ring pop comes at 500, ' +
-        'then one for every 1,000 kicks after that. Whoever gets there shows up here.</p></div>';
-    } else {
-      h += '<p class="note">' +
-        (owedTotal ? '<b>' + plural(owedTotal, 'ring pop', 'ring pops') + ' to hand out.</b> '
-                   : 'Everybody has had theirs. ') +
-        'Tap <b>Gave one</b> when a ring pop goes into a hand, and it is remembered for the team.</p></div>';
-      h += '<div class="tablewrap"><table><thead><tr><th>Player</th>' +
-        '<th class="tcol">Earned</th><th class="tcol">Given</th>' +
-        '<th style="text-align:right">Owed</th><th></th></tr></thead><tbody>';
-      popRows.forEach(function (r) {
-        var owed = r.owed > 0 ? '<span class="owed">' + r.owed + '</span>'
-                 : r.owed === 0 ? '<span class="square">none</span>'
-                 : '<span class="square">' + (-r.owed) + ' ahead</span>';
-        h += '<tr><td class="nm">' + esc(r.n) +
-          '<div class="rowmeta">' + r.earned + ' earned &middot; ' + r.given + ' given</div></td>' +
-          '<td class="tcol">' + r.earned + '</td><td class="tcol">' + r.given + '</td>' +
-          '<td class="k">' + owed + '</td>' +
-          '<td class="act"><button class="mini" data-pop="' + esc(r.n) + '" data-dir="1"' + dis +
-          '>Gave one</button> ' +
-          (r.given > 0
-            ? '<button class="mini ghost" data-pop="' + esc(r.n) + '" data-dir="-1"' + dis +
-              ' title="Take one back" aria-label="Take one back from ' + esc(r.n) + '">&minus;1</button>'
-            : '') +
-          '</td></tr>';
-      });
-      h += '</tbody></table></div>';
-    }
-    h += '</div>';
 
     h += '<div class="row">' +
       (live() ? '<button id="reload">Refresh</button>' : '') +
@@ -657,8 +647,10 @@ td.k abbr{color:var(--rust);text-decoration:none;margin-left:2px}
       h += '<div class="foot">Every entry a parent makes lands here, so this is the same leaderboard on ' +
         'every phone. <b>Adjust</b> sets a girl&rsquo;s total to whatever it should be without ' +
         'rewriting what anybody logged &mdash; a star marks a total you have corrected. ' +
-        '<b>Gave one</b> records a ring pop actually handed over: the first is earned at 500 kicks, ' +
-        'then one at 1,500, 2,500 and so on, and the card shows who is still owed. ' +
+        '<b>Gave one</b> appears beside a girl who is owed a ring pop &mdash; the first at 500 kicks, ' +
+        'then one at 1,500, 2,500 and so on &mdash; and records it handed over. The number given can be ' +
+        'corrected under Adjust. ' +
+        (owedTotal ? '<b>' + plural(owedTotal, 'ring pop is', 'ring pops are') + ' waiting to be handed out.</b> ' : '') +
         '<b>Reset the record</b> wipes every entry, every correction and every ring pop given, ' +
         'for the whole team, and cannot be undone.</div>';
     } else if (!live()) {
@@ -693,15 +685,13 @@ td.k abbr{color:var(--rust);text-decoration:none;margin-left:2px}
       b.addEventListener('click', function () {
         armReset(false);
         var who = b.getAttribute('data-pop');
-        var n = Math.max(0, (pops[who] || 0) + (Number(b.getAttribute('data-dir')) || 0));
+        var n = (pops[who] || 0) + 1;
         b.disabled = true;
+        b.textContent = 'Saving\u2026';
         apiSend({ op: 'pops', p: who, n: n, key: coachKey() }).then(function (res) {
-          if (take(res)) {
-            flash = { kind: 'ok', msg: esc(who) + ' has had ' + plural(n, 'ring pop', 'ring pops') +
-                                       (n > 0 ? '.' : ' &mdash; back to none.') };
-          } else {
-            flash = { kind: 'warn', msg: 'That did not go through. Try again in a moment.' };
-          }
+          /* On success the row says so itself; no box at the top, because
+             that shoves the whole table down under the thumb. */
+          if (!take(res)) flash = { kind: 'warn', msg: 'That did not go through. Try again in a moment.' };
           render();
         }, function () {
           link = 'down';
@@ -713,19 +703,23 @@ td.k abbr{color:var(--rust);text-decoration:none;margin-left:2px}
 
     if (document.getElementById('adjsave')) {
       var box = document.getElementById('adjval');
+      var pbox = document.getElementById('adjpops');
       var who = editP;
       var send = function () {
         var v = parseInt(box.value, 10);
         if (isNaN(v) || v < 0) { box.focus(); return; }
+        var pv = parseInt(pbox.value, 10);
+        if (isNaN(pv) || pv < 0) { pbox.focus(); return; }
         busy = true;
+        /* the total first, then the ring pops if they changed */
         apiSend({ op: 'set', p: who, k: v, key: coachKey() }).then(function (res) {
+          if (!take(res)) return res;
+          if (pv === (pops[who] || 0)) return res;
+          return apiSend({ op: 'pops', p: who, n: pv, key: coachKey() });
+        }).then(function (res) {
           busy = false;
-          if (take(res)) {
-            editP = null;
-            flash = { kind: 'ok', msg: esc(who) + ' is now on ' + v + ' kicks.' };
-          } else {
-            flash = { kind: 'warn', msg: 'That did not go through. Try again in a moment.' };
-          }
+          if (take(res)) editP = null;
+          else flash = { kind: 'warn', msg: 'That did not go through. Try again in a moment.' };
           render();
         }, function () {
           busy = false; link = 'down';
@@ -735,6 +729,7 @@ td.k abbr{color:var(--rust);text-decoration:none;margin-left:2px}
       };
       document.getElementById('adjsave').addEventListener('click', send);
       box.addEventListener('keydown', function (e) { if (e.key === 'Enter') send(); });
+      pbox.addEventListener('keydown', function (e) { if (e.key === 'Enter') send(); });
       document.getElementById('adjcancel').addEventListener('click', function () {
         editP = null; render();
       });
