@@ -65,7 +65,7 @@ jobs:
         if: steps.check.outputs.ready == 'yes'
         run: |
           sleep 5
-          for path in / /api/entries /api/practice; do
+          for path in / /api/entries /api/practice /api/sessions /api/lineup; do
             code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 20 "https://8u-practice-book.pages.dev${path}")
             echo "$path -> $code"
             [ "$code" = "200" ] || exit 1

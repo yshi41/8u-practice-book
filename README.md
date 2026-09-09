@@ -91,6 +91,16 @@ Behind the password, and only when the team list is reachable:
 
 Both are guarded at the API by the coach key. Adding an entry is open, because that is what parents do.
 
+## Lineup
+
+`lineup.html` — one sheet per game: who is here, the shape (backs, mids, forwards, plus one in goal — 3-3-2 to start), and who is in which spot in each of the four quarters. The book's own facts set the rules: 9v9, 12 rostered, four quarters, everybody plays at least two.
+
+Girls are moved by dragging (a copy rides under the finger, the spot lights up), or on a phone by tapping her and then tapping where she goes. Within a quarter that is a swap; dragging her into another quarter puts her there as well. An empty spot is a picker listing that quarter's bench with each girl's quarters so far. **Fill the empty spots** hands each one to whoever has played least, then the coach fixes what it got wrong. Each quarter can copy the one before it.
+
+**Checks** run on every change and a pinned count follows you down the page. Errors: an empty spot; a girl in two spots in one quarter; a girl marked away but placed; anybody here with fewer than two quarters; more spots than girls. Notes, not errors: playing time uneven by more than a quarter, and anybody in goal three or more quarters. A player-by-quarter table under the checks is the whole game on one screen, and it prints.
+
+Sheets are saved by `functions/api/lineup.js` at KV key `l:<date>-<opponent>`, with the sheet as the value and `{ date, opp, ts }` as metadata so the games list is one `list()`. Every change is also kept in the browser and sent up when it can be; saving needs the coach key, reading is open. The server validates the whole sheet (names against the roster, lines sized to the shape, always four quarters) and drops anything it does not recognise.
+
 ## The practice API
 
 `functions/api/practice.js` holds one adjusted plan per session at KV key `p:<sid>`, with the edition it was built against in the key's metadata — so the "which sessions are adjusted" listing costs one `list()` and no `get()`s.
@@ -104,7 +114,7 @@ Two coaches editing the same session at the same time is last-write-wins. With t
 Done, on the account `yshi41@gmail.com`:
 
 - Pages project **`8u-practice-book`** (direct upload, production branch `main`)
-- KV namespace **`8u`** (`c0027d8784e34c8c86bef167b05ac930`), bound as both **`KICKS`** and **`PLANS`** in `wrangler.toml`. One namespace on purpose: wall kicks live under `e:`, `adj:`, `pop:` and `meta:`, practices under `p:`, so nothing collides and there is one thing to look after.
+- KV namespace **`8u`** (`c0027d8784e34c8c86bef167b05ac930`), bound as both **`KICKS`** and **`PLANS`** in `wrangler.toml`. One namespace on purpose: wall kicks live under `e:`, `adj:`, `pop:` and `meta:`, practices under `p:`, in-season sessions under `t:`, lineups under `l:`, so nothing collides and there is one thing to look after.
 
 ### Eventual consistency, and what it means here
 

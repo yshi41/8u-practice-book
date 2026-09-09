@@ -1,0 +1,1014 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light">
+<meta name="robots" content="noindex, nofollow">
+<meta name="description" content="Lineup sheet - who plays where, quarter by quarter.">
+<title>Lineup</title>
+<style>
+:root{color-scheme:light;--bg:#F4ECD8;--card:#FBF6E8;--tan:#EDE0BF;--rule:#D2C09C;--rule-hi:#B9A275;
+--text:#241608;--sec:#46331C;--muted:#6B5334;--rust:#7A3E0F;--forest:#1F5A34;--warn:#7A4A08;--bad:#8B1A1A;--fs:20px;
+  --f-h3:    1em;
+  --f-title: .95em;
+  --f-body:  .92em;
+  --f-meta:  .85em;
+  --f-badge: .78em;
+--font:Verdana,Tahoma,"DejaVu Sans",Geneva,sans-serif}
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:var(--fs);line-height:1.6;overflow-wrap:break-word}
+.wrap{max-width:720px;margin:0 auto;padding:26px 18px 110px}
+.mast{border-bottom:3px solid var(--rust);padding-bottom:16px;margin-bottom:20px}
+.eyebrow{font-size:var(--f-badge);font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+h1{font-size:1.7em;font-weight:700;text-transform:uppercase;color:var(--rust);margin:8px 0 10px;line-height:1.1}
+.sub{font-size:var(--f-title);color:var(--sec);max-width:56ch}
+.card{background:var(--card);border:1px solid var(--rule-hi);border-radius:6px;padding:20px;margin-bottom:16px}
+h2{font-size:var(--f-title);font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--rust);
+border-bottom:1px solid var(--rule);padding-bottom:9px;margin-bottom:14px;display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap}
+h2 small{font-weight:400;letter-spacing:0;text-transform:none;color:var(--muted);font-size:var(--f-meta)}
+label{display:block;font-size:var(--f-meta);font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:14px 0 6px}
+label:first-of-type{margin-top:0}
+select,input,textarea{font-family:inherit;font-size:1em;width:100%;padding:12px;border:1px solid var(--rule-hi);
+border-radius:5px;background:#fff;color:var(--text);min-height:48px}
+select:focus-visible,input:focus-visible,textarea:focus-visible,button:focus-visible{outline:3px solid var(--forest);outline-offset:2px}
+button{font-family:inherit;font-size:var(--f-body);font-weight:700;cursor:pointer;border-radius:5px;padding:13px 20px;
+min-height:48px;border:1px solid var(--rust);background:var(--rust);color:var(--card)}
+button:hover{background:var(--text);border-color:var(--text)}
+button[disabled]{opacity:.5;cursor:not-allowed}
+button.ghost{background:transparent;color:var(--rust)}
+button.ghost:hover{background:var(--tan);color:var(--rust)}
+button.danger{border-color:var(--bad);color:var(--bad);background:transparent}
+button.danger:hover{background:var(--bad);color:#fff;border-color:var(--bad)}
+.mini{font-size:var(--f-meta);padding:7px 11px;min-height:36px}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:18px}
+.note{font-size:var(--f-body);color:var(--sec);margin-top:12px}
+.ok{background:#EDF3E6;border:1px solid var(--forest);color:var(--forest);border-radius:5px;padding:13px 16px;font-size:var(--f-title);font-weight:700;margin-bottom:16px}
+.warn{background:#F8EFDC;border:1px solid var(--warn);color:var(--warn);border-radius:5px;padding:13px 16px;font-size:var(--f-body);margin-bottom:16px}
+.warn b{display:block;margin-bottom:4px}
+.status{font-size:var(--f-meta);font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
+.status.live{color:var(--forest)}
+.status.off{color:var(--warn)}
+.dot{display:inline-block;width:9px;height:9px;border-radius:50%;background:currentColor;margin-right:6px;vertical-align:baseline}
+.keyask{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:10px}
+.keyask input{width:auto;flex:1 1 160px;min-height:42px;padding:8px 11px;font-size:var(--f-body)}
+.foot{margin-top:26px;padding-top:16px;border-top:1px solid var(--rule);font-size:var(--f-meta);color:var(--muted)}
+.foot a{color:var(--rust);font-weight:700;display:inline-block;padding:6px 2px}
+
+/* ---------- games list ---------- */
+.games{list-style:none}
+.games li{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--rule)}
+.games li:last-child{border-bottom:none}
+.games .g{font-weight:700;color:var(--text)}
+.games .g small{display:block;font-weight:400;color:var(--muted);font-size:var(--f-meta)}
+
+/* ---------- shape ---------- */
+.shape{display:flex;gap:12px;flex-wrap:wrap}
+.step{flex:1 1 130px;background:var(--tan);border-radius:5px;padding:10px 12px;text-align:center}
+.step .lab{font-size:var(--f-badge);font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--muted)}
+.step .ctl{display:flex;align-items:center;justify-content:center;gap:6px;margin-top:4px}
+.step .ctl b{font-size:1.5em;color:var(--rust);min-width:1.4em;font-variant-numeric:tabular-nums}
+.step button{min-height:40px;min-width:40px;padding:0;font-size:1.1em;line-height:1}
+.onfield{font-size:var(--f-body);color:var(--sec);margin-top:12px}
+.onfield b{color:var(--rust)}
+
+/* ---------- who is here ---------- */
+.here{display:flex;gap:8px;flex-wrap:wrap}
+.here button{background:var(--card);color:var(--text);border:1px solid var(--rule-hi);padding:8px 13px;min-height:40px;font-weight:700;font-size:var(--f-body)}
+.here button:hover{background:var(--tan);border-color:var(--rule-hi);color:var(--text)}
+.here button.away{background:transparent;color:var(--muted);text-decoration:line-through;border-style:dashed;font-weight:400}
+
+/* ---------- a quarter ---------- */
+.q{padding:0;overflow:hidden}
+.q h2{padding:16px 20px 0;margin-bottom:8px;border-bottom:none}
+.q .qtools{display:flex;gap:8px;flex-wrap:wrap;padding:0 20px 10px}
+.lines{padding:0 12px 6px}
+.linehead{font-size:var(--f-badge);font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);padding:10px 8px 4px}
+.slot{display:flex;align-items:center;gap:10px;min-height:52px;padding:5px 8px;border-radius:6px;border:1px solid transparent;margin-bottom:2px}
+.slot:nth-child(even){background:transparent}
+.slot .poslab{flex:0 0 34px;font-size:var(--f-badge);font-weight:700;color:var(--rust);letter-spacing:.05em}
+.slot.empty{border:1px dashed var(--rule-hi);background:transparent}
+.slot.empty select{min-height:40px;padding:6px 10px;font-size:var(--f-body);background:var(--card);flex:1 1 auto;width:auto;max-width:100%}
+.slot.over{background:#EDF3E6;border-color:var(--forest);border-style:solid}
+.slot .x{flex:0 0 auto;margin-left:auto;min-height:36px;min-width:36px;padding:0;background:transparent;border-color:transparent;color:var(--muted);font-size:1.1em}
+.slot .x:hover{background:var(--tan);color:var(--bad)}
+.pill{display:inline-flex;align-items:center;gap:7px;background:var(--card);color:var(--text);border:1px solid var(--rule-hi);
+border-radius:999px;padding:6px 14px;min-height:38px;font-weight:700;font-size:var(--f-body);cursor:grab;touch-action:none;user-select:none;-webkit-user-select:none;max-width:100%}
+.pill:hover{background:var(--tan);border-color:var(--rule-hi);color:var(--text)}
+.pill.sel{outline:3px solid var(--forest);outline-offset:1px;background:#EDF3E6}
+.pill.lifting{opacity:.35}
+.pill .qn{font-size:var(--f-badge);font-weight:700;color:var(--card);background:var(--muted);border-radius:999px;min-width:1.6em;height:1.6em;display:inline-flex;align-items:center;justify-content:center;padding:0 4px}
+.pill .qn.low{background:var(--bad)}
+.pill .qn.hi{background:var(--rust)}
+.carried{position:fixed;z-index:50;pointer-events:none;cursor:grabbing;box-shadow:0 12px 28px rgba(36,22,8,.25),0 2px 6px rgba(36,22,8,.12);background:var(--card)}
+body.dragging-now{user-select:none;-webkit-user-select:none;cursor:grabbing}
+body.dragging-now .pill{cursor:grabbing}
+.benchbox{margin:6px 12px 14px;padding:10px 12px;border-radius:6px;background:var(--tan);border:1px solid transparent}
+.benchbox.over{background:#EDF3E6;border-color:var(--forest)}
+.benchbox .lab{font-size:var(--f-badge);font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+.benchbox .pills{display:flex;gap:8px;flex-wrap:wrap}
+.benchbox .none{font-size:var(--f-body);color:var(--sec)}
+.hint{font-size:var(--f-meta);color:var(--muted);padding:0 20px 14px}
+
+/* ---------- checks ---------- */
+.probs{list-style:none}
+.probs li{padding:8px 0 8px 26px;border-bottom:1px solid var(--rule);font-size:var(--f-body);color:var(--sec);position:relative}
+.probs li:last-child{border-bottom:none}
+.probs li::before{content:"";position:absolute;left:4px;top:.9em;width:10px;height:10px;border-radius:50%}
+.probs li.err::before{background:var(--bad)}
+.probs li.wrn::before{background:var(--warn)}
+.probs li.err b{color:var(--bad)}
+.probs li.wrn b{color:var(--warn)}
+table{width:100%;border-collapse:collapse;margin-top:16px}
+th{background:var(--tan);color:var(--rust);font-size:var(--f-badge);font-weight:700;letter-spacing:.07em;text-transform:uppercase;text-align:center;padding:9px 6px;border-bottom:2px solid var(--rule-hi)}
+th:first-child{text-align:left}
+td{padding:9px 6px;border-bottom:1px solid var(--rule);font-size:var(--f-body);color:var(--sec);text-align:center;font-variant-numeric:tabular-nums}
+td:first-child{text-align:left;font-weight:700;color:var(--text)}
+tr:last-child td{border-bottom:none}
+td.sit{color:var(--muted)}
+td.low{color:var(--bad);font-weight:700}
+tr.away td{color:var(--muted);font-weight:400;font-style:italic}
+.tablewrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+
+/* the count that follows you down the page */
+.checkbar{position:fixed;left:0;right:0;bottom:0;z-index:20;display:flex;justify-content:center;padding:10px 14px;pointer-events:none}
+.checkbar button{pointer-events:auto;box-shadow:0 6px 18px rgba(36,22,8,.25);border-radius:999px;min-height:44px;padding:8px 20px;font-size:var(--f-meta)}
+.checkbar button.good{background:var(--forest);border-color:var(--forest)}
+.checkbar button.bad{background:var(--bad);border-color:var(--bad)}
+
+@media (max-width:560px){
+  .wrap{padding:20px 12px 110px}
+  .card{padding:16px}
+  .q h2{padding:14px 16px 0}
+  .q .qtools,.hint{padding-left:16px;padding-right:16px}
+  .lines{padding:0 8px 6px}
+  .benchbox{margin:6px 8px 12px}
+  th,td{padding:8px 4px}
+}
+@media print{
+  body{background:#fff}
+  .wrap{padding:0;max-width:none}
+  .status,.keyask,button,select,.checkbar,.foot,.hint,.here,.shape,.qtools,.benchbox .lab{display:none!important}
+  .card{border:1px solid #999;break-inside:avoid;page-break-inside:avoid}
+  .slot{min-height:auto;padding:2px 8px}
+  .pill{border:none;padding:0;min-height:auto;font-size:1em}
+  .pill .qn{display:none}
+  .benchbox{background:#f3f3f3}
+}
+[hidden]{display:none!important}
+</style>
+<script>
+/* ---------- one home ----------
+   Same hand-over as every other page: the GitHub copy works, but cannot
+   reach the team's shared sheets, so it sends you to the copy that can --
+   once that copy has answered. ?stay=1 to stay here on purpose. */
+(function () {
+  var HOME = 'https://8u-practice-book.pages.dev/';
+  if (!HOME || location.hostname !== 'yshi41.github.io') return;
+  if (/(^|[?&])stay=1(&|$)/.test(location.search)) return;
+  var file = location.pathname.replace(/^.*\//, '') || 'index.html';
+  var to = HOME + file + location.search + location.hash;
+  try {
+    fetch(HOME + 'index.html', { mode: 'no-cors', cache: 'no-store' })
+      .then(function () { location.replace(to); }, function () { });
+  } catch (e) { }
+})();
+</script>
+</head>
+<body>
+<div class="wrap">
+
+<header class="mast">
+  <div class="eyebrow">Heat Waves &middot; SBMSA 8U Girls</div>
+  <h1>Lineup</h1>
+  <p class="sub">Nine on, three off, four quarters, and everybody plays at least two. Put the girls
+  in their spots and the sheet tells you what it would not let you get away with.</p>
+</header>
+
+<div id="root"></div>
+
+<div class="foot">
+  <a href="index.html">Practice book</a>
+  &nbsp;&middot;&nbsp; <a href="wall-kicks.html">Kicking Club</a>
+</div>
+
+</div>
+
+<div class="checkbar" id="checkbar" hidden></div>
+
+<script>
+(function () {
+  'use strict';
+
+  /* ------------------------------------------------------------------
+     The sheet lives at /api/lineup, a Pages Function on this origin, one
+     game per key. Reading is open; saving needs the coach key, which is
+     typed once on a device and kept there. Every change is also kept in
+     this browser, so a sheet written with no signal on the touchline is
+     not lost -- it goes up the next time the page can reach the team.
+     ------------------------------------------------------------------ */
+  var API = '/api/lineup';
+  var NAMES = ["Abigael","Annabel","Annie","Catherine","Dafne","Davy","Helen","Louise","Madeline C.","Madeline S.","Riley W.","Riley Y."];
+  var COACHKEY = '8u.coachkey';
+  var LOCAL = '8u.lineup.';         // + id -> { game, t, dirty }
+  var IDS = '8u.lineup.ids';        // the games this browser has held
+  var QN = 4;
+  var MIN_Q = 2;                    // quarters everybody who is here must play
+  var LINES = [
+    { k: 'gk', name: 'Goal',     short: 'GK' },
+    { k: 'b',  name: 'Backs',    short: 'B'  },
+    { k: 'm',  name: 'Mids',     short: 'M'  },
+    { k: 'f',  name: 'Forwards', short: 'F'  }
+  ];
+
+  var root = document.getElementById('root');
+  var bar = document.getElementById('checkbar');
+  var view = 'games';
+  var game = null;                  // the sheet being edited
+  var games = [];                   // what the team list knows about
+  var link = 'connecting';          // connecting | live | down
+  var sync = 'idle';                // idle | saving | live | local | locked | error
+  var flash = null;
+  var sel = null;                   // a tapped pill, waiting for a second tap
+  var pushTimer = null;
+  var delArmed = false, delTimer = null;
+
+  function live() { return link === 'live'; }
+
+  function coachKey() {
+    try { return localStorage.getItem(COACHKEY) || ''; } catch (e) { return ''; }
+  }
+  function setCoachKey(k) {
+    try { if (k) localStorage.setItem(COACHKEY, k); else localStorage.removeItem(COACHKEY); }
+    catch (e) { }
+  }
+
+  /* ---------- helpers ---------- */
+
+  function esc(t) {
+    return String(t == null ? '' : t)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+  function today() {
+    var d = new Date();
+    return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' +
+           String(d.getDate()).padStart(2, '0');
+  }
+  function pretty(iso) {
+    var p = String(iso).split('-');
+    if (p.length !== 3) return iso;
+    var d = new Date(Number(p[0]), Number(p[1]) - 1, Number(p[2]));
+    var days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+    var m = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    return days[d.getDay()] + ' ' + Number(p[2]) + ' ' + (m[Number(p[1]) - 1] || '');
+  }
+  function slug(t) {
+    return String(t || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 40);
+  }
+  function plural(n, one, many) { return n + ' ' + (n === 1 ? one : many); }
+  function title(g) { return (g.opp ? 'vs ' + g.opp : 'Game') + ' · ' + pretty(g.date); }
+  function ordinal(i) { return ['1st', '2nd', '3rd', '4th'][i] || (i + 1) + 'th'; }
+
+  /* ---------- the sheet itself ---------- */
+
+  function fresh(n) { var a = []; for (var i = 0; i < n; i++) a.push(''); return a; }
+
+  function blank(date, opp, id) {
+    var g = { id: id, date: date, opp: opp, shape: { b: 3, m: 3, f: 2 }, absent: [], q: [], note: '', ts: 0 };
+    for (var i = 0; i < QN; i++) g.q.push({ gk: '', b: fresh(3), m: fresh(3), f: fresh(2) });
+    return g;
+  }
+
+  /* When the shape changes, every quarter grows or shrinks to match. A girl
+     in a spot that goes away goes back to the bench for that quarter. */
+  function reshape() {
+    game.q.forEach(function (q) {
+      ['b', 'm', 'f'].forEach(function (k) {
+        var n = game.shape[k], a = q[k] || [];
+        while (a.length < n) a.push('');
+        a.length = n;
+        q[k] = a;
+      });
+    });
+  }
+
+  function onField() { return 1 + game.shape.b + game.shape.m + game.shape.f; }
+  function present() { return NAMES.filter(function (n) { return game.absent.indexOf(n) < 0; }); }
+  function isAway(n) { return game.absent.indexOf(n) >= 0; }
+
+  function get(q, pos, i) { return pos === 'gk' ? game.q[q].gk : game.q[q][pos][i]; }
+  function set(q, pos, i, name) { if (pos === 'gk') game.q[q].gk = name; else game.q[q][pos][i] = name; }
+
+  /** Every spot in a quarter, in the order the sheet shows them. */
+  function slots() {
+    var out = [{ pos: 'gk', i: 0 }];
+    ['b', 'm', 'f'].forEach(function (k) {
+      for (var i = 0; i < game.shape[k]; i++) out.push({ pos: k, i: i });
+    });
+    return out;
+  }
+
+  /** Where a girl is in a quarter, if anywhere. */
+  function find(q, name) {
+    var s = slots();
+    for (var i = 0; i < s.length; i++) if (get(q, s[i].pos, s[i].i) === name) return s[i];
+    return null;
+  }
+  function inQuarter(q) {
+    var out = [];
+    slots().forEach(function (s) { var n = get(q, s.pos, s.i); if (n) out.push(n); });
+    return out;
+  }
+  function quartersOf(name) {
+    var n = 0;
+    for (var q = 0; q < QN; q++) if (find(q, name)) n++;
+    return n;
+  }
+  function timesAt(name, pos) {
+    var n = 0;
+    for (var q = 0; q < QN; q++) { var s = find(q, name); if (s && s.pos === pos) n++; }
+    return n;
+  }
+  function bench(q) {
+    var on = inQuarter(q);
+    return present().filter(function (n) { return on.indexOf(n) < 0; });
+  }
+
+  /* ---------- what the sheet will not let you get away with ---------- */
+
+  function check() {
+    var errs = [], warns = [];
+    var here = present();
+    var spots = onField();
+
+    if (here.length < spots) {
+      errs.push('Only <b>' + plural(here.length, 'girl is', 'girls are') + ' here</b> for ' +
+                spots + ' spots. Change the shape, or mark somebody as here.');
+    } else if (spots * QN < here.length * MIN_Q) {
+      errs.push('With <b>' + spots + ' on the field</b> there are not enough spots for all ' +
+                here.length + ' girls to play ' + MIN_Q + ' quarters.');
+    }
+
+    for (var q = 0; q < QN; q++) {
+      var empty = 0, seen = {}, dup = [], away = [];
+      slots().forEach(function (s) {
+        var n = get(q, s.pos, s.i);
+        if (!n) { empty++; return; }
+        if (seen[n] && dup.indexOf(n) < 0) dup.push(n);
+        seen[n] = 1;
+        if (isAway(n) && away.indexOf(n) < 0) away.push(n);
+      });
+      if (empty) errs.push('<b>' + ordinal(q) + ' quarter</b> has ' + plural(empty, 'empty spot', 'empty spots') + '.');
+      dup.forEach(function (n) { errs.push('<b>' + esc(n) + '</b> is in two spots in the ' + ordinal(q) + ' quarter.'); });
+      away.forEach(function (n) { errs.push('<b>' + esc(n) + '</b> is marked away but is in the ' + ordinal(q) + ' quarter.'); });
+    }
+
+    var counts = {};
+    here.forEach(function (n) {
+      counts[n] = quartersOf(n);
+      if (counts[n] < MIN_Q) {
+        errs.push('<b>' + esc(n) + '</b> ' + (counts[n] ? 'is only in ' + plural(counts[n], 'quarter', 'quarters') : 'is not in any quarter') +
+                  ' &mdash; everybody plays ' + MIN_Q + '.');
+      }
+    });
+
+    /* Not rules, but things a coach would want to know before kickoff. */
+    if (here.length >= spots && here.length > 1) {
+      var most = null, least = null;
+      here.forEach(function (n) {
+        if (most === null || counts[n] > counts[most]) most = n;
+        if (least === null || counts[n] < counts[least]) least = n;
+      });
+      if (counts[most] - counts[least] > 1) {
+        warns.push('Playing time is uneven: <b>' + esc(most) + '</b> plays ' + counts[most] +
+                   ' quarters, <b>' + esc(least) + '</b> plays ' + counts[least] + '.');
+      }
+    }
+    here.forEach(function (n) {
+      var g = timesAt(n, 'gk');
+      if (g >= 3) warns.push('<b>' + esc(n) + '</b> is in goal for ' + plural(g, 'quarter', 'quarters') + '.');
+    });
+
+    return { errs: errs, warns: warns };
+  }
+
+  /* ---------- helpers that fill the sheet ---------- */
+
+  /** Every empty spot gets the girl on that quarter's bench who has played
+      the least so far -- then the one who has been in that line least, then
+      the roster order. The coach can drag anything it gets wrong. */
+  function fillEmpty() {
+    var filled = 0;
+    for (var q = 0; q < QN; q++) {
+      slots().forEach(function (s) {
+        if (get(q, s.pos, s.i)) return;
+        var cands = bench(q);
+        if (!cands.length) return;
+        cands.sort(function (a, b) {
+          return quartersOf(a) - quartersOf(b) ||
+                 timesAt(a, s.pos) - timesAt(b, s.pos) ||
+                 NAMES.indexOf(a) - NAMES.indexOf(b);
+        });
+        set(q, s.pos, s.i, cands[0]);
+        filled++;
+      });
+    }
+    return filled;
+  }
+
+  function copyQuarter(from, to) {
+    game.q[to] = JSON.parse(JSON.stringify(game.q[from]));
+  }
+  function clearQuarter(q) {
+    slots().forEach(function (s) { set(q, s.pos, s.i, ''); });
+  }
+
+  /* ---------- moving girls about ----------
+     src is a spot { q, pos, i } or a bench pill { q, name }; dst is a spot
+     or a bench { q, bench: true }. Within one quarter it is a swap. Across
+     quarters she is put there as well, because that is what dragging her
+     from the 1st quarter into the 3rd can only mean. */
+  function move(src, dst) {
+    var name = src.pos ? get(src.q, src.pos, src.i) : src.name;
+    if (!name) return false;
+
+    if (dst.bench) {
+      if (src.pos && src.q === dst.q) { set(src.q, src.pos, src.i, ''); return true; }
+      if (src.q !== dst.q) {
+        var at = find(dst.q, name);
+        if (at) { set(dst.q, at.pos, at.i, ''); return true; }
+      }
+      return false;
+    }
+
+    if (src.pos && src.q === dst.q && src.pos === dst.pos && src.i === dst.i) return false;
+    var occupant = get(dst.q, dst.pos, dst.i);
+
+    if (src.q === dst.q) {
+      if (src.pos) set(src.q, src.pos, src.i, occupant);   /* swap; '' if empty */
+      set(dst.q, dst.pos, dst.i, name);
+      return true;
+    }
+
+    /* another quarter: she may already be somewhere in it */
+    var there = find(dst.q, name);
+    if (there) set(dst.q, there.pos, there.i, occupant);
+    set(dst.q, dst.pos, dst.i, name);
+    return true;
+  }
+
+  /* ---------- storage ---------- */
+
+  function readLocal(id) {
+    try {
+      var v = JSON.parse(localStorage.getItem(LOCAL + id) || 'null');
+      return v && v.game && v.game.id === id ? v : null;
+    } catch (e) { return null; }
+  }
+  function writeLocal(g, dirty) {
+    try {
+      localStorage.setItem(LOCAL + g.id, JSON.stringify({ game: g, t: Date.now(), dirty: !!dirty }));
+      var ids = localIds();
+      if (ids.indexOf(g.id) < 0) { ids.push(g.id); localStorage.setItem(IDS, JSON.stringify(ids)); }
+    } catch (e) { }
+  }
+  function dropLocal(id) {
+    try {
+      localStorage.removeItem(LOCAL + id);
+      localStorage.setItem(IDS, JSON.stringify(localIds().filter(function (x) { return x !== id; })));
+    } catch (e) { }
+  }
+  function localIds() {
+    try { var v = JSON.parse(localStorage.getItem(IDS) || '[]'); return Array.isArray(v) ? v : []; }
+    catch (e) { return []; }
+  }
+
+  /* ---------- talking to the API ---------- */
+
+  function apiGet(qs) {
+    return fetch(API + (qs || ''), { headers: { accept: 'application/json' } })
+      .then(function (r) { return r.ok ? r.json() : Promise.reject(new Error('http ' + r.status)); });
+  }
+  function apiSend(body) {
+    return fetch(API, {
+      method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body)
+    }).then(function (r) { return r.ok ? r.json() : Promise.reject(new Error('http ' + r.status)); });
+  }
+
+  function loadGames(then) {
+    apiGet().then(function (res) {
+      if (res && res.ok && Array.isArray(res.games)) { games = res.games; link = 'live'; }
+      else link = 'down';
+      then && then();
+    }, function () { link = 'down'; then && then(); });
+  }
+
+  /** A change: keep it here, and send it up when the dust settles. */
+  function touch() {
+    game.ts = Date.now();
+    writeLocal(game, true);
+    clearTimeout(pushTimer);
+    pushTimer = setTimeout(pushNow, 700);
+    render();
+  }
+
+  function pushNow() {
+    clearTimeout(pushTimer);
+    if (!game) return;
+    if (!live()) { sync = 'local'; renderStatus(); return; }
+    if (!coachKey()) { sync = 'locked'; renderStatus(); return; }
+    sync = 'saving'; renderStatus();
+    var sending = game;
+    apiSend({ op: 'save', id: sending.id, game: sending, key: coachKey() }).then(function (res) {
+      if (res && res.ok && res.game) {
+        if (Array.isArray(res.games)) games = res.games;
+        if (game === sending) {
+          game.ts = res.game.ts;
+          writeLocal(game, false);
+          sync = 'live';
+        }
+      } else { sync = 'error'; }
+      renderStatus();
+    }, function (err) {
+      if (/40[13]/.test(String(err))) { setCoachKey(''); sync = 'locked'; }
+      else { sync = 'error'; }
+      renderStatus();
+    });
+  }
+
+  /** Open a game: this browser's copy first if it has unsent changes, the
+      team's copy otherwise, and the blank sheet if it is brand new. */
+  function open(id) {
+    var local = readLocal(id);
+    sel = null; delArmed = false;
+    if (local) { game = local.game; sync = local.dirty ? 'local' : 'live'; }
+    else game = null;
+    view = 'sheet';
+    render();
+    apiGet('?g=' + encodeURIComponent(id)).then(function (res) {
+      if (!res || !res.ok) { link = 'down'; }
+      else {
+        link = 'live';
+        if (res.game && !(local && local.dirty)) {
+          game = res.game; reshape(); writeLocal(game, false); sync = 'live';
+        } else if (!res.game && !local) {
+          game = null;
+        }
+      }
+      if (game && (local && local.dirty)) pushNow();
+      if (!game) { flash = { kind: 'warn', msg: '<b>That game is not on the sheet any more.</b> It may have been deleted.' }; view = 'games'; }
+      render();
+    }, function () {
+      link = 'down';
+      if (!game) { flash = { kind: 'warn', msg: '<b>The team list cannot be reached</b>, and this browser has no copy of that game.' }; view = 'games'; }
+      render();
+    });
+  }
+
+  /* ---------- the games list ---------- */
+
+  function gamesView() {
+    var all = games.slice();
+    localIds().forEach(function (id) {
+      if (all.some(function (g) { return g.id === id; })) return;
+      var l = readLocal(id);
+      if (l) all.push({ id: id, date: l.game.date, opp: l.game.opp, ts: l.game.ts, localOnly: true });
+    });
+    all.sort(function (a, b) { return a.date < b.date ? 1 : a.date > b.date ? -1 : 0; });
+
+    var h = '';
+    if (flash) h += '<div class="' + flash.kind + '">' + flash.msg + '</div>';
+    h += '<div class="card"><h2>Games</h2>';
+    if (link === 'connecting') h += '<div class="status"><span class="dot"></span>Checking the team list&hellip;</div>';
+    else if (!live()) h += '<div class="status off"><span class="dot"></span>Cannot reach the team list &mdash; showing what this browser holds</div>';
+    if (!all.length) {
+      h += '<p class="note" style="margin-top:12px">No games yet. Add the next one below.</p>';
+    } else {
+      h += '<ul class="games">' + all.map(function (g) {
+        return '<li><span class="g">' + esc(title(g)) +
+          (g.localOnly ? '<small>on this device only so far</small>' : '') +
+          '</span><button class="mini" data-open="' + esc(g.id) + '">Open</button></li>';
+      }).join('') + '</ul>';
+    }
+    h += '</div>';
+
+    h += '<div class="card"><h2>New game</h2>' +
+      '<label for="gdate">Date</label><input id="gdate" type="date" value="' + today() + '">' +
+      '<label for="gopp">Against</label><input id="gopp" type="text" maxlength="40" placeholder="e.g. Blue Jays" autocomplete="off">' +
+      '<div class="row"><button id="gnew">Start the sheet</button></div>' +
+      '<p class="note">It starts with 3 backs, 3 mids, 2 forwards and a keeper, and everybody marked as here.</p></div>';
+
+    root.innerHTML = h;
+    flash = null;
+    bar.hidden = true;
+
+    Array.prototype.forEach.call(root.querySelectorAll('[data-open]'), function (b) {
+      b.addEventListener('click', function () { open(b.getAttribute('data-open')); });
+    });
+    document.getElementById('gnew').addEventListener('click', function () {
+      var date = document.getElementById('gdate').value;
+      var opp = document.getElementById('gopp').value.trim().replace(/\s+/g, ' ').slice(0, 40);
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) { document.getElementById('gdate').focus(); return; }
+      var base = date + '-' + (slug(opp) || 'game'), id = base, n = 2;
+      var taken = function (x) {
+        return games.some(function (g) { return g.id === x; }) || localIds().indexOf(x) >= 0;
+      };
+      while (taken(id)) id = base + '-' + (n++);
+      game = blank(date, opp, id);
+      sel = null; delArmed = false;
+      writeLocal(game, true);
+      view = 'sheet';
+      sync = 'local';
+      render();
+      pushNow();
+    });
+  }
+
+  /* ---------- the sheet ---------- */
+
+  function statusHTML() {
+    var s;
+    if (link === 'connecting') s = '<div class="status"><span class="dot"></span>Checking the team list&hellip;</div>';
+    else if (!live() || sync === 'local') s = '<div class="status off"><span class="dot"></span>Saved on this device &mdash; the team list cannot be reached. It goes up when it can.</div>';
+    else if (sync === 'locked') s = '<div class="status off"><span class="dot"></span>Saved on this device &mdash; unlock with the coach key and the team gets it too</div>' +
+      '<div class="keyask"><input type="password" autocomplete="off" placeholder="Coach key" aria-label="Coach key" id="keyin">' +
+      '<button class="mini" id="unlock">Unlock</button></div>';
+    else if (sync === 'saving') s = '<div class="status"><span class="dot"></span>Saving for the team&hellip;</div>';
+    else if (sync === 'error') s = '<div class="status off"><span class="dot"></span>Saved on this device &mdash; the team copy could not be reached just now</div>';
+    else s = '<div class="status live"><span class="dot"></span>Saved for the whole team</div>';
+    return s;
+  }
+
+  function renderStatus() {
+    var box = document.getElementById('status');
+    if (!box) return;
+    box.innerHTML = statusHTML();
+    wireKey();
+  }
+
+  function wireKey() {
+    var box = document.getElementById('keyin');
+    if (!box) return;
+    var go = function () {
+      var k = box.value;
+      if (!k) { box.focus(); return; }
+      setCoachKey(k);
+      pushNow();
+    };
+    document.getElementById('unlock').addEventListener('click', go);
+    box.addEventListener('keydown', function (e) { if (e.key === 'Enter') go(); });
+  }
+
+  function pillHTML(name, attrs, count) {
+    var n = count == null ? quartersOf(name) : count;
+    var cls = n < MIN_Q ? ' low' : n > MIN_Q + 1 ? ' hi' : '';
+    var selected = sel && sel.name === name && sel.q === attrs.q && (sel.pos || '') === (attrs.pos || '') && (sel.i || 0) === (attrs.i || 0);
+    return '<button type="button" class="pill' + (selected ? ' sel' : '') + '" data-q="' + attrs.q + '"' +
+      (attrs.pos ? ' data-pos="' + attrs.pos + '" data-i="' + attrs.i + '"' : '') +
+      ' data-name="' + esc(name) + '" aria-label="' + esc(name) + ', ' + plural(n, 'quarter', 'quarters') +
+      '. Drag to a spot, or tap and then tap where she goes.">' +
+      esc(name) + '<span class="qn' + cls + '" aria-hidden="true">' + n + '</span></button>';
+  }
+
+  function quarterHTML(q) {
+    var h = '<div class="card q"><h2>' + ordinal(q) + ' quarter' +
+      '<small>' + plural(inQuarter(q).length, 'girl', 'girls') + ' on, ' + bench(q).length + ' off</small></h2>';
+    h += '<div class="qtools">' +
+      (q > 0 ? '<button class="mini ghost" data-copy="' + q + '">Same as the ' + ordinal(q - 1) + '</button>' : '') +
+      '<button class="mini ghost" data-clear="' + q + '">Clear the quarter</button></div>';
+    h += '<div class="lines">';
+    LINES.forEach(function (L) {
+      var n = L.k === 'gk' ? 1 : game.shape[L.k];
+      if (!n) return;
+      h += '<div class="linehead">' + L.name + '</div>';
+      for (var i = 0; i < n; i++) {
+        var name = get(q, L.k, i);
+        if (name) {
+          h += '<div class="slot" data-q="' + q + '" data-pos="' + L.k + '" data-i="' + i + '">' +
+            '<span class="poslab">' + L.short + '</span>' + pillHTML(name, { q: q, pos: L.k, i: i }) +
+            '<button type="button" class="x" data-x="1" aria-label="Take ' + esc(name) + ' out of this spot">&times;</button></div>';
+        } else {
+          var opts = bench(q).map(function (b) {
+            return '<option value="' + esc(b) + '">' + esc(b) + ' (' + quartersOf(b) + ')</option>';
+          }).join('');
+          h += '<div class="slot empty" data-q="' + q + '" data-pos="' + L.k + '" data-i="' + i + '">' +
+            '<span class="poslab">' + L.short + '</span>' +
+            '<select aria-label="' + L.name + ' spot, ' + ordinal(q) + ' quarter" data-pick="1">' +
+            '<option value="">&mdash; who? &mdash;</option>' + opts + '</select></div>';
+        }
+      }
+    });
+    h += '</div>';
+    var b = bench(q);
+    h += '<div class="benchbox" data-q="' + q + '" data-bench="1"><div class="lab">On the bench</div>' +
+      (b.length ? '<div class="pills">' + b.map(function (n) { return pillHTML(n, { q: q }); }).join('') + '</div>'
+                : '<div class="none">Nobody &mdash; everybody who is here is on.</div>') + '</div>';
+    return h + '</div>';
+  }
+
+  function sheetView() {
+    if (!game) { root.innerHTML = '<div class="card"><div class="status"><span class="dot"></span>Opening the sheet&hellip;</div></div>'; return; }
+    reshape();
+    var here = present();
+    var res = check();
+
+    var h = '';
+    if (flash) h += '<div class="' + flash.kind + '">' + flash.msg + '</div>';
+
+    h += '<div class="card"><h2>' + esc(title(game)) + '<button class="mini ghost" id="togames">All games</button></h2>' +
+      '<div id="status">' + statusHTML() + '</div>' +
+      '<label for="opp">Against</label><input id="opp" type="text" maxlength="40" value="' + esc(game.opp) + '" autocomplete="off">' +
+      '<label for="gnote">Note</label><input id="gnote" type="text" maxlength="300" value="' + esc(game.note || '') + '" placeholder="kickoff time, field, who brings snacks" autocomplete="off">' +
+      '</div>';
+
+    h += '<div class="card"><h2>Shape</h2><div class="shape">';
+    [['b', 'Backs'], ['m', 'Mids'], ['f', 'Forwards']].forEach(function (p) {
+      h += '<div class="step"><div class="lab">' + p[1] + '</div><div class="ctl">' +
+        '<button type="button" class="ghost" data-shape="' + p[0] + '" data-d="-1" aria-label="Fewer ' + p[1].toLowerCase() + '"' + (game.shape[p[0]] <= 0 ? ' disabled' : '') + '>&minus;</button>' +
+        '<b>' + game.shape[p[0]] + '</b>' +
+        '<button type="button" class="ghost" data-shape="' + p[0] + '" data-d="1" aria-label="More ' + p[1].toLowerCase() + '"' + (game.shape[p[0]] >= 6 || onField() >= 11 ? ' disabled' : '') + '>+</button>' +
+        '</div></div>';
+    });
+    h += '<div class="step"><div class="lab">Goal</div><div class="ctl"><b>1</b></div></div>';
+    h += '</div><div class="onfield"><b>' + onField() + ' on the field</b> &middot; ' + here.length + ' here &middot; ' +
+      Math.max(0, here.length - onField()) + ' off each quarter</div></div>';
+
+    h += '<div class="card"><h2>Who is here<small>tap a name if she is away</small></h2><div class="here">' +
+      NAMES.map(function (n) {
+        var away = isAway(n);
+        return '<button type="button" data-here="' + esc(n) + '" class="' + (away ? 'away' : '') + '" aria-pressed="' + (!away) + '">' + esc(n) + '</button>';
+      }).join('') + '</div></div>';
+
+    for (var q = 0; q < QN; q++) h += quarterHTML(q);
+
+    h += '<div class="card" id="checks"><h2>Checks</h2>';
+    if (!res.errs.length && !res.warns.length) {
+      h += '<div class="ok" style="margin-bottom:0">Everything checks out. Every spot is filled and everybody who is here plays at least ' + MIN_Q + ' quarters.</div>';
+    } else {
+      h += '<ul class="probs">' +
+        res.errs.map(function (e) { return '<li class="err">' + e + '</li>'; }).join('') +
+        res.warns.map(function (w) { return '<li class="wrn">' + w + '</li>'; }).join('') + '</ul>';
+    }
+    h += '<div class="tablewrap"><table><thead><tr><th>Player</th>';
+    for (var qq = 0; qq < QN; qq++) h += '<th>Q' + (qq + 1) + '</th>';
+    h += '<th>Qtrs</th></tr></thead><tbody>';
+    NAMES.forEach(function (n) {
+      var away = isAway(n);
+      h += '<tr' + (away ? ' class="away"' : '') + '><td>' + esc(n) + (away ? ' (away)' : '') + '</td>';
+      for (var q2 = 0; q2 < QN; q2++) {
+        var s = find(q2, n);
+        var L = s ? LINES.filter(function (x) { return x.k === s.pos; })[0] : null;
+        h += s ? '<td>' + L.short + '</td>' : '<td class="sit">&mdash;</td>';
+      }
+      var c = quartersOf(n);
+      h += '<td' + (!away && c < MIN_Q ? ' class="low"' : '') + '>' + c + '</td></tr>';
+    });
+    h += '</tbody></table></div></div>';
+
+    h += '<div class="row">' +
+      '<button id="fill">Fill the empty spots</button>' +
+      '<button class="ghost" id="print">Print</button>' +
+      '<button class="' + (delArmed ? 'danger' : 'ghost') + '" id="del">' + (delArmed ? 'Tap again to delete this game' : 'Delete this game') + '</button>' +
+      '</div>';
+    h += '<p class="note">Drag a girl from the bench into a spot, or from one spot onto another to swap them. ' +
+      'On a phone you can also tap her and then tap where she goes. Dragging her into another quarter puts her there as well. ' +
+      '<b>Fill the empty spots</b> gives each one to whoever has played least so far, and you fix whatever it got wrong.</p>';
+
+    root.innerHTML = h;
+    flash = null;
+    wireSheet();
+
+    /* the count that follows you down the page */
+    var n = res.errs.length;
+    bar.hidden = false;
+    bar.innerHTML = '<button type="button" id="jump" class="' + (n ? 'bad' : 'good') + '">' +
+      (n ? plural(n, 'thing to fix', 'things to fix') : 'Everything checks out') +
+      (res.warns.length ? ' · ' + plural(res.warns.length, 'note', 'notes') : '') + '</button>';
+    document.getElementById('jump').addEventListener('click', function () {
+      document.getElementById('checks').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  }
+
+  function wireSheet() {
+    wireKey();
+
+    document.getElementById('togames').addEventListener('click', function () {
+      sel = null; view = 'games';
+      loadGames(render);
+      render();
+    });
+    document.getElementById('opp').addEventListener('change', function (e) {
+      game.opp = e.target.value.trim().replace(/\s+/g, ' ').slice(0, 40); touch();
+    });
+    document.getElementById('gnote').addEventListener('change', function (e) {
+      game.note = e.target.value.trim().slice(0, 300); touch();
+    });
+
+    Array.prototype.forEach.call(root.querySelectorAll('[data-shape]'), function (b) {
+      b.addEventListener('click', function () {
+        var k = b.getAttribute('data-shape'), d = Number(b.getAttribute('data-d'));
+        var v = game.shape[k] + d;
+        if (v < 0 || v > 6) return;
+        if (d > 0 && onField() >= 11) return;
+        game.shape[k] = v; reshape(); sel = null; touch();
+      });
+    });
+
+    Array.prototype.forEach.call(root.querySelectorAll('[data-here]'), function (b) {
+      b.addEventListener('click', function () {
+        var n = b.getAttribute('data-here');
+        if (isAway(n)) game.absent = game.absent.filter(function (x) { return x !== n; });
+        else game.absent.push(n);
+        sel = null; touch();
+      });
+    });
+
+    Array.prototype.forEach.call(root.querySelectorAll('[data-copy]'), function (b) {
+      b.addEventListener('click', function () {
+        var q = Number(b.getAttribute('data-copy'));
+        copyQuarter(q - 1, q); sel = null; touch();
+      });
+    });
+    Array.prototype.forEach.call(root.querySelectorAll('[data-clear]'), function (b) {
+      b.addEventListener('click', function () { clearQuarter(Number(b.getAttribute('data-clear'))); sel = null; touch(); });
+    });
+
+    Array.prototype.forEach.call(root.querySelectorAll('[data-pick]'), function (s) {
+      s.addEventListener('change', function () {
+        var slot = s.closest('.slot');
+        if (!s.value) return;
+        set(Number(slot.getAttribute('data-q')), slot.getAttribute('data-pos'), Number(slot.getAttribute('data-i')), s.value);
+        sel = null; touch();
+      });
+    });
+
+    Array.prototype.forEach.call(root.querySelectorAll('[data-x]'), function (b) {
+      b.addEventListener('click', function () {
+        var slot = b.closest('.slot');
+        set(Number(slot.getAttribute('data-q')), slot.getAttribute('data-pos'), Number(slot.getAttribute('data-i')), '');
+        sel = null; touch();
+      });
+    });
+
+    /* tap: pick her up; tap again somewhere in the same quarter: put her there */
+    Array.prototype.forEach.call(root.querySelectorAll('.pill'), function (p) {
+      wireDrag(p);
+      p.addEventListener('click', function () {
+        if (p.dragged) { p.dragged = false; return; }
+        var here = locOf(p);
+        if (sel && sel.q === here.q && !(sel.name === here.name && (sel.pos || '') === (here.pos || ''))) {
+          if (here.pos) { if (move(sel, here)) { sel = null; touch(); return; } }
+          else if (sel.pos) { if (move(sel, { q: here.q, bench: true })) { sel = null; touch(); return; } }
+        }
+        sel = (sel && sel.name === here.name && sel.q === here.q && (sel.pos || '') === (here.pos || '')) ? null : here;
+        render();
+      });
+    });
+    Array.prototype.forEach.call(root.querySelectorAll('.slot, .benchbox'), function (t) {
+      t.addEventListener('click', function (e) {
+        if (!sel) return;
+        if (e.target.closest('.pill, .x, select')) return;
+        var dst = locOfTarget(t);
+        if (dst.q !== sel.q) return;
+        if (move(sel, dst)) { sel = null; touch(); }
+      });
+    });
+
+    document.getElementById('fill').addEventListener('click', function () {
+      var n = fillEmpty();
+      flash = n ? { kind: 'ok', msg: 'Filled ' + plural(n, 'spot', 'spots') + '. Have a look at the checks, then drag anything it got wrong.' }
+                : { kind: 'ok', msg: 'There were no empty spots to fill.' };
+      sel = null; touch();
+    });
+    document.getElementById('print').addEventListener('click', function () { window.print(); });
+
+    document.getElementById('del').addEventListener('click', function () {
+      clearTimeout(delTimer);
+      if (!delArmed) {
+        delArmed = true; render();
+        delTimer = setTimeout(function () { delArmed = false; render(); }, 6000);
+        return;
+      }
+      delArmed = false;
+      var id = game.id;
+      var done = function () {
+        dropLocal(id);
+        game = null; view = 'games';
+        flash = { kind: 'ok', msg: 'Deleted the game.' };
+        render();
+      };
+      if (live() && coachKey()) {
+        apiSend({ op: 'delete', id: id, key: coachKey() }).then(function (res) {
+          if (res && res.ok) { games = res.games || games; done(); }
+          else { flash = { kind: 'warn', msg: 'That did not go through. Nothing was deleted.' }; render(); }
+        }, function () {
+          flash = { kind: 'warn', msg: 'No connection just now. Nothing was deleted.' }; render();
+        });
+      } else if (games.some(function (g) { return g.id === id; })) {
+        flash = { kind: 'warn', msg: 'Deleting a game the team has needs the coach key and a connection.' }; render();
+      } else done();
+    });
+  }
+
+  function locOf(pill) {
+    var q = Number(pill.getAttribute('data-q'));
+    var pos = pill.getAttribute('data-pos');
+    return pos ? { q: q, pos: pos, i: Number(pill.getAttribute('data-i')), name: pill.getAttribute('data-name') }
+               : { q: q, name: pill.getAttribute('data-name') };
+  }
+  function locOfTarget(t) {
+    var q = Number(t.getAttribute('data-q'));
+    if (t.getAttribute('data-bench')) return { q: q, bench: true };
+    return { q: q, pos: t.getAttribute('data-pos'), i: Number(t.getAttribute('data-i')) };
+  }
+
+  /* ---------- drag ----------
+     A copy of the pill rides under the finger with a shadow; the spot under
+     it lights up; letting go puts her there. A tap that never moves is left
+     to the click handler. */
+  function wireDrag(pill) {
+    pill.addEventListener('pointerdown', function (e) {
+      if (e.button !== undefined && e.button !== 0) return;
+      var src = locOf(pill);
+      var x0 = e.clientX, y0 = e.clientY, lastX = x0, lastY = y0;
+      var dragging = false, ghost = null, over = null, raf = null;
+      try { pill.setPointerCapture(e.pointerId); } catch (err) { }
+
+      function start() {
+        dragging = true;
+        var r = pill.getBoundingClientRect();
+        ghost = pill.cloneNode(true);
+        ghost.className = 'pill carried';
+        ghost.style.width = r.width + 'px';
+        ghost.style.height = r.height + 'px';
+        document.body.appendChild(ghost);
+        pill.classList.add('lifting');
+        document.body.classList.add('dragging-now');
+        place();
+        raf = window.requestAnimationFrame(edge);
+      }
+      function place() {
+        if (!ghost) return;
+        ghost.style.left = (lastX - ghost.offsetWidth / 2) + 'px';
+        ghost.style.top = (lastY - ghost.offsetHeight / 2) + 'px';
+        var el = document.elementFromPoint(lastX, lastY);
+        var t = el ? el.closest('.slot, .benchbox') : null;
+        if (t !== over) {
+          if (over) over.classList.remove('over');
+          over = t;
+          if (over) over.classList.add('over');
+        }
+      }
+      function edge() {
+        var margin = 70, speed = 0;
+        if (lastY < margin) speed = -Math.ceil((margin - lastY) / 6);
+        else if (lastY > window.innerHeight - margin) speed = Math.ceil((lastY - (window.innerHeight - margin)) / 6);
+        if (speed) { window.scrollBy(0, speed); place(); }
+        raf = window.requestAnimationFrame(edge);
+      }
+      function mv(ev) {
+        lastX = ev.clientX; lastY = ev.clientY;
+        if (!dragging && Math.abs(lastX - x0) + Math.abs(lastY - y0) > 6) start();
+        if (dragging) { ev.preventDefault(); place(); }
+      }
+      function up() {
+        pill.removeEventListener('pointermove', mv);
+        pill.removeEventListener('pointerup', up);
+        pill.removeEventListener('pointercancel', up);
+        if (raf) window.cancelAnimationFrame(raf);
+        if (!dragging) return;
+        pill.dragged = true;
+        if (ghost) ghost.remove();
+        pill.classList.remove('lifting');
+        document.body.classList.remove('dragging-now');
+        var dst = over ? locOfTarget(over) : null;
+        if (over) over.classList.remove('over');
+        sel = null;
+        if (dst && move(src, dst)) touch();
+        else render();
+      }
+      pill.addEventListener('pointermove', mv);
+      pill.addEventListener('pointerup', up);
+      pill.addEventListener('pointercancel', up);
+    });
+  }
+
+  function render() {
+    if (view === 'sheet') sheetView();
+    else gamesView();
+  }
+
+  /* ---------- go ---------- */
+  var want = (location.search.match(/[?&]g=([^&]+)/) || [])[1];
+  if (want) {
+    loadGames(function () { open(decodeURIComponent(want)); });
+    view = 'sheet'; render();
+  } else {
+    render();
+    loadGames(render);
+  }
+})();
+</script>
+</body>
+</html>
