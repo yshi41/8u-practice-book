@@ -90,11 +90,24 @@ td.k abbr{color:var(--rust);text-decoration:none;margin-left:2px}
 /* ring pops */
 .pops{font-size:var(--f-body);color:var(--sec);margin-top:4px}
 .pops b{color:var(--rust)}
-.popline{font-size:.88em;color:var(--sec);font-weight:400;margin-top:3px}
-.popline .owed{color:var(--rust);font-weight:700}
-.popline .square{color:var(--forest)}
-td.act .mini{margin:2px 0}
-td.act .hold{visibility:hidden}
+th.pops{text-align:center}
+td.pops{text-align:center;white-space:nowrap;font-variant-numeric:tabular-nums;line-height:1.3}
+td.pops b{font-size:1.15em;color:var(--text)}
+td.pops .of{font-size:var(--f-meta);color:var(--muted)}
+td.pops .none{color:var(--muted)}
+td.pops .owed{font-size:var(--f-badge);font-weight:700;color:var(--rust);text-transform:uppercase;letter-spacing:.04em}
+td.pops .square{font-size:var(--f-badge);color:var(--forest)}
+td.pops .mini{display:block;margin:5px auto 0;padding:6px 9px}
+td.pops .hold{visibility:hidden}
+td.k .mini{display:block;margin:5px 0 0 auto;padding:6px 9px}
+td.k{vertical-align:top}
+td.pops{vertical-align:top}
+@media (max-width:560px){
+  td.rank{padding-left:4px;padding-right:0}
+  td.k,td.pops{padding-left:5px;padding-right:5px}
+  td.pops .mini,td.k .mini{padding:6px 7px;font-size:var(--f-badge)}
+  td.nm{overflow-wrap:anywhere}
+}
 /* the row being corrected: kicks and ring pops given, side by side */
 td.editcell{padding:12px 11px}
 .editrow{display:flex;gap:10px 16px;flex-wrap:wrap;align-items:flex-end}
@@ -581,7 +594,7 @@ td.editcell{padding:12px 11px}
     h += '<div class="card" style="padding:0;overflow:hidden"><div class="tablewrap"><table>' +
       '<thead><tr><th></th><th>Player</th><th class="tcol">Times</th>' +
       '<th class="tcol">Last</th>' +
-      '<th style="text-align:right">Kicks</th><th></th>' +
+      '<th style="text-align:right">Kicks</th><th class="pops">Ring pops</th>' +
       '</tr></thead><tbody>';
 
     rows.forEach(function (r, i) {
@@ -602,33 +615,32 @@ td.editcell{padding:12px 11px}
         ? r.t + (r.t === 1 ? ' session' : ' sessions') +
           (r.last ? ' &middot; ' + esc(shortDate(r.last)) : '')
         : 'nothing logged yet';
-      /* Ring pops, on the girl's own row: how many she has earned and
-         whether one is waiting. The words change; the row does not move. */
-      var popline = '';
+      /* Ring pops, in their own column: given over earned, what is still
+         owed, and the button to hand one over. A tap changes this cell and
+         nothing else -- the button leaves an invisible placeholder so the
+         row keeps its height and nothing below it moves. */
+      var pops = '<td class="pops"><span class="none">&mdash;</span></td>';
       if (r.earned > 0 || r.given > 0) {
-        popline = '<div class="popline">' + plural(r.earned, 'ring pop', 'ring pops') + ' earned &middot; ' +
-          (r.owed > 0 ? '<span class="owed">' + (r.owed === 1 ? 'one to give' : r.owed + ' to give') + '</span>'
-           : r.owed === 0 ? '<span class="square">all given</span>'
-           : '<span class="square">' + r.given + ' given</span>') + '</div>';
+        pops = '<td class="pops"><b>' + r.given + '</b><span class="of"> of ' + r.earned + '</span>' +
+          (r.owed > 0 ? '<div class="owed">' + r.owed + ' to give</div>'
+           : r.owed === 0 ? '<div class="square">all given</div>'
+           : '<div class="square">' + (-r.owed) + ' extra</div>') +
+          (r.owed > 0
+            ? '<button class="mini" data-pop="' + esc(r.n) + '"' +
+              (canEdit ? '' : ' disabled title="Needs the team list and the key"') + '>Gave one</button>'
+            : '<button class="mini hold" tabindex="-1" aria-hidden="true" disabled>Gave one</button>') +
+          '</td>';
       }
       h += '<tr><td class="rank">' + (r.k > 0 ? (i + 1) : '') + '</td>' +
         '<td class="nm">' + esc(r.n) +
-          '<div class="rowmeta">' + meta + '</div>' + popline +
+          '<div class="rowmeta">' + meta + '</div>' +
           (r.k > 0 ? '<div class="bar" style="width:' + w + '%"></div>' : '') + '</td>' +
         '<td class="tcol">' + (r.t || '&mdash;') + '</td>' +
         '<td class="tcol">' + (r.last ? esc(pretty(r.last)) : '&mdash;') + '</td>' +
-        '<td class="k">' + r.k + (r.fixed ? '<abbr title="you corrected this total">*</abbr>' : '') + '</td>' +
-        '<td class="act">' +
-        /* When nothing is owed the button is still there, invisible, so the
-           row keeps its height and the rows below it stay where they were. */
-        (r.owed > 0
-          ? '<button class="mini" data-pop="' + esc(r.n) + '"' +
-            (canEdit ? '' : ' disabled title="Needs the team list and the key"') + '>Gave one</button> '
-          : (r.earned > 0 || r.given > 0
-              ? '<button class="mini hold" tabindex="-1" aria-hidden="true" disabled>Gave one</button> '
-              : '')) +
+        '<td class="k">' + r.k + (r.fixed ? '<abbr title="you corrected this total">*</abbr>' : '') +
         '<button class="mini ghost" data-adj="' + esc(r.n) + '"' +
         (canEdit ? '' : ' disabled title="Needs the team list"') + '>Adjust</button></td>' +
+        pops +
         '</tr>';
     });
     h += '</tbody></table></div></div>';

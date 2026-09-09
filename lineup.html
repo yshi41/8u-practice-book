@@ -63,6 +63,34 @@ button.danger:hover{background:var(--bad);color:#fff;border-color:var(--bad)}
 .games .g{font-weight:700;color:var(--text)}
 .games .g small{display:block;font-weight:400;color:var(--muted);font-size:var(--f-meta)}
 
+.games li.past{opacity:.55}
+.games li.next .g{color:var(--rust)}
+.tag{display:inline-block;background:var(--forest);color:#fff;font-size:var(--f-badge);font-weight:700;letter-spacing:.07em;text-transform:uppercase;border-radius:4px;padding:1px 7px;margin-right:8px;vertical-align:middle}
+.when{font-size:var(--f-body);color:var(--sec);margin:-6px 0 10px}
+
+/* ---------- things that fold away ---------- */
+details.fold{padding:0}
+details.fold summary{list-style:none;cursor:pointer;display:flex;justify-content:space-between;align-items:baseline;gap:6px 12px;flex-wrap:wrap;padding:14px 44px 14px 20px;position:relative;
+font-size:var(--f-title);font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--rust);min-height:48px}
+details.fold summary::-webkit-details-marker{display:none}
+details.fold summary::after{content:"+";position:absolute;right:18px;top:50%;transform:translateY(-50%);font-size:1.3em;line-height:1;color:var(--muted)}
+details[open].fold summary::after{content:"\2212"}
+details.fold summary .sum{font-weight:400;letter-spacing:0;text-transform:none;color:var(--sec);font-size:var(--f-meta)}
+details.fold .body{padding:0 20px 20px}
+details.fold .body label:first-of-type{margin-top:0}
+
+/* ---------- the quarter tabs ---------- */
+.qtabs{display:flex;gap:6px;position:sticky;top:0;z-index:10;background:var(--bg);padding:8px 0 10px;margin-top:-4px}
+.qtab{flex:1 1 0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:5px 4px;min-height:52px;min-width:0;
+background:var(--card);color:var(--sec);border:1px solid var(--rule-hi)}
+.qtab b{font-size:var(--f-title);line-height:1.2}
+.qtab small{font-size:var(--f-badge);color:var(--muted);font-weight:400;line-height:1.2;white-space:nowrap}
+.qtab.on{background:var(--rust);color:var(--card);border-color:var(--rust)}
+.qtab.on small{color:var(--card)}
+.qtab:hover{background:var(--tan);color:var(--text);border-color:var(--rule-hi)}
+.qtab.on:hover{background:var(--text);color:var(--card)}
+.qhide{display:none}
+
 /* ---------- shape ---------- */
 .shape{display:flex;gap:12px;flex-wrap:wrap}
 .step{flex:1 1 130px;background:var(--tan);border-radius:5px;padding:10px 12px;text-align:center}
@@ -140,6 +168,8 @@ tr.away td{color:var(--muted);font-weight:400;font-style:italic}
 @media (max-width:560px){
   .wrap{padding:20px 12px 110px}
   .card{padding:16px}
+  details.fold summary{padding:12px 40px 12px 16px}
+  details.fold .body{padding:0 16px 16px}
   .q h2{padding:14px 16px 0}
   .q .qtools,.hint{padding-left:16px;padding-right:16px}
   .lines{padding:0 8px 6px}
@@ -147,6 +177,8 @@ tr.away td{color:var(--muted);font-weight:400;font-style:italic}
   th,td{padding:8px 4px}
 }
 @media print{
+  .qhide{display:block}
+  .qtabs,details.fold{display:none!important}
   body{background:#fff}
   .wrap{padding:0;max-width:none}
   .status,.keyask,button,select,.checkbar,.foot,.hint,.here,.shape,.qtools,.benchbox .lab{display:none!important}
@@ -210,6 +242,23 @@ tr.away td{color:var(--muted);font-weight:400;font-style:italic}
      ------------------------------------------------------------------ */
   var API = '/api/lineup';
   var NAMES = ["Abigael","Annabel","Annie","Catherine","Dafne","Davy","Helen","Louise","Madeline C.","Madeline S.","Riley W.","Riley Y."];
+  /* The season, from the SBMSA schedule for 8U Girls Division II
+     (revised 3 Sep 2026). The games list is this, with a sheet behind each. */
+  var SCHEDULE = [
+    { date: '2026-09-12', time: '11:00 AM', opp: 'Dolphins',          field: 'SBEC 8U #6' },
+    { date: '2026-09-18', time: '7:00 PM',  opp: 'Glitter Sharks',    field: 'SBEC 8U #6' },
+    { date: '2026-09-22', time: '5:45 PM',  opp: 'Fire Tigers',       field: 'SBEC 8U #2' },
+    { date: '2026-09-25', time: '7:00 PM',  opp: 'Royal Rascals',     field: 'PC-8u #2'   },
+    { date: '2026-10-03', time: '11:00 AM', opp: 'Spicy Pickles',     field: 'PC-8u #2'   },
+    { date: '2026-10-05', time: '5:45 PM',  opp: 'The Baddies',       field: 'PC-8u #2'   },
+    { date: '2026-10-17', time: '12:15 PM', opp: 'Purple Reign',      field: 'SBEC 8U #6' },
+    { date: '2026-10-20', time: '5:45 PM',  opp: 'Panthers',          field: 'SBEC 8U #6' },
+    { date: '2026-10-23', time: '5:45 PM',  opp: 'Cherry Bombs',      field: 'SBEC 8U #6' },
+    { date: '2026-10-24', time: '11:00 AM', opp: 'Bubblegum Ballers', field: 'PC-8u #2'   },
+    { date: '2026-10-27', time: '7:00 PM',  opp: 'Blue Angels',       field: 'SBEC 8U #6' }
+  ];
+  var SCHEDULE_NOTE = 'SBMSA 8U Girls Division II, revised 3 Sep';
+
   var COACHKEY = '8u.coachkey';
   var LOCAL = '8u.lineup.';         // + id -> { game, t, dirty }
   var IDS = '8u.lineup.ids';        // the games this browser has held
@@ -231,6 +280,8 @@ tr.away td{color:var(--muted);font-weight:400;font-style:italic}
   var sync = 'idle';                // idle | saving | live | local | locked | error
   var flash = null;
   var sel = null;                   // a tapped pill, waiting for a second tap
+  var qTab = 0;                     // the quarter on the screen
+  var openShape = false, openHere = null, openDetails = false;   // the folded cards; null = decide from the sheet
   var pushTimer = null;
   var delArmed = false, delTimer = null;
 
@@ -268,6 +319,10 @@ tr.away td{color:var(--muted);font-weight:400;font-style:italic}
   }
   function plural(n, one, many) { return n + ' ' + (n === 1 ? one : many); }
   function title(g) { return (g.opp ? 'vs ' + g.opp : 'Game') + ' · ' + pretty(g.date); }
+  function gameId(s) { return s.date + '-' + (slug(s.opp) || 'game'); }
+  function scheduled(id) {
+    return SCHEDULE.filter(function (s) { return gameId(s) === id; })[0] || null;
+  }
   function ordinal(i) { return ['1st', '2nd', '3rd', '4th'][i] || (i + 1) + 'th'; }
 
   /* ---------- the sheet itself ---------- */
@@ -539,9 +594,9 @@ tr.away td{color:var(--muted);font-weight:400;font-style:italic}
 
   /** Open a game: this browser's copy first if it has unsent changes, the
       team's copy otherwise, and the blank sheet if it is brand new. */
-  function open(id) {
+  function open(id, makeIfMissing) {
     var local = readLocal(id);
-    sel = null; delArmed = false;
+    sel = null; delArmed = false; qTab = 0; openShape = false; openHere = null;
     if (local) { game = local.game; sync = local.dirty ? 'local' : 'live'; }
     else game = null;
     view = 'sheet';
@@ -553,14 +608,19 @@ tr.away td{color:var(--muted);font-weight:400;font-style:italic}
         if (res.game && !(local && local.dirty)) {
           game = res.game; reshape(); writeLocal(game, false); sync = 'live';
         } else if (!res.game && !local) {
-          game = null;
+          /* Nobody has started this one. A scheduled game starts itself. */
+          game = makeIfMissing ? makeIfMissing() : null;
+          if (game) { writeLocal(game, true); sync = 'local'; }
         }
       }
-      if (game && (local && local.dirty)) pushNow();
+      if (game && ((local && local.dirty) || sync === 'local')) pushNow();
       if (!game) { flash = { kind: 'warn', msg: '<b>That game is not on the sheet any more.</b> It may have been deleted.' }; view = 'games'; }
       render();
     }, function () {
       link = 'down';
+      if (!game && makeIfMissing) {
+        game = makeIfMissing(); writeLocal(game, true); sync = 'local';
+      }
       if (!game) { flash = { kind: 'warn', msg: '<b>The team list cannot be reached</b>, and this browser has no copy of that game.' }; view = 'games'; }
       render();
     });
@@ -569,42 +629,66 @@ tr.away td{color:var(--muted);font-weight:400;font-style:italic}
   /* ---------- the games list ---------- */
 
   function gamesView() {
-    var all = games.slice();
+    var known = {};
+    games.forEach(function (g) { known[g.id] = g; });
     localIds().forEach(function (id) {
-      if (all.some(function (g) { return g.id === id; })) return;
+      if (known[id]) return;
       var l = readLocal(id);
-      if (l) all.push({ id: id, date: l.game.date, opp: l.game.opp, ts: l.game.ts, localOnly: true });
+      if (l) known[id] = { id: id, date: l.game.date, opp: l.game.opp, ts: l.game.ts, localOnly: true };
     });
-    all.sort(function (a, b) { return a.date < b.date ? 1 : a.date > b.date ? -1 : 0; });
+    var t = today();
+    var next = SCHEDULE.filter(function (x) { return x.date >= t; })[0] || null;
 
     var h = '';
     if (flash) h += '<div class="' + flash.kind + '">' + flash.msg + '</div>';
-    h += '<div class="card"><h2>Games</h2>';
+    h += '<div class="card"><h2>The season</h2>';
     if (link === 'connecting') h += '<div class="status"><span class="dot"></span>Checking the team list&hellip;</div>';
     else if (!live()) h += '<div class="status off"><span class="dot"></span>Cannot reach the team list &mdash; showing what this browser holds</div>';
-    if (!all.length) {
-      h += '<p class="note" style="margin-top:12px">No games yet. Add the next one below.</p>';
-    } else {
-      h += '<ul class="games">' + all.map(function (g) {
-        return '<li><span class="g">' + esc(title(g)) +
+    h += '<ul class="games">' + SCHEDULE.map(function (x) {
+      var id = gameId(x), have = known[id];
+      var cls = (x.date < t ? 'past' : '') + (x === next ? ' next' : '');
+      return '<li class="' + cls.trim() + '"><span class="g">' +
+        (x === next ? '<span class="tag">Next</span>' : '') +
+        esc(pretty(x.date)) + ' &middot; ' + esc(x.time) +
+        '<small>vs ' + esc(x.opp) + ' &middot; ' + esc(x.field) +
+        (have && have.localOnly ? ' &middot; on this device only so far' : '') + '</small></span>' +
+        '<button class="mini' + (have ? '' : ' ghost') + '" data-open="' + esc(id) + '" data-sched="' + SCHEDULE.indexOf(x) + '">' +
+        (have ? 'Open' : 'Start') + '</button></li>';
+    }).join('') + '</ul>';
+    h += '<p class="note">' + SCHEDULE_NOTE + '. <b>Start</b> makes the sheet for that game; <b>Open</b> means one exists. ' +
+      'Check the league site before a game in case it moved.</p></div>';
+
+    var others = Object.keys(known).filter(function (id) { return !scheduled(id); })
+      .map(function (id) { return known[id]; })
+      .sort(function (a, b) { return a.date < b.date ? 1 : a.date > b.date ? -1 : 0; });
+    if (others.length) {
+      h += '<div class="card"><h2>Other games</h2><ul class="games">' + others.map(function (g) {
+        return '<li class="' + (g.date < t ? 'past' : '') + '"><span class="g">' + esc(title(g)) +
           (g.localOnly ? '<small>on this device only so far</small>' : '') +
           '</span><button class="mini" data-open="' + esc(g.id) + '">Open</button></li>';
-      }).join('') + '</ul>';
+      }).join('') + '</ul></div>';
     }
-    h += '</div>';
 
-    h += '<div class="card"><h2>New game</h2>' +
-      '<label for="gdate">Date</label><input id="gdate" type="date" value="' + today() + '">' +
+    h += '<details class="card fold" id="foldnew"><summary>Another game<span class="sum">a scrimmage or a make-up</span></summary><div class="body">' +
+      '<label for="gdate">Date</label><input id="gdate" type="date" value="' + t + '">' +
       '<label for="gopp">Against</label><input id="gopp" type="text" maxlength="40" placeholder="e.g. Blue Jays" autocomplete="off">' +
       '<div class="row"><button id="gnew">Start the sheet</button></div>' +
-      '<p class="note">It starts with 3 backs, 3 mids, 2 forwards and a keeper, and everybody marked as here.</p></div>';
+      '<p class="note">It starts with 3 backs, 3 mids, 2 forwards and a keeper, and everybody marked as here.</p></div></details>';
 
     root.innerHTML = h;
     flash = null;
     bar.hidden = true;
 
     Array.prototype.forEach.call(root.querySelectorAll('[data-open]'), function (b) {
-      b.addEventListener('click', function () { open(b.getAttribute('data-open')); });
+      b.addEventListener('click', function () {
+        var id = b.getAttribute('data-open');
+        var x = b.hasAttribute('data-sched') ? SCHEDULE[Number(b.getAttribute('data-sched'))] : null;
+        open(id, x ? function () {
+          var g = blank(x.date, x.opp, id);
+          g.note = x.time + ' \u00b7 ' + x.field;
+          return g;
+        } : null);
+      });
     });
     document.getElementById('gnew').addEventListener('click', function () {
       var date = document.getElementById('gdate').value;
@@ -716,13 +800,20 @@ tr.away td{color:var(--muted);font-weight:400;font-style:italic}
     var h = '';
     if (flash) h += '<div class="' + flash.kind + '">' + flash.msg + '</div>';
 
+    var sch = scheduled(game.id);
     h += '<div class="card"><h2>' + esc(title(game)) + '<button class="mini ghost" id="togames">All games</button></h2>' +
-      '<div id="status">' + statusHTML() + '</div>' +
-      '<label for="opp">Against</label><input id="opp" type="text" maxlength="40" value="' + esc(game.opp) + '" autocomplete="off">' +
-      '<label for="gnote">Note</label><input id="gnote" type="text" maxlength="300" value="' + esc(game.note || '') + '" placeholder="kickoff time, field, who brings snacks" autocomplete="off">' +
-      '</div>';
+      (sch ? '<div class="when">' + esc(sch.time) + ' &middot; ' + esc(sch.field) + '</div>' : '') +
+      '<div id="status">' + statusHTML() + '</div></div>';
 
-    h += '<div class="card"><h2>Shape</h2><div class="shape">';
+    /* Shape and attendance fold to a line each: on a phone the quarters are
+       what the coach came for, and these are set once. */
+    var placed = 0;
+    for (var pq = 0; pq < QN; pq++) placed += inQuarter(pq).length;
+    var hereOpen = openHere === null ? placed === 0 : openHere;
+
+    h += '<details class="card fold" id="foldshape"' + (openShape ? ' open' : '') + '><summary>Shape' +
+      '<span class="sum">' + game.shape.b + '-' + game.shape.m + '-' + game.shape.f + ' and a keeper &middot; ' +
+      onField() + ' on the field</span></summary><div class="body"><div class="shape">';
     [['b', 'Backs'], ['m', 'Mids'], ['f', 'Forwards']].forEach(function (p) {
       h += '<div class="step"><div class="lab">' + p[1] + '</div><div class="ctl">' +
         '<button type="button" class="ghost" data-shape="' + p[0] + '" data-d="-1" aria-label="Fewer ' + p[1].toLowerCase() + '"' + (game.shape[p[0]] <= 0 ? ' disabled' : '') + '>&minus;</button>' +
@@ -732,15 +823,34 @@ tr.away td{color:var(--muted);font-weight:400;font-style:italic}
     });
     h += '<div class="step"><div class="lab">Goal</div><div class="ctl"><b>1</b></div></div>';
     h += '</div><div class="onfield"><b>' + onField() + ' on the field</b> &middot; ' + here.length + ' here &middot; ' +
-      Math.max(0, here.length - onField()) + ' off each quarter</div></div>';
+      Math.max(0, here.length - onField()) + ' off each quarter</div></div></details>';
 
-    h += '<div class="card"><h2>Who is here<small>tap a name if she is away</small></h2><div class="here">' +
+    h += '<details class="card fold" id="foldhere"' + (hereOpen ? ' open' : '') + '><summary>Who is here' +
+      '<span class="sum">' + here.length + ' of ' + NAMES.length +
+      (game.absent.length ? ' &middot; away: ' + esc(game.absent.join(', ')) : '') + '</span></summary>' +
+      '<div class="body"><p class="note" style="margin:0 0 10px">Tap a name if she is away.</p><div class="here">' +
       NAMES.map(function (n) {
         var away = isAway(n);
         return '<button type="button" data-here="' + esc(n) + '" class="' + (away ? 'away' : '') + '" aria-pressed="' + (!away) + '">' + esc(n) + '</button>';
-      }).join('') + '</div></div>';
+      }).join('') + '</div></div></details>';
 
-    for (var q = 0; q < QN; q++) h += quarterHTML(q);
+    h += '<details class="card fold" id="folddetails"' + (openDetails ? ' open' : '') + '><summary>Name and note' +
+      '<span class="sum">' + esc(game.note || 'nothing yet') + '</span></summary><div class="body">' +
+      '<label for="opp">Against</label><input id="opp" type="text" maxlength="40" value="' + esc(game.opp) + '" autocomplete="off">' +
+      '<label for="gnote">Note</label><input id="gnote" type="text" maxlength="300" value="' + esc(game.note || '') + '" placeholder="kickoff time, field, who brings snacks" autocomplete="off">' +
+      '</div></details>';
+
+    /* One quarter on the screen at a time. The tabs stay put while you
+       scroll, so the bench and the spots are never far apart. */
+    if (qTab < 0 || qTab >= QN) qTab = 0;
+    h += '<div class="qtabs" role="tablist" aria-label="Quarters">';
+    for (var tq = 0; tq < QN; tq++) {
+      var emptyN = slots().filter(function (sl) { return !get(tq, sl.pos, sl.i); }).length;
+      h += '<button type="button" role="tab" aria-selected="' + (tq === qTab) + '" class="qtab' + (tq === qTab ? ' on' : '') +
+        '" data-qtab="' + tq + '"><b>Q' + (tq + 1) + '</b><small>' + (emptyN ? emptyN + ' empty' : 'full') + '</small></button>';
+    }
+    h += '</div>';
+    for (var q = 0; q < QN; q++) h += '<div class="' + (q === qTab ? '' : 'qhide') + '" data-qwrap="' + q + '">' + quarterHTML(q) + '</div>';
 
     h += '<div class="card" id="checks"><h2>Checks</h2>';
     if (!res.errs.length && !res.warns.length) {
@@ -772,7 +882,7 @@ tr.away td{color:var(--muted);font-weight:400;font-style:italic}
       '<button class="' + (delArmed ? 'danger' : 'ghost') + '" id="del">' + (delArmed ? 'Tap again to delete this game' : 'Delete this game') + '</button>' +
       '</div>';
     h += '<p class="note">Drag a girl from the bench into a spot, or from one spot onto another to swap them. ' +
-      'On a phone you can also tap her and then tap where she goes. Dragging her into another quarter puts her there as well. ' +
+      'On a phone you can also tap her and then tap where she goes. ' +
       '<b>Fill the empty spots</b> gives each one to whoever has played least so far, and you fix whatever it got wrong.</p>';
 
     root.innerHTML = h;
@@ -792,6 +902,17 @@ tr.away td{color:var(--muted);font-weight:400;font-style:italic}
 
   function wireSheet() {
     wireKey();
+
+    Array.prototype.forEach.call(root.querySelectorAll('[data-qtab]'), function (b) {
+      b.addEventListener('click', function () {
+        qTab = Number(b.getAttribute('data-qtab')); sel = null; render();
+      });
+    });
+    [['foldshape', function (o) { openShape = o; }], ['foldhere', function (o) { openHere = o; }],
+     ['folddetails', function (o) { openDetails = o; }]].forEach(function (f) {
+      var d = document.getElementById(f[0]);
+      if (d) d.addEventListener('toggle', function () { f[1](d.open); });
+    });
 
     document.getElementById('togames').addEventListener('click', function () {
       sel = null; view = 'games';
