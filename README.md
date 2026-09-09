@@ -12,6 +12,7 @@
 | `session-1.html`, `session-2.html` | **One written practice per page** — its own URL, prose and all. | Working from a single session, or sending one to someone. |
 | `session.html?s=N` | **Sessions added during the season.** One page, any number: it builds the blank template and takes its name and plan from the API. | The sessions made on a touchline rather than written at a desk. |
 | [`library.html`](library.html) | **The Coaching Library** — the season plan and every activity explained | At home, the night before. |
+| [`notes.html`](notes.html) | **Player notes** — the coach's running notes on each girl. Behind the coach key, reading included. | Before a game, or after a practice while it is fresh. |
 
 Every activity name on a session card is a **link** into its library entry. Tap "The Toy Box" on Session 1 and you land on the diagram, the setup steps, and what it teaches.
 
@@ -105,6 +106,17 @@ Girls are moved by dragging (a copy rides under the finger, the spot lights up),
 
 Sheets are saved by `functions/api/lineup.js` at KV key `l:<date>-<opponent>`, with the sheet as the value and `{ date, opp, ts }` as metadata so the games list is one `list()`. Every change is also kept in the browser and sent up when it can be; saving needs the coach key, reading is open. The server validates the whole sheet (names against the roster, lines sized to the shape, always four quarters) and drops anything it does not recognise.
 
+## Player notes
+
+`notes.html` — a running set of notes on each girl: what she is working on, what clicked, what to say to her parents on Saturday. The roster is the list, in the order she knows it, with the number of notes as its own column, so writing one changes a number in place and nothing moves under her thumb. Tap a girl to read hers and add one. A note carries the day it is *about*, not the moment it was typed, and they are read newest day first — so one back-dated to Tuesday sits under Tuesday. Notes can be rewritten, and deleting takes two taps. **Print them all** puts every girl's notes on paper in roster order.
+
+**This is the one page where reading needs the coach key too.** The lineup and the Kicking Club are open on purpose — a parent with the link should be able to see the sheet. Notes about somebody's eight-year-old are not that, so every operation checks the key, and a device without it sees the way in and nothing else. The key travels in the POST body rather than a query string, which is also why there is no `GET` here that returns anything: a key in a URL ends up in logs and history. The `GET` answers the deploy check and says nothing.
+
+Notes are saved by `functions/api/notes.js`, one KV key per girl at `n:<slug>` holding her notes oldest first. The server appends, edits and removes single notes rather than taking a whole list, so two phones writing about different girls cannot overwrite each other and the body stays small; each reply carries that girl's full list back, because KV can be a beat behind its own writes. Read-modify-write on one key means two coaches adding a note about the *same* girl in the same second could still lose one — with twelve girls and a phone or two, that is the right amount of machinery.
+
+A note typed with no signal is kept on the phone, flagged *waiting to go up*, and sent the next time the page can reach the team. That queue is the only thing stored on the device; *Forget the key on this device* clears it along with the key.
+
+
 ## The practice API
 
 `functions/api/practice.js` holds one adjusted plan per session at KV key `p:<sid>`, with the edition it was built against in the key's metadata — so the "which sessions are adjusted" listing costs one `list()` and no `get()`s.
@@ -155,7 +167,7 @@ The page carries first names only and is marked `noindex`.
 
 ## The coach key
 
-The one secret in the project. It guards everything that changes shared state: correcting a total, resetting the Kicking Club record, and saving a practice for the team. Logging kicks and reading anything are open.
+The one secret in the project. It guards everything that changes shared state: correcting a total, resetting the Kicking Club record, saving a practice and saving a lineup. Logging kicks and reading anything are open — **except the player notes, where reading needs the key as well**, because they are about the girls rather than about the game.
 
 **It is not in the pages.** It lives only as `COACH_KEY` on the Cloudflare Pages project, and the coach types it once per device:
 

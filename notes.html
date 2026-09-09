@@ -1,0 +1,607 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light">
+<meta name="robots" content="noindex, nofollow">
+<meta name="description" content="Player notes - the coach's running notes on each girl.">
+<title>Player notes</title>
+<style>
+:root{color-scheme:light;--bg:#F4ECD8;--card:#FBF6E8;--tan:#EDE0BF;--rule:#D2C09C;--rule-hi:#B9A275;
+--text:#241608;--sec:#46331C;--muted:#6B5334;--rust:#7A3E0F;--forest:#1F5A34;--warn:#7A4A08;--bad:#8B1A1A;--fs:20px;
+  --f-h3:    1em;
+  --f-title: .95em;
+  --f-body:  .92em;
+  --f-meta:  .85em;
+  --f-badge: .78em;
+--font:Verdana,Tahoma,"DejaVu Sans",Geneva,sans-serif}
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:var(--fs);line-height:1.6;overflow-wrap:break-word}
+.wrap{max-width:720px;margin:0 auto;padding:26px 18px 60px}
+.mast{border-bottom:3px solid var(--rust);padding-bottom:16px;margin-bottom:20px}
+.eyebrow{font-size:var(--f-badge);font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+h1{font-size:1.7em;font-weight:700;text-transform:uppercase;color:var(--rust);margin:8px 0 10px;line-height:1.1}
+.sub{font-size:var(--f-title);color:var(--sec);max-width:56ch}
+.card{background:var(--card);border:1px solid var(--rule-hi);border-radius:6px;padding:20px;margin-bottom:16px}
+h2{font-size:var(--f-title);font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--rust);
+border-bottom:1px solid var(--rule);padding-bottom:9px;margin-bottom:14px;display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap}
+h2 small{font-weight:400;letter-spacing:0;text-transform:none;color:var(--muted);font-size:var(--f-meta)}
+label{display:block;font-size:var(--f-meta);font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:14px 0 6px}
+input,textarea{font-family:inherit;font-size:1em;width:100%;padding:12px;border:1px solid var(--rule-hi);
+border-radius:5px;background:#fff;color:var(--text);min-height:48px}
+textarea{min-height:104px;resize:vertical;line-height:1.5}
+input:focus-visible,textarea:focus-visible,button:focus-visible{outline:3px solid var(--forest);outline-offset:2px}
+button{font-family:inherit;font-size:var(--f-body);font-weight:700;cursor:pointer;border-radius:5px;padding:13px 20px;
+min-height:48px;border:1px solid var(--rust);background:var(--rust);color:var(--card)}
+button:hover{background:var(--text);border-color:var(--text)}
+button[disabled]{opacity:.5;cursor:not-allowed}
+button.ghost{background:transparent;color:var(--rust)}
+button.ghost:hover{background:var(--tan);color:var(--rust)}
+button.danger{border-color:var(--bad);color:var(--bad);background:transparent}
+button.danger:hover{background:var(--bad);color:#fff;border-color:var(--bad)}
+.mini{font-size:var(--f-meta);padding:7px 11px;min-height:36px}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:18px}
+.note{font-size:var(--f-body);color:var(--sec);margin-top:12px}
+.ok{background:#EDF3E6;border:1px solid var(--forest);color:var(--forest);border-radius:5px;padding:13px 16px;font-size:var(--f-title);font-weight:700;margin-bottom:16px}
+.warn{background:#F8EFDC;border:1px solid var(--warn);color:var(--warn);border-radius:5px;padding:13px 16px;font-size:var(--f-body);margin-bottom:16px}
+.warn b{display:block;margin-bottom:4px}
+.status{font-size:var(--f-meta);font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
+.status.live{color:var(--forest)}
+.status.off{color:var(--warn)}
+.dot{display:inline-block;width:9px;height:9px;border-radius:50%;background:currentColor;margin-right:6px;vertical-align:baseline}
+.foot{margin-top:26px;padding-top:16px;border-top:1px solid var(--rule);font-size:var(--f-meta);color:var(--muted)}
+.foot a{color:var(--rust);font-weight:700;display:inline-block;padding:6px 2px}
+
+/* ---------- the roster ---------- */
+.who{list-style:none}
+.who li{border-bottom:1px solid var(--rule)}
+.who li:last-child{border-bottom:none}
+/* the whole row is the target -- she is tapped with a thumb, standing up */
+.who .pick{display:flex;align-items:center;gap:12px;width:100%;text-align:left;background:transparent;border:1px solid transparent;
+border-radius:6px;color:var(--text);padding:11px 10px;min-height:56px;font-weight:700;font-size:var(--f-body)}
+.who .pick:hover{background:var(--tan);border-color:var(--rule-hi);color:var(--text)}
+.who .nm{flex:1 1 auto;min-width:0}
+.who .nm small{display:block;font-weight:400;color:var(--muted);font-size:var(--f-meta);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* the count is its own column, so writing a note changes a number in place
+   and moves nothing; the roster stays in the order she knows it in */
+.who .cnt{flex:0 0 auto;font-variant-numeric:tabular-nums;font-size:var(--f-body);font-weight:700;color:var(--card);
+background:var(--rust);border-radius:999px;min-width:2em;height:2em;display:flex;align-items:center;justify-content:center;padding:0 7px}
+.who .cnt.none{background:transparent;color:var(--muted);border:1px dashed var(--rule-hi)}
+.who .cnt.wait{background:var(--warn)}
+
+/* ---------- one girl's notes ---------- */
+.nlist{list-style:none;margin-top:4px}
+.nlist li{padding:14px 0;border-bottom:1px solid var(--rule)}
+.nlist li:last-child{border-bottom:none}
+.nlist .when{font-size:var(--f-badge);font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--muted)}
+.nlist .txt{font-size:var(--f-body);color:var(--sec);margin-top:5px;white-space:pre-wrap}
+.nlist .tools{display:flex;gap:8px;flex-wrap:wrap;margin-top:9px}
+.nlist li.waiting{opacity:.75}
+.nlist .flag{font-size:var(--f-badge);font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--warn);margin-left:8px}
+.nlist textarea{margin-top:6px}
+.none{font-size:var(--f-body);color:var(--muted);padding:10px 0}
+.backrow{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:16px}
+
+/* ---------- printed ---------- */
+.forprint{display:none}
+@media (max-width:560px){
+  .wrap{padding:20px 12px 60px}
+  .card{padding:16px}
+}
+@media print{
+  body{background:#fff}
+  .wrap{padding:0;max-width:none}
+  button,input,textarea,label,.status,.foot,.backrow,.hideprint{display:none!important}
+  .card{border:1px solid #999;break-inside:avoid;page-break-inside:avoid}
+  .forprint{display:block}
+  .who{display:none}
+}
+[hidden]{display:none!important}
+</style>
+<script>
+/* ---------- one home ----------
+   Same hand-over as every other page: the GitHub copy works, but cannot
+   reach the team's shared notes, so it sends you to the copy that can --
+   once that copy has answered. ?stay=1 to stay here on purpose. */
+(function () {
+  var HOME = 'https://8u-practice-book.pages.dev/';
+  if (!HOME || location.hostname !== 'yshi41.github.io') return;
+  if (/(^|[?&])stay=1(&|$)/.test(location.search)) return;
+  var file = location.pathname.replace(/^.*\//, '') || 'index.html';
+  var to = HOME + file + location.search + location.hash;
+  try {
+    fetch(HOME + 'index.html', { mode: 'no-cors', cache: 'no-store' })
+      .then(function () { location.replace(to); }, function () { });
+  } catch (e) { }
+})();
+</script>
+</head>
+<body>
+<div class="wrap">
+
+<header class="mast">
+  <div class="eyebrow">Heat Waves &middot; SBMSA 8U Girls</div>
+  <h1>Player notes</h1>
+  <p class="sub">What each girl is working on, what clicked, and what to say to her parents on
+  Saturday. These are yours &mdash; the coach key opens them, and nothing else on the book does.</p>
+</header>
+
+<div id="root"></div>
+
+<div class="foot">
+  <a href="index.html">Practice book</a>
+  &nbsp;&middot;&nbsp; <a href="lineup.html">Lineup</a>
+  &nbsp;&middot;&nbsp; <a href="wall-kicks.html">Kicking Club</a>
+</div>
+
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  /* ------------------------------------------------------------------
+     The notes live at /api/notes, a Pages Function on this origin, one
+     key per girl. Unlike the lineup and the Kicking Club, READING needs
+     the coach key as well -- these are notes about children, not a sheet
+     a parent should be able to open. The key travels in the POST body,
+     never in a URL, so it stays out of logs and history.
+
+     A note typed with no signal is kept on this phone and goes up the
+     next time the page can reach the team. Nothing else is kept here.
+     ------------------------------------------------------------------ */
+  var API = '/api/notes';
+  var NAMES = ["Abigael","Annabel","Annie","Catherine","Dafne","Davy","Helen","Louise","Madeline C.","Madeline S.","Riley W.","Riley Y."];
+
+  var COACHKEY = '8u.coachkey';     // the same key the rest of the book uses
+  var PENDING = '8u.notes.pending'; // notes typed here that have not gone up
+
+  var root = document.getElementById('root');
+  var view = 'gate';                // gate | roster | girl
+  var link = 'connecting';          // connecting | live | down
+  var notes = {};                   // slug -> [ { id, ts, d, t } ], oldest first
+  var who = null;                   // the girl on the screen
+  var flash = null;
+  var busy = false;
+  var editing = null;               // the note being rewritten
+  var delArmed = null, delTimer = null;
+  var forgetArmed = false, forgetTimer = null;
+
+  function live() { return link === 'live'; }
+
+  function coachKey() {
+    try { return localStorage.getItem(COACHKEY) || ''; } catch (e) { return ''; }
+  }
+  function setCoachKey(k) {
+    try { if (k) localStorage.setItem(COACHKEY, k); else localStorage.removeItem(COACHKEY); }
+    catch (e) { }
+  }
+
+  /* ---------- helpers ---------- */
+
+  function esc(t) {
+    return String(t == null ? '' : t)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+  function slug(name) {
+    return String(name).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+  }
+  function nameOf(s) {
+    for (var i = 0; i < NAMES.length; i++) if (slug(NAMES[i]) === s) return NAMES[i];
+    return s;
+  }
+  function today() {
+    var d = new Date();
+    return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' +
+           String(d.getDate()).padStart(2, '0');
+  }
+  function pretty(iso) {
+    var p = String(iso).split('-');
+    if (p.length !== 3) return iso;
+    var d = new Date(Number(p[0]), Number(p[1]) - 1, Number(p[2]));
+    var days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+    var m = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    var s = days[d.getDay()] + ' ' + Number(p[2]) + ' ' + (m[Number(p[1]) - 1] || '');
+    if (Number(p[0]) !== new Date().getFullYear()) s += ' ' + p[0];
+    return s;
+  }
+  function plural(n, one, many) { return n + ' ' + (n === 1 ? one : many); }
+  function lines(t) { return esc(t).replace(/\n/g, '<br>'); }
+
+  /* Notes are stored in the order they were written, but they are read in
+     the order they happened -- the day is what a note is labelled with, so
+     one back-dated to Tuesday belongs under Tuesday rather than at the top
+     because it was typed last. Two on the same day: the later one first. */
+  function ordered(list) {
+    return list.slice().sort(function (a, b) {
+      return a.d < b.d ? 1 : a.d > b.d ? -1 : b.ts - a.ts;
+    });
+  }
+
+  /* ---------- what is waiting on this phone ---------- */
+
+  function pending() {
+    try { var v = JSON.parse(localStorage.getItem(PENDING) || '[]'); return Array.isArray(v) ? v : []; }
+    catch (e) { return []; }
+  }
+  function setPending(list) {
+    try {
+      if (list.length) localStorage.setItem(PENDING, JSON.stringify(list));
+      else localStorage.removeItem(PENDING);
+    } catch (e) { }
+  }
+  function pendingFor(s) {
+    return pending().filter(function (p) { return p.who === s; });
+  }
+  function queue(s, text, d) {
+    var list = pending();
+    list.push({ qid: Date.now().toString(36) + Math.random().toString(36).slice(2, 6), who: s, t: text, d: d });
+    setPending(list);
+  }
+  function unqueue(qid) {
+    setPending(pending().filter(function (p) { return p.qid !== qid; }));
+  }
+
+  /* ---------- talking to the API ---------- */
+
+  /** Every call carries the key; there is no request here that does not. */
+  function send(body, key) {
+    var payload = { key: key == null ? coachKey() : key };
+    for (var k in body) if (Object.prototype.hasOwnProperty.call(body, k)) payload[k] = body[k];
+    return fetch(API, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify(payload)
+    }).then(function (r) {
+      if (r.ok) return r.json();
+      var e = new Error('http ' + r.status);
+      e.status = r.status;
+      throw e;
+    });
+  }
+
+  /** Wrong key, or none set on the server: lock rather than pretend. */
+  function locked(err) {
+    if (err && err.status === 403) {
+      setCoachKey('');
+      view = 'gate'; notes = {}; who = null; link = 'live';
+      flash = { kind: 'warn', msg: 'That key was not accepted.' };
+      return true;
+    }
+    if (err && err.status === 503) {
+      setCoachKey('');
+      view = 'gate'; notes = {}; who = null; link = 'live';
+      flash = { kind: 'warn', msg: '<b>No coach key is set on the server yet</b>, so there is nothing to unlock. ' +
+                                   'It is set in Cloudflare, on the Pages project.' };
+      return true;
+    }
+    return false;
+  }
+
+  /** Open the notes with a key, then send anything this phone was holding. */
+  function unlock(key) {
+    busy = true; render();
+    send({ op: 'load' }, key).then(function (res) {
+      busy = false;
+      if (!res || !res.ok) { link = 'down'; render(); return; }
+      link = 'live';
+      setCoachKey(key);
+      notes = res.notes || {};
+      view = (view === 'girl' && who) ? 'girl' : 'roster';
+      flush();
+    }, function (err) {
+      busy = false;
+      if (locked(err)) { render(); return; }
+      link = 'down';
+      flash = { kind: 'warn', msg: '<b>The notes cannot be reached just now.</b> ' +
+        'Anything you write is kept on this phone and goes up when the connection is back.' };
+      /* Only a device that already had the key gets to sit at the roster
+         while the connection is out; a key typed just now is unproven. */
+      if (view === 'gate' && coachKey() && coachKey() === key) view = 'roster';
+      render();
+    });
+  }
+
+  /** Send what this phone is holding, oldest first, one at a time. */
+  function flush() {
+    var list = pending();
+    if (!list.length || !live() || !coachKey()) { render(); return; }
+    var p = list[0];
+    send({ op: 'add', who: p.who, text: p.t, d: p.d }).then(function (res) {
+      if (res && res.ok) { notes[res.who] = res.notes; unqueue(p.qid); flush(); }
+      else render();
+    }, function (err) {
+      if (locked(err)) { render(); return; }
+      /* A note the server will never take should not block the ones behind it. */
+      if (err && err.status === 400) unqueue(p.qid);
+      else link = 'down';
+      render();
+    });
+  }
+
+  /* ---------- writing one ---------- */
+
+  function add(s, text, d) {
+    if (!text) return;
+    if (!live() || !coachKey()) {
+      queue(s, text, d);
+      flash = { kind: 'warn', msg: 'Kept on this phone &mdash; it goes up to the team when the connection is back.' };
+      render();
+      return;
+    }
+    busy = true; render();
+    send({ op: 'add', who: s, text: text, d: d }).then(function (res) {
+      busy = false;
+      if (res && res.ok) notes[res.who] = res.notes;
+      else { queue(s, text, d); flash = { kind: 'warn', msg: 'Kept on this phone &mdash; the team copy did not take it.' }; }
+      render();
+    }, function (err) {
+      busy = false;
+      if (locked(err)) { queue(s, text, d); render(); return; }
+      link = 'down';
+      queue(s, text, d);
+      flash = { kind: 'warn', msg: 'Kept on this phone &mdash; the team copy could not be reached just now.' };
+      render();
+    });
+  }
+
+  function change(op, s, id, text) {
+    busy = true; render();
+    send({ op: op, who: s, id: id, text: text }).then(function (res) {
+      busy = false; editing = null; armDelete(null);
+      if (res && res.ok) notes[res.who] = res.notes;
+      render();
+    }, function (err) {
+      busy = false;
+      if (locked(err)) { render(); return; }
+      if (err && err.status === 404) {
+        flash = { kind: 'warn', msg: 'That note is already gone.' };
+        editing = null; armDelete(null);
+      } else {
+        link = 'down';
+        flash = { kind: 'warn', msg: '<b>Nothing was changed.</b> The team copy could not be reached &mdash; try again in a moment.' };
+      }
+      render();
+    });
+  }
+
+  function armDelete(id) {
+    delArmed = id;
+    clearTimeout(delTimer);
+    if (id) delTimer = setTimeout(function () { delArmed = null; render(); }, 6000);
+  }
+  function armForget(on) {
+    forgetArmed = on;
+    clearTimeout(forgetTimer);
+    if (on) forgetTimer = setTimeout(function () { forgetArmed = false; render(); }, 6000);
+  }
+
+  /* ---------- the way in ---------- */
+
+  function gateView() {
+    var h = '';
+    if (flash) h += '<div class="' + flash.kind + '">' + flash.msg + '</div>';
+    h += '<div class="card"><h2>Coach key</h2>' +
+      '<label for="pw">The key</label>' +
+      '<input id="pw" type="password" autocomplete="current-password" aria-label="Coach key">' +
+      '<div class="row"><button id="go"' + (busy ? ' disabled' : '') + '>' +
+      (busy ? 'Checking&hellip;' : 'Open the notes') + '</button></div>' +
+      '<p class="note">These are notes about the girls, so the key opens them and nothing else does &mdash; ' +
+      'unlike the lineup and the Kicking Club, which anybody with the link can read. ' +
+      'It is the same key that saves a practice, and this device remembers it once you have typed it.</p></div>';
+    root.innerHTML = h;
+    flash = null;
+
+    var pw = document.getElementById('pw');
+    function go() {
+      var k = pw.value;
+      if (!k) { pw.focus(); return; }
+      unlock(k);
+    }
+    document.getElementById('go').addEventListener('click', go);
+    pw.addEventListener('keydown', function (e) { if (e.key === 'Enter') go(); });
+    pw.focus();
+  }
+
+  /* ---------- the roster ---------- */
+
+  function statusHTML() {
+    var waiting = pending().length;
+    if (busy || link === 'connecting') return '<div class="status"><span class="dot"></span>Talking to the team&hellip;</div>';
+    if (!live()) return '<div class="status off"><span class="dot"></span>Cannot reach the team&rsquo;s notes' +
+      (waiting ? ' &mdash; ' + plural(waiting, 'note is', 'notes are') + ' waiting on this phone' : '') + '</div>';
+    if (waiting) return '<div class="status off"><span class="dot"></span>' +
+      plural(waiting, 'note is', 'notes are') + ' waiting to go up</div>';
+    return '<div class="status live"><span class="dot"></span>Saved for the team</div>';
+  }
+
+  function rosterView() {
+    var h = '';
+    if (flash) h += '<div class="' + flash.kind + '">' + flash.msg + '</div>';
+
+    var total = 0;
+    NAMES.forEach(function (n) { total += (notes[slug(n)] || []).length; });
+
+    h += '<div class="card"><h2>The girls<small>' + plural(total, 'note', 'notes') + ' in all</small></h2>' +
+      statusHTML() +
+      '<ul class="who">' + NAMES.map(function (n) {
+        var s = slug(n), mine = notes[s] || [], wait = pendingFor(s).length;
+        var last = mine.length ? ordered(mine)[0] : null;
+        var sub = mine.length
+          ? plural(mine.length, 'note', 'notes') + ' &middot; last ' + esc(pretty(last.d))
+          : 'nothing written down yet';
+        if (wait) sub += ' &middot; ' + wait + ' waiting';
+        var cnt = mine.length + wait;
+        return '<li><button type="button" class="pick" data-who="' + esc(s) + '">' +
+          '<span class="nm">' + esc(n) + '<small>' + sub + '</small></span>' +
+          '<span class="cnt' + (cnt ? (wait ? ' wait' : '') : ' none') + '" aria-hidden="true">' + cnt + '</span>' +
+          '</button></li>';
+      }).join('') + '</ul>' +
+      '<p class="note hideprint">Tap a girl to read hers and add one. ' +
+      'The list stays in this order however many you write, so nothing moves under your thumb.</p>' +
+      '<div class="row hideprint">' +
+      '<button class="ghost mini" id="print">Print them all</button>' +
+      '<button class="' + (forgetArmed ? 'danger' : 'ghost') + ' mini" id="forget">' +
+      (forgetArmed ? 'Tap again to forget it' : 'Forget the key on this device') + '</button></div>' +
+      (forgetArmed
+        ? '<p class="note"><b>This closes the notes here</b>, and locks saving the lineup, a practice and the ' +
+          'Kicking Club too &mdash; it is one key for the whole book. ' +
+          (pending().length
+            ? '<b>' + plural(pending().length, 'note has', 'notes have') + ' not gone up yet, and would be thrown away.</b> '
+            : '') +
+          'Nothing on the team&rsquo;s copy is touched.</p>'
+        : '') +
+      '</div>';
+
+    /* on paper: all of them, in roster order, newest first under each girl */
+    h += '<div class="forprint">' + NAMES.map(function (n) {
+      var mine = notes[slug(n)] || [];
+      if (!mine.length) return '';
+      return '<div class="card"><h2>' + esc(n) + '</h2><ul class="nlist">' +
+        ordered(mine).map(function (x) {
+          return '<li><div class="when">' + esc(pretty(x.d)) + '</div><div class="txt">' + lines(x.t) + '</div></li>';
+        }).join('') + '</ul></div>';
+    }).join('') + '</div>';
+
+    root.innerHTML = h;
+    flash = null;
+
+    Array.prototype.forEach.call(root.querySelectorAll('[data-who]'), function (b) {
+      b.addEventListener('click', function () {
+        armForget(false);
+        who = b.getAttribute('data-who');
+        editing = null; armDelete(null);
+        view = 'girl';
+        render();
+      });
+    });
+    document.getElementById('print').addEventListener('click', function () { armForget(false); window.print(); });
+    document.getElementById('forget').addEventListener('click', function () {
+      if (!forgetArmed) { armForget(true); render(); return; }
+      armForget(false);
+      setCoachKey(''); setPending([]);
+      notes = {}; who = null; view = 'gate';
+      flash = { kind: 'ok', msg: 'This device has forgotten the coach key.' };
+      render();
+    });
+  }
+
+  /* ---------- one girl ---------- */
+
+  function girlView() {
+    var name = nameOf(who), mine = notes[who] || [], wait = pendingFor(who);
+    var h = '';
+
+    h += '<div class="backrow hideprint"><button class="ghost mini" id="back">&larr; All the girls</button></div>';
+    if (flash) h += '<div class="' + flash.kind + '">' + flash.msg + '</div>';
+
+    h += '<div class="card"><h2>' + esc(name) +
+      '<small>' + plural(mine.length + wait.length, 'note', 'notes') + '</small></h2>' + statusHTML() +
+      '<div class="hideprint">' +
+      '<label for="ntext">A new note</label>' +
+      '<textarea id="ntext" maxlength="800" placeholder="What she did, what to work on, what to tell her parents"></textarea>' +
+      '<label for="ndate">The day it is about</label>' +
+      '<input id="ndate" type="date" value="' + today() + '">' +
+      '<div class="row"><button id="save"' + (busy ? ' disabled' : '') + '>' +
+      (busy ? 'Saving&hellip;' : 'Save the note') + '</button></div></div>';
+
+    if (!mine.length && !wait.length) {
+      h += '<p class="none">Nothing written down about ' + esc(name) + ' yet.</p>';
+    } else {
+      h += '<ul class="nlist">';
+      wait.forEach(function (p) {
+        h += '<li class="waiting"><div class="when">' + esc(pretty(p.d)) +
+          '<span class="flag">waiting to go up</span></div>' +
+          '<div class="txt">' + lines(p.t) + '</div>' +
+          '<div class="tools hideprint"><button class="ghost mini" data-drop="' + esc(p.qid) + '">Throw it away</button></div></li>';
+      });
+      ordered(mine).forEach(function (x) {
+        h += '<li><div class="when">' + esc(pretty(x.d)) + '</div>';
+        if (editing === x.id) {
+          h += '<textarea maxlength="800" data-ed="' + esc(x.id) + '">' + esc(x.t) + '</textarea>' +
+            '<div class="tools"><button class="mini" data-keep="' + esc(x.id) + '"' + (busy ? ' disabled' : '') + '>Keep the change</button>' +
+            '<button class="ghost mini" data-cancel="1">Leave it</button></div>';
+        } else {
+          h += '<div class="txt">' + lines(x.t) + '</div>' +
+            '<div class="tools hideprint"><button class="ghost mini" data-edit="' + esc(x.id) + '">Rewrite</button>' +
+            '<button class="' + (delArmed === x.id ? 'danger' : 'ghost') + ' mini" data-del="' + esc(x.id) + '">' +
+            (delArmed === x.id ? 'Tap again to delete' : 'Delete') + '</button></div>';
+        }
+        h += '</li>';
+      });
+      h += '</ul>';
+    }
+    h += '</div>';
+
+    root.innerHTML = h;
+    flash = null;
+
+    document.getElementById('back').addEventListener('click', function () {
+      armDelete(null); editing = null; view = 'roster'; render();
+    });
+
+    var box = document.getElementById('ntext');
+    var day = document.getElementById('ndate');
+    document.getElementById('save').addEventListener('click', function () {
+      var t = box.value.trim();
+      if (!t) { box.focus(); return; }
+      armDelete(null);
+      add(who, t, /^\d{4}-\d{2}-\d{2}$/.test(day.value) ? day.value : today());
+    });
+
+    Array.prototype.forEach.call(root.querySelectorAll('[data-edit]'), function (b) {
+      b.addEventListener('click', function () {
+        armDelete(null); editing = b.getAttribute('data-edit'); render();
+        var e = root.querySelector('[data-ed]');
+        if (e) { e.focus(); e.setSelectionRange(e.value.length, e.value.length); }
+      });
+    });
+    Array.prototype.forEach.call(root.querySelectorAll('[data-keep]'), function (b) {
+      b.addEventListener('click', function () {
+        var id = b.getAttribute('data-keep');
+        var e = root.querySelector('[data-ed="' + id + '"]');
+        var t = e ? e.value.trim() : '';
+        if (!t) { if (e) e.focus(); return; }
+        change('edit', who, id, t);
+      });
+    });
+    Array.prototype.forEach.call(root.querySelectorAll('[data-cancel]'), function (b) {
+      b.addEventListener('click', function () { editing = null; render(); });
+    });
+    Array.prototype.forEach.call(root.querySelectorAll('[data-del]'), function (b) {
+      b.addEventListener('click', function () {
+        var id = b.getAttribute('data-del');
+        if (delArmed !== id) { armDelete(id); render(); return; }
+        armDelete(null);
+        change('remove', who, id, '');
+      });
+    });
+    Array.prototype.forEach.call(root.querySelectorAll('[data-drop]'), function (b) {
+      b.addEventListener('click', function () {
+        unqueue(b.getAttribute('data-drop'));
+        render();
+      });
+    });
+  }
+
+  function render() {
+    if (view === 'girl' && who) girlView();
+    else if (view === 'roster') rosterView();
+    else gateView();
+  }
+
+  /* ---------- go ---------- */
+  if (coachKey()) {
+    view = 'roster';
+    render();
+    unlock(coachKey());
+  } else {
+    link = 'live';
+    render();
+  }
+})();
+</script>
+</body>
+</html>
