@@ -95,7 +95,7 @@ Both are guarded at the API by the coach key. Adding an entry is open, because t
 
 `lineup.html` — one sheet per game: who is here, the shape (backs, mids, forwards, plus one in goal — 3-3-2 to start), and who is in which spot in each of the four quarters. The book's own facts set the rules: 9v9, 12 rostered, four quarters, everybody plays at least two.
 
-The games list is the season: the SBMSA schedule for 8U Girls Division II (the `SCHEDULE` constant at the top of the script, with the revision date beside it — update both when the league moves a game). Each game has **Start** until a sheet exists, then **Open**; the next game is tagged. Other games (scrimmages, make-ups) are added from the folded form at the bottom and listed separately.
+The games list is the season: the SBMSA schedule for 8U Girls Division II (the `SCHEDULE` constant at the top of the script, with the revision date beside it — update both when the league moves a game), checked against the league's emailed master schedule of 8 Sep 2026. The 9 Sep scrimmage comes from the master schedule only; a `kind` on a schedule entry is shown as a label. Each game has **Start** until a sheet exists, then **Open**; the next game is tagged. Other games (scrimmages, make-ups) are added from the folded form at the bottom and listed separately.
 
 Built for a phone: the shape, attendance and name/note fold to one line each; the four quarters sit behind sticky tabs (Q1–Q4, each saying how many spots are empty) so one quarter is on the screen at a time and the bench is never far from the spots; print shows all four.
 

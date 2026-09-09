@@ -242,9 +242,13 @@ tr.away td{color:var(--muted);font-weight:400;font-style:italic}
      ------------------------------------------------------------------ */
   var API = '/api/lineup';
   var NAMES = ["Abigael","Annabel","Annie","Catherine","Dafne","Davy","Helen","Louise","Madeline C.","Madeline S.","Riley W.","Riley Y."];
-  /* The season, from the SBMSA schedule for 8U Girls Division II
-     (revised 3 Sep 2026). The games list is this, with a sheet behind each. */
+  /* The season, from the SBMSA schedule for 8U Girls Division II (revised
+     3 Sep 2026), checked against the league's master schedule of 8 Sep: the
+     eleven division games agree on date, time and field. The scrimmage is
+     only on the master schedule. The 18 Sep opponent is "France" there --
+     the Glitter Sharks' jersey -- and is the same team. */
   var SCHEDULE = [
+    { date: '2026-09-09', time: '5:45 PM',  opp: 'The Bombs',         field: 'SBEC 8U #2', kind: 'Scrimmage' },
     { date: '2026-09-12', time: '11:00 AM', opp: 'Dolphins',          field: 'SBEC 8U #6' },
     { date: '2026-09-18', time: '7:00 PM',  opp: 'Glitter Sharks',    field: 'SBEC 8U #6' },
     { date: '2026-09-22', time: '5:45 PM',  opp: 'Fire Tigers',       field: 'SBEC 8U #2' },
@@ -257,7 +261,7 @@ tr.away td{color:var(--muted);font-weight:400;font-style:italic}
     { date: '2026-10-24', time: '11:00 AM', opp: 'Bubblegum Ballers', field: 'PC-8u #2'   },
     { date: '2026-10-27', time: '7:00 PM',  opp: 'Blue Angels',       field: 'SBEC 8U #6' }
   ];
-  var SCHEDULE_NOTE = 'SBMSA 8U Girls Division II, revised 3 Sep';
+  var SCHEDULE_NOTE = 'SBMSA 8U Girls Division II, revised 3 Sep, checked against the master schedule of 8 Sep';
 
   var COACHKEY = '8u.coachkey';
   var LOCAL = '8u.lineup.';         // + id -> { game, t, dirty }
@@ -650,7 +654,7 @@ tr.away td{color:var(--muted);font-weight:400;font-style:italic}
       return '<li class="' + cls.trim() + '"><span class="g">' +
         (x === next ? '<span class="tag">Next</span>' : '') +
         esc(pretty(x.date)) + ' &middot; ' + esc(x.time) +
-        '<small>vs ' + esc(x.opp) + ' &middot; ' + esc(x.field) +
+        '<small>' + (x.kind ? esc(x.kind) + ' ' : '') + 'vs ' + esc(x.opp) + ' &middot; ' + esc(x.field) +
         (have && have.localOnly ? ' &middot; on this device only so far' : '') + '</small></span>' +
         '<button class="mini' + (have ? '' : ' ghost') + '" data-open="' + esc(id) + '" data-sched="' + SCHEDULE.indexOf(x) + '">' +
         (have ? 'Open' : 'Start') + '</button></li>';
