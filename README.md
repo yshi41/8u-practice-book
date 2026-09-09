@@ -86,7 +86,8 @@ Kicks logged on a phone under the older, offline-only version of this page are m
 Behind the password, and only when the team list is reachable:
 
 - **Adjust** sets a girl's total to whatever it should be — for a parent's typo, or kicks counted at practice. The correction is stored separately at `adj:<player>` as the gap between what was logged and the total the coach wants, so it never rewrites what a parent actually entered and "times logged" stays honest. A star marks a corrected total. Setting it again re-bases rather than stacking; setting it back to the logged number removes the correction.
-- **Reset the record** wipes every entry and every correction for the whole team. Two taps, and it cannot be undone.
+- **Ring pops.** The first 500 kicks earn one; every 1,000 after that earns another (500, 1,500, 2,500 ...). The page works out how many each girl has *earned* from her total. **Gave one** records a ring pop actually handed over, stored at `pop:<player>` as an absolute count so a tap sent twice cannot hand out a phantom one, and the card shows who is still owed. `-1` takes one back. Parents see how many kicks to the next one under the girl's total.
+- **Reset the record** wipes every entry, every correction and every ring pop given, for the whole team. Two taps, and it cannot be undone.
 
 Both are guarded at the API by the coach key. Adding an entry is open, because that is what parents do.
 
@@ -103,7 +104,7 @@ Two coaches editing the same session at the same time is last-write-wins. With t
 Done, on the account `yshi41@gmail.com`:
 
 - Pages project **`8u-practice-book`** (direct upload, production branch `main`)
-- KV namespace **`8u`** (`c0027d8784e34c8c86bef167b05ac930`), bound as both **`KICKS`** and **`PLANS`** in `wrangler.toml`. One namespace on purpose: wall kicks live under `e:`, `adj:` and `meta:`, practices under `p:`, so nothing collides and there is one thing to look after.
+- KV namespace **`8u`** (`c0027d8784e34c8c86bef167b05ac930`), bound as both **`KICKS`** and **`PLANS`** in `wrangler.toml`. One namespace on purpose: wall kicks live under `e:`, `adj:`, `pop:` and `meta:`, practices under `p:`, so nothing collides and there is one thing to look after.
 
 ### Eventual consistency, and what it means here
 

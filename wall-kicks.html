@@ -87,6 +87,14 @@ td.act{text-align:right;white-space:nowrap}
   td.act{white-space:normal}
 }
 td.k abbr{color:var(--rust);text-decoration:none;margin-left:2px}
+/* ring pops */
+.pops{font-size:var(--f-body);color:var(--sec);margin-top:4px}
+.pops b{color:var(--rust)}
+.cardhead{padding:20px 20px 4px}
+.cardhead h2{margin-bottom:10px}
+.cardhead .note{margin:0 0 12px}
+.owed{color:var(--rust)}
+.square{color:var(--forest);font-weight:400;font-size:var(--f-meta)}
 [hidden]{display:none!important}
 </style>
 <script>
@@ -165,6 +173,7 @@ td.k abbr{color:var(--rust);text-decoration:none;margin-left:2px}
   var flash = null;
   var server = [];                // entries from the team list
   var adjust = {};                // the coach's corrections, by player
+  var pops = {};                  // ring pops already handed over, by player
   var link = 'connecting';        // connecting | live | down
   var busy = false;
   var editP = null;               // whose total the coach is editing
@@ -222,6 +231,18 @@ td.k abbr{color:var(--rust);text-decoration:none;margin-left:2px}
     var m = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
     return Number(p[2]) + ' ' + (m[Number(p[1]) - 1] || '');
   }
+
+  /* Ring pops: the first at 500 kicks, then another for every 1,000 after
+     that -- 500, 1,500, 2,500 and so on. Earned is worked out from the total
+     here; the coach records how many have actually been handed over. */
+  var FIRST_POP = 500, NEXT_POP = 1000;
+  function earnedPops(k) {
+    return k < FIRST_POP ? 0 : 1 + Math.floor((k - FIRST_POP) / NEXT_POP);
+  }
+  function toNextPop(k) {
+    return k < FIRST_POP ? FIRST_POP - k : NEXT_POP - ((k - FIRST_POP) % NEXT_POP);
+  }
+  function plural(n, one, many) { return n + ' ' + (n === 1 ? one : many); }
 
   function keyOf(e) { return e.p + '|' + e.d + '|' + e.k; }
   function merge(a, b) {
@@ -321,6 +342,7 @@ td.k abbr{color:var(--rust);text-decoration:none;margin-left:2px}
     if (!res || !res.ok) return false;
     if (Array.isArray(res.entries)) server = res.entries;
     adjust = (res.adjust && typeof res.adjust === 'object') ? res.adjust : {};
+    pops = (res.pops && typeof res.pops === 'object') ? res.pops : {};
     link = 'live';
     pruneSent();
     return true;
@@ -393,7 +415,9 @@ td.k abbr{color:var(--rust);text-decoration:none;margin-left:2px}
       '<div id="mine"></div>' +
       '<p class="note">Twenty passes against a wall counts as twenty kicks. Log it whenever she does it &mdash; ' +
       'a few minutes a week adds up faster than anything we can do at practice. Nothing else to do: ' +
-      'the page tells the coach.</p></div>';
+      'the page tells the coach.</p>' +
+      '<p class="note"><b>Ring pops.</b> The first 500 kicks earn one, and every 1,000 after that ' +
+      'earns another. The coach hands them out at practice.</p></div>';
 
     var sum = 0;
     NAMES.forEach(function (n) { sum += by[n].kicks; });
@@ -410,7 +434,13 @@ td.k abbr{color:var(--rust);text-decoration:none;margin-left:2px}
       if (!who.value || !t || !t.times) { box.innerHTML = ''; return; }
       var recent = entries.filter(function (e) { return e.p === who.value; })
         .sort(function (a, b) { return a.d < b.d ? 1 : -1; }).slice(0, 6);
+      var earned = earnedPops(t.kicks), next = toNextPop(t.kicks);
       box.innerHTML = '<div class="mine">' + esc(who.value) + ' has <b>' + t.kicks + '</b> kicks</div>' +
+        '<div class="pops">' +
+        (earned ? '<b>' + plural(earned, 'ring pop', 'ring pops') + '</b> earned &middot; ' +
+                  next + ' more kicks to the next one'
+                : next + ' more kicks to her first ring pop') +
+        '</div>' +
         '<div class="log">' +
         recent.map(function (e) { return '<span>' + esc(pretty(e.d)) + ' &middot; ' + e.k + '</span>'; }).join('') +
         '</div>';
@@ -524,8 +554,15 @@ td.k abbr{color:var(--rust);text-decoration:none;margin-left:2px}
         has been told. Looking at it needs neither. */
     var canEdit = live() && !!coachKey();
     var rows = NAMES.map(function (n) {
-      return { n: n, k: by[n].kicks, t: by[n].times, last: by[n].last, fixed: by[n].fixed };
+      var earned = earnedPops(by[n].kicks), given = pops[n] || 0;
+      return { n: n, k: by[n].kicks, t: by[n].times, last: by[n].last, fixed: by[n].fixed,
+               earned: earned, given: given, owed: earned - given };
     }).sort(function (a, b) { return b.k - a.k || a.n.localeCompare(b.n); });
+
+    /* Only the girls a ring pop concerns, the ones owed first. */
+    var popRows = rows.filter(function (r) { return r.earned > 0 || r.given > 0; })
+      .sort(function (a, b) { return b.owed - a.owed || b.earned - a.earned || a.n.localeCompare(b.n); });
+    var owedTotal = popRows.reduce(function (s, r) { return s + Math.max(0, r.owed); }, 0);
 
     var top = rows.length ? rows[0].k : 0;
     var sum = rows.reduce(function (s, r) { return s + r.k; }, 0);
@@ -559,6 +596,7 @@ td.k abbr{color:var(--rust);text-decoration:none;margin-left:2px}
         ? r.t + (r.t === 1 ? ' session' : ' sessions') +
           (r.last ? ' &middot; ' + esc(shortDate(r.last)) : '')
         : 'nothing logged yet';
+      if (r.owed > 0) meta += ' &middot; <span class="owed">ring pop owed</span>';
       h += '<tr><td class="rank">' + (r.k > 0 ? (i + 1) : '') + '</td>' +
         '<td class="nm">' + esc(r.n) +
           '<div class="rowmeta">' + meta + '</div>' +
@@ -571,6 +609,39 @@ td.k abbr{color:var(--rust);text-decoration:none;margin-left:2px}
         '</tr>';
     });
     h += '</tbody></table></div></div>';
+
+    var dis = canEdit ? '' : ' disabled title="Needs the team list and the key"';
+    h += '<div class="card" style="padding:0;overflow:hidden"><div class="cardhead"><h2>Ring pops</h2>';
+    if (!popRows.length) {
+      h += '<p class="note">Nobody has reached 500 kicks yet. The first ring pop comes at 500, ' +
+        'then one for every 1,000 kicks after that. Whoever gets there shows up here.</p></div>';
+    } else {
+      h += '<p class="note">' +
+        (owedTotal ? '<b>' + plural(owedTotal, 'ring pop', 'ring pops') + ' to hand out.</b> '
+                   : 'Everybody has had theirs. ') +
+        'Tap <b>Gave one</b> when a ring pop goes into a hand, and it is remembered for the team.</p></div>';
+      h += '<div class="tablewrap"><table><thead><tr><th>Player</th>' +
+        '<th class="tcol">Earned</th><th class="tcol">Given</th>' +
+        '<th style="text-align:right">Owed</th><th></th></tr></thead><tbody>';
+      popRows.forEach(function (r) {
+        var owed = r.owed > 0 ? '<span class="owed">' + r.owed + '</span>'
+                 : r.owed === 0 ? '<span class="square">none</span>'
+                 : '<span class="square">' + (-r.owed) + ' ahead</span>';
+        h += '<tr><td class="nm">' + esc(r.n) +
+          '<div class="rowmeta">' + r.earned + ' earned &middot; ' + r.given + ' given</div></td>' +
+          '<td class="tcol">' + r.earned + '</td><td class="tcol">' + r.given + '</td>' +
+          '<td class="k">' + owed + '</td>' +
+          '<td class="act"><button class="mini" data-pop="' + esc(r.n) + '" data-dir="1"' + dis +
+          '>Gave one</button> ' +
+          (r.given > 0
+            ? '<button class="mini ghost" data-pop="' + esc(r.n) + '" data-dir="-1"' + dis +
+              ' title="Take one back" aria-label="Take one back from ' + esc(r.n) + '">&minus;1</button>'
+            : '') +
+          '</td></tr>';
+      });
+      h += '</tbody></table></div>';
+    }
+    h += '</div>';
 
     h += '<div class="row">' +
       (live() ? '<button id="reload">Refresh</button>' : '') +
@@ -586,8 +657,10 @@ td.k abbr{color:var(--rust);text-decoration:none;margin-left:2px}
       h += '<div class="foot">Every entry a parent makes lands here, so this is the same leaderboard on ' +
         'every phone. <b>Adjust</b> sets a girl&rsquo;s total to whatever it should be without ' +
         'rewriting what anybody logged &mdash; a star marks a total you have corrected. ' +
-        '<b>Reset the record</b> wipes every entry and every correction for the whole team, and ' +
-        'cannot be undone.</div>';
+        '<b>Gave one</b> records a ring pop actually handed over: the first is earned at 500 kicks, ' +
+        'then one at 1,500, 2,500 and so on, and the card shows who is still owed. ' +
+        '<b>Reset the record</b> wipes every entry, every correction and every ring pop given, ' +
+        'for the whole team, and cannot be undone.</div>';
     } else if (!live()) {
       h += '<div class="warn" style="margin-top:16px"><b>The team list cannot be reached.</b>' +
         'So this is only what this phone is holding, and there is no shared total to correct &mdash; ' +
@@ -613,6 +686,28 @@ td.k abbr{color:var(--rust);text-decoration:none;margin-left:2px}
         render();
         var box = document.getElementById('adjval');
         if (box) { box.focus(); box.select(); }
+      });
+    });
+
+    Array.prototype.forEach.call(root.querySelectorAll('[data-pop]'), function (b) {
+      b.addEventListener('click', function () {
+        armReset(false);
+        var who = b.getAttribute('data-pop');
+        var n = Math.max(0, (pops[who] || 0) + (Number(b.getAttribute('data-dir')) || 0));
+        b.disabled = true;
+        apiSend({ op: 'pops', p: who, n: n, key: coachKey() }).then(function (res) {
+          if (take(res)) {
+            flash = { kind: 'ok', msg: esc(who) + ' has had ' + plural(n, 'ring pop', 'ring pops') +
+                                       (n > 0 ? '.' : ' &mdash; back to none.') };
+          } else {
+            flash = { kind: 'warn', msg: 'That did not go through. Try again in a moment.' };
+          }
+          render();
+        }, function () {
+          link = 'down';
+          flash = { kind: 'warn', msg: 'No connection just now, so nothing was changed.' };
+          render();
+        });
       });
     });
 

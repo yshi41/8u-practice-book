@@ -24,8 +24,14 @@
  * coach says it is. Keeping it separate means fixing a total never rewrites
  * what a parent actually logged, and "times logged" stays honest.
  *
- * Adding an entry is open, because that is what parents do. Correcting a total
- * and resetting the record need the coach key, which is env.COACH_KEY and
+ * The ring pops a girl has already been handed are at `pop:<player>`. How
+ * many she has EARNED is worked out from her total by the page (500 kicks for
+ * the first, then one for every 1000 after); this is only the count the coach
+ * has actually given out, so that what she is owed is never lost between
+ * Sundays.
+ *
+ * Adding an entry is open, because that is what parents do. Correcting a total,
+ * marking a ring pop as given and resetting the record need the coach key, which is env.COACH_KEY and
  * nothing else -- no default, so a server without one refuses those operations
  * rather than falling back to something anybody could read. The key never
  * appears in the page: the coach types it, and it is checked here.
@@ -102,9 +108,23 @@ async function listAdjust(kv, cut = 0) {
   return out;
 }
 
+async function listPops(kv, cut = 0) {
+  const out = {};
+  for (const k of await keysUnder(kv, 'pop:')) {
+    const m = k.metadata || {};
+    const n = Number(m.n);
+    if (Number.isFinite(n) && n > 0 && (Number(m.ts) || 0) > cut) out[k.name.slice(4)] = n;
+  }
+  return out;
+}
+
 async function everything(kv) {
   const cut = await clearedAt(kv);
-  return { entries: await listAll(kv, cut), adjust: await listAdjust(kv, cut) };
+  return {
+    entries: await listAll(kv, cut),
+    adjust: await listAdjust(kv, cut),
+    pops: await listPops(kv, cut)
+  };
 }
 
 export async function onRequestGet({ env }) {
@@ -116,8 +136,9 @@ export async function onRequestGet({ env }) {
   }
 }
 
-/** Coach-only: make a player's total exactly what the coach says, and wipe
- *  the record. Both need the key; adding an entry does not. */
+/** Coach-only: make a player's total exactly what the coach says, note a
+ *  ring pop handed over, and wipe the record. All need the key; adding an
+ *  entry does not. */
 async function coachOp(body, env) {
   const kv = env.KICKS;
 
@@ -137,11 +158,25 @@ async function coachOp(body, env) {
     await kv.put('meta:cleared', '', { metadata: { ts: Date.now() } });
     for (const k of await keysUnder(kv, 'e:')) await kv.delete(k.name);
     for (const k of await keysUnder(kv, 'adj:')) await kv.delete(k.name);
-    return json({ ok: true, entries: [], adjust: {} });
+    for (const k of await keysUnder(kv, 'pop:')) await kv.delete(k.name);
+    return json({ ok: true, entries: [], adjust: {}, pops: {} });
   }
 
   const p = String(body.p || '').trim();
   if (!PLAYERS.includes(p)) return json({ ok: false, error: 'unknown player' }, 400);
+
+  /* How many ring pops this girl has been handed so far. An absolute count,
+     not a +1, so a tap that gets sent twice cannot hand out a phantom one. */
+  if (body.op === 'pops') {
+    const n = Math.floor(Number(body.n));
+    if (!Number.isFinite(n) || n < 0 || n > 1000) return json({ ok: false, error: 'bad count' }, 400);
+    if (n === 0) await kv.delete('pop:' + p);
+    else await kv.put('pop:' + p, '', { metadata: { n, ts: Date.now() } });
+    const data = await everything(kv);
+    if (n === 0) delete data.pops[p];
+    else data.pops[p] = n;
+    return json({ ok: true, ...data });
+  }
 
   const target = Math.floor(Number(body.k));
   if (!Number.isFinite(target) || target < 0 || target > 1000000) {
@@ -177,7 +212,7 @@ export async function onRequestPost({ request, env }) {
     return json({ ok: false, error: 'bad json' }, 400);
   }
 
-  if (body.op === 'reset' || body.op === 'set' || body.op === 'check') {
+  if (body.op === 'reset' || body.op === 'set' || body.op === 'check' || body.op === 'pops') {
     try {
       return await coachOp(body, env);
     } catch (err) {
