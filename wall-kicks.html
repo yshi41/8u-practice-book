@@ -264,7 +264,11 @@ td.editcell{padding:12px 11px}
   }
   function plural(n, one, many) { return n + ' ' + (n === 1 ? one : many); }
 
-  function keyOf(e) { return e.p + '|' + e.d + '|' + e.k; }
+  /* An entry is its id. Two sessions on the same day with the same count are
+     two entries, and both count -- a hundred before dinner and a hundred
+     after is two hundred. Only an entry from before ids were sent down has
+     none, and for that the moment it was logged has to do. */
+  function keyOf(e) { return e.id ? 'i:' + e.id : e.p + '|' + e.d + '|' + e.k + '|' + (e.ts || 0); }
   function merge(a, b) {
     var seen = {}, out = [];
     a.concat(b).forEach(function (e) {
@@ -390,6 +394,9 @@ td.editcell{padding:12px 11px}
     if (!live()) return;
     var q = read(QUEUE);
     if (!q.length) return;
+    /* An entry from the days before this page gave them ids would be refused
+       for ever. Give it one now, and keep it, so a retry sends the same one. */
+    if (!q[0].id) { q[0].id = uid(); write(QUEUE, q); }
     apiPost(q[0]).then(function (res) {
       if (take(res)) {
         remember(q[0]);

@@ -19,6 +19,14 @@
  * The entry itself is held in the key's METADATA, not its value. That means
  * one `list()` call returns every entry at once, instead of a `get()` per key.
  *
+ * The id is the entry's identity, and the only one. Two sessions on the same
+ * day with the same count -- 100 kicks before dinner and 100 after -- are two
+ * entries with two ids, and both count. (An earlier version folded entries
+ * with the same player, day and count into one, to swallow a re-sent entry;
+ * that quietly ate every second session of a day, which is exactly what a
+ * keen kicker does. A re-sent entry carries its original id and overwrites
+ * its own key, so nothing else is needed.)
+ *
  * A coach correction lives apart from the entries, at `adj:<player>`, holding
  * the number that has to be added to that player's total to make it what the
  * coach says it is. Keeping it separate means fixing a total never rewrites
@@ -79,33 +87,27 @@ async function listAll(kv, cut = 0) {
   for (const k of await keysUnder(kv, 'e:')) {
     const m = k.metadata;
     if (m && m.p && (Number(m.ts) || 0) > cut) {
-      out.push({ p: m.p, d: m.d, k: Number(m.k) || 0, ts: Number(m.ts) || 0 });
+      out.push({ id: k.name.slice(2), p: m.p, d: m.d, k: Number(m.k) || 0, ts: Number(m.ts) || 0 });
     }
   }
-  out.sort((a, b) => (a.ts || 0) - (b.ts || 0));
-
-  /* The same kicks arriving twice -- a parent tapping Save again, or a queued
-     entry that did reach us the first time and came back on a new id -- is one
-     session, not two. The page has always shown it that way; counting it twice
-     here would quietly inflate the number a coach's correction is measured
-     against, and her corrected total would come out wrong. */
-  const seen = new Set();
-  return out.filter((e) => {
-    const id = e.p + '|' + e.d + '|' + e.k;
-    if (seen.has(id)) return false;
-    seen.add(id);
-    return true;
-  });
+  out.sort((a, b) => (a.ts || 0) - (b.ts || 0) || (a.id < b.id ? -1 : 1));
+  return out;
 }
 
+/* A correction is a number and a moment. The moment is not used by the page;
+   it is there so that whoever looks at the record later can tell which
+   entries a correction was made against. */
 async function listAdjust(kv, cut = 0) {
-  const out = {};
+  const out = {}, at = {};
   for (const k of await keysUnder(kv, 'adj:')) {
     const m = k.metadata || {};
     const n = Number(m.k);
-    if (Number.isFinite(n) && n !== 0 && (Number(m.ts) || 0) > cut) out[k.name.slice(4)] = n;
+    if (Number.isFinite(n) && n !== 0 && (Number(m.ts) || 0) > cut) {
+      out[k.name.slice(4)] = n;
+      at[k.name.slice(4)] = Number(m.ts) || 0;
+    }
   }
-  return out;
+  return { adjust: out, adjustedAt: at };
 }
 
 async function listPops(kv, cut = 0) {
@@ -120,9 +122,11 @@ async function listPops(kv, cut = 0) {
 
 async function everything(kv) {
   const cut = await clearedAt(kv);
+  const adj = await listAdjust(kv, cut);
   return {
     entries: await listAll(kv, cut),
-    adjust: await listAdjust(kv, cut),
+    adjust: adj.adjust,
+    adjustedAt: adj.adjustedAt,
     pops: await listPops(kv, cut)
   };
 }
@@ -197,8 +201,8 @@ async function coachOp(body, env) {
      were missing from the reply the coach would see the old number, set it
      again, and the second correction would be measured against stale ground. */
   const data = await everything(kv);
-  if (delta === 0) delete data.adjust[p];
-  else data.adjust[p] = delta;
+  if (delta === 0) { delete data.adjust[p]; delete data.adjustedAt[p]; }
+  else { data.adjust[p] = delta; data.adjustedAt[p] = Date.now(); }
   return json({ ok: true, ...data });
 }
 
@@ -245,9 +249,9 @@ export async function onRequestPost({ request, env }) {
        Save and watches the total not move -- which looks exactly like losing
        it. Everybody else picks it up on their next read. */
     const data = await everything(env.KICKS);
-    if (!data.entries.some((e) => e.p === p && e.d === d && e.k === k)) {
-      data.entries.push({ p, d, k, ts: now });
-      data.entries.sort((a, b) => (a.ts || 0) - (b.ts || 0));
+    if (!data.entries.some((e) => e.id === id)) {
+      data.entries.push({ id, p, d, k, ts: now });
+      data.entries.sort((a, b) => (a.ts || 0) - (b.ts || 0) || (a.id < b.id ? -1 : 1));
     }
     return json({ ok: true, ...data });
   } catch (err) {

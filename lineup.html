@@ -139,6 +139,44 @@ body.dragging-now .pill{cursor:grabbing}
 .benchbox .none{font-size:var(--f-body);color:var(--sec)}
 .hint{font-size:var(--f-meta);color:var(--muted);padding:0 20px 14px}
 
+/* ---------- the field ----------
+   The same spots as the list, drawn where they stand. Each spot is still a
+   .slot with the same data attributes, so dragging, tapping and the picker
+   work on the field exactly as they do in the list. Our goal is at the
+   bottom, the way the coach sees it from the touchline. */
+.fieldwrap{padding:4px 12px 10px}
+.field{position:relative;width:100%;max-width:460px;margin:0 auto;aspect-ratio:3/4;border-radius:8px;
+background:repeating-linear-gradient(180deg,#3E8A48 0 12.5%,#489A53 12.5% 25%);box-shadow:inset 0 0 0 1px rgba(0,0,0,.15)}
+.field .mk{position:absolute;border:2px solid rgba(255,255,255,.75);pointer-events:none}
+.field .mk.edge{inset:5%;border-radius:2px}
+.field .mk.half{left:5%;right:5%;top:50%;border-width:2px 0 0}
+.field .mk.circle{left:50%;top:50%;width:22%;aspect-ratio:1;border-radius:50%;transform:translate(-50%,-50%)}
+.field .mk.box{left:26%;right:26%;height:15%;border-width:2px}
+.field .mk.box.top{top:5%;border-top:none}
+.field .mk.box.bot{bottom:5%;border-bottom:none}
+.field .mk.goal{left:41%;right:41%;height:3.5%;background:rgba(255,255,255,.35)}
+.field .mk.goal.top{top:1.5%}
+.field .mk.goal.bot{bottom:1.5%}
+.field .slot{position:absolute;transform:translate(-50%,-50%);display:block;min-height:0;padding:0;margin:0;border:none;
+min-width:52px;font-size:clamp(11px,3.4vw,15px)}
+.field .slot.empty{border:none;background:transparent}
+.field .slot .poslab{display:flex;align-items:center;justify-content:center;width:100%;min-height:52px;
+border:2px dashed rgba(255,255,255,.8);border-radius:10px;color:#fff;font-size:1em;letter-spacing:.06em;background:rgba(0,0,0,.08)}
+.field .slot select{position:absolute;inset:0;width:100%;height:100%;min-height:0;opacity:0;padding:0;cursor:pointer}
+.field .slot.over .poslab,.field .slot.over{box-shadow:0 0 0 4px #FFE066;border-radius:10px}
+.field .slot.over .poslab{background:rgba(255,255,255,.35)}
+.field .pill{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;width:100%;min-height:52px;
+padding:6px 5px;border-radius:10px;font-size:1em;line-height:1.15;text-align:center;overflow-wrap:anywhere;
+box-shadow:0 3px 8px rgba(0,0,0,.25)}
+.field .pill .qn{position:absolute;top:-9px;right:-9px;font-size:.8em;min-width:1.7em;height:1.7em;border:2px solid var(--card)}
+.field .pill.sel{outline-color:#FFE066}
+.field .slot .x{position:absolute;left:-12px;top:-12px;margin:0;width:30px;height:30px;min-width:30px;min-height:30px;border-radius:50%;
+background:var(--card);border:1px solid var(--rule-hi);color:var(--muted);font-size:1em;line-height:1;display:flex;align-items:center;justify-content:center;
+box-shadow:0 2px 5px rgba(0,0,0,.2)}
+.field .slot .x:hover{background:var(--bad);color:#fff;border-color:var(--bad)}
+.field .row-lab{position:absolute;left:0;font-size:var(--f-badge);font-weight:700;letter-spacing:.08em;
+text-transform:uppercase;color:rgba(255,255,255,.7);padding:0 0 0 8px;pointer-events:none;writing-mode:vertical-rl;transform:translate(0,-50%) rotate(180deg)}
+
 /* ---------- checks ---------- */
 .probs{list-style:none}
 .probs li{padding:8px 0 8px 26px;border-bottom:1px solid var(--rule);font-size:var(--f-body);color:var(--sec);position:relative}
@@ -174,6 +212,7 @@ tr.away td{color:var(--muted);font-weight:400;font-style:italic}
   .q .qtools,.hint{padding-left:16px;padding-right:16px}
   .lines{padding:0 8px 6px}
   .benchbox{margin:6px 8px 12px}
+  .fieldwrap{padding:4px 8px 10px}
   th,td{padding:8px 4px}
 }
 @media print{
@@ -187,6 +226,12 @@ tr.away td{color:var(--muted);font-weight:400;font-style:italic}
   .pill{border:none;padding:0;min-height:auto;font-size:1em}
   .pill .qn{display:none}
   .benchbox{background:#f3f3f3}
+  .field{background:#fff;border:1px solid #999;box-shadow:none;max-width:420px}
+  .field .mk{border-color:#bbb}
+  .field .mk.goal{background:#ddd}
+  .field .pill{border:1px solid #999;box-shadow:none;padding:4px;min-height:40px;font-size:.85em}
+  .field .slot .poslab{border-color:#bbb;color:#999;background:none;min-height:40px}
+  .field .row-lab{color:#999}
 }
 [hidden]{display:none!important}
 </style>
@@ -285,6 +330,9 @@ tr.away td{color:var(--muted);font-weight:400;font-style:italic}
   var flash = null;
   var sel = null;                   // a tapped pill, waiting for a second tap
   var qTab = 0;                     // the quarter on the screen
+  var LAYOUT = '8u.lineup.layout';  // field | list, remembered on this device
+  var layout = 'field';
+  try { if (localStorage.getItem(LAYOUT) === 'list') layout = 'list'; } catch (e) { }
   var openShape = false, openHere = null, openDetails = false;   // the folded cards; null = decide from the sheet
   var pushTimer = null;
   var delArmed = false, delTimer = null;
@@ -759,33 +807,79 @@ tr.away td{color:var(--muted);font-weight:400;font-style:italic}
       esc(name) + '<span class="qn' + cls + '" aria-hidden="true">' + n + '</span></button>';
   }
 
+  /** One spot, filled or empty. The same markup on the field and in the
+      list, so every handler is shared: the pill drags, the x takes her out,
+      and an empty spot carries a picker -- unless a girl has been tapped and
+      is waiting to be put down, in which case the spot itself is the target. */
+  function slotHTML(q, L, i, style) {
+    var name = get(q, L.k, i);
+    var attrs = ' data-q="' + q + '" data-pos="' + L.k + '" data-i="' + i + '"' + (style ? ' style="' + style + '"' : '');
+    if (name) {
+      return '<div class="slot"' + attrs + '>' +
+        '<span class="poslab">' + L.short + '</span>' + pillHTML(name, { q: q, pos: L.k, i: i }) +
+        '<button type="button" class="x" data-x="1" aria-label="Take ' + esc(name) + ' out of this spot">&times;</button></div>';
+    }
+    var pick = '';
+    if (!(sel && sel.q === q)) {
+      var opts = bench(q).map(function (b) {
+        return '<option value="' + esc(b) + '">' + esc(b) + ' (' + quartersOf(b) + ')</option>';
+      }).join('');
+      pick = '<select aria-label="' + L.name + ' spot, ' + ordinal(q) + ' quarter" data-pick="1">' +
+        '<option value="">&mdash; who? &mdash;</option>' + opts + '</select>';
+    }
+    return '<div class="slot empty"' + attrs + '><span class="poslab">' + L.short + '</span>' + pick + '</div>';
+  }
+
+  /* The lines on a pitch, our goal at the bottom: forwards nearest the far
+     goal, then mids, then backs, then the keeper. Spots share a line out
+     evenly, and a tile is as wide as the line allows, up to a sensible size. */
+  var ROWS = [
+    { k: 'f',  y: 17 },
+    { k: 'm',  y: 41 },
+    { k: 'b',  y: 65 },
+    { k: 'gk', y: 88 }
+  ];
+  function fieldHTML(q) {
+    var h = '<div class="fieldwrap"><div class="field" data-q="' + q + '" aria-label="The field, ' + ordinal(q) + ' quarter">' +
+      '<div class="mk edge"></div><div class="mk half"></div><div class="mk circle"></div>' +
+      '<div class="mk box top"></div><div class="mk box bot"></div>' +
+      '<div class="mk goal top"></div><div class="mk goal bot"></div>';
+    ROWS.forEach(function (r) {
+      var L = LINES.filter(function (x) { return x.k === r.k; })[0];
+      var n = r.k === 'gk' ? 1 : game.shape[r.k];
+      if (!n) return;
+      var w = Math.min(27, Math.floor(100 / (n + 1)) - 2);
+      h += '<div class="row-lab" style="top:' + r.y + '%">' + L.name + '</div>';
+      for (var i = 0; i < n; i++) {
+        var x = (i + 1) / (n + 1) * 100;
+        h += slotHTML(q, L, i, 'left:' + x.toFixed(2) + '%;top:' + r.y + '%;width:' + w + '%');
+      }
+    });
+    return h + '</div></div>';
+  }
+
   function quarterHTML(q) {
     var h = '<div class="card q"><h2>' + ordinal(q) + ' quarter' +
       '<small>' + plural(inQuarter(q).length, 'girl', 'girls') + ' on, ' + bench(q).length + ' off</small></h2>';
     h += '<div class="qtools">' +
       (q > 0 ? '<button class="mini ghost" data-copy="' + q + '">Same as the ' + ordinal(q - 1) + '</button>' : '') +
-      '<button class="mini ghost" data-clear="' + q + '">Clear the quarter</button></div>';
+      '<button class="mini ghost" data-clear="' + q + '">Clear the quarter</button>' +
+      '<button class="mini ghost" data-layout="' + (layout === 'field' ? 'list' : 'field') + '">' +
+      (layout === 'field' ? 'Show as a list' : 'Show on the field') + '</button></div>';
+    if (layout === 'field') {
+      h += fieldHTML(q);
+      var b0 = bench(q);
+      h += '<div class="benchbox" data-q="' + q + '" data-bench="1"><div class="lab">On the bench &mdash; drag her onto a spot</div>' +
+        (b0.length ? '<div class="pills">' + b0.map(function (n) { return pillHTML(n, { q: q }); }).join('') + '</div>'
+                   : '<div class="none">Nobody &mdash; everybody who is here is on.</div>') + '</div>';
+      return h + '</div>';
+    }
     h += '<div class="lines">';
     LINES.forEach(function (L) {
       var n = L.k === 'gk' ? 1 : game.shape[L.k];
       if (!n) return;
       h += '<div class="linehead">' + L.name + '</div>';
-      for (var i = 0; i < n; i++) {
-        var name = get(q, L.k, i);
-        if (name) {
-          h += '<div class="slot" data-q="' + q + '" data-pos="' + L.k + '" data-i="' + i + '">' +
-            '<span class="poslab">' + L.short + '</span>' + pillHTML(name, { q: q, pos: L.k, i: i }) +
-            '<button type="button" class="x" data-x="1" aria-label="Take ' + esc(name) + ' out of this spot">&times;</button></div>';
-        } else {
-          var opts = bench(q).map(function (b) {
-            return '<option value="' + esc(b) + '">' + esc(b) + ' (' + quartersOf(b) + ')</option>';
-          }).join('');
-          h += '<div class="slot empty" data-q="' + q + '" data-pos="' + L.k + '" data-i="' + i + '">' +
-            '<span class="poslab">' + L.short + '</span>' +
-            '<select aria-label="' + L.name + ' spot, ' + ordinal(q) + ' quarter" data-pick="1">' +
-            '<option value="">&mdash; who? &mdash;</option>' + opts + '</select></div>';
-        }
-      }
+      for (var i = 0; i < n; i++) h += slotHTML(q, L, i, '');
     });
     h += '</div>';
     var b = bench(q);
@@ -885,8 +979,9 @@ tr.away td{color:var(--muted);font-weight:400;font-style:italic}
       '<button class="ghost" id="print">Print</button>' +
       '<button class="' + (delArmed ? 'danger' : 'ghost') + '" id="del">' + (delArmed ? 'Tap again to delete this game' : 'Delete this game') + '</button>' +
       '</div>';
-    h += '<p class="note">Drag a girl from the bench into a spot, or from one spot onto another to swap them. ' +
-      'On a phone you can also tap her and then tap where she goes. ' +
+    h += '<p class="note">Drag a girl from the bench onto a spot on the field, or from one spot onto another to swap them. ' +
+      'On a phone you can also tap her and then tap where she goes; tapping an empty spot opens a list to pick from. ' +
+      '<b>Show as a list</b> gives the same spots as rows, if the field is too small for your thumb. ' +
       '<b>Fill the empty spots</b> gives each one to whoever has played least so far, and you fix whatever it got wrong.</p>';
 
     root.innerHTML = h;
@@ -953,6 +1048,13 @@ tr.away td{color:var(--muted);font-weight:400;font-style:italic}
       b.addEventListener('click', function () {
         var q = Number(b.getAttribute('data-copy'));
         copyQuarter(q - 1, q); sel = null; touch();
+      });
+    });
+    Array.prototype.forEach.call(root.querySelectorAll('[data-layout]'), function (b) {
+      b.addEventListener('click', function () {
+        layout = b.getAttribute('data-layout') === 'list' ? 'list' : 'field';
+        try { localStorage.setItem(LAYOUT, layout); } catch (e) { }
+        sel = null; render();
       });
     });
     Array.prototype.forEach.call(root.querySelectorAll('[data-clear]'), function (b) {

@@ -21,3 +21,8 @@ SBMSA 8U Soccer/
 # built by 'wrangler pages deploy'
 dist/
 .wrangler/
+
+# local dev only
+.dev.vars
+.claude/
+backups/
