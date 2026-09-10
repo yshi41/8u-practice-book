@@ -86,7 +86,6 @@ td.act{text-align:right;white-space:nowrap}
   .adj{width:84px}
   td.act{white-space:normal}
 }
-td.k abbr{color:var(--rust);text-decoration:none;margin-left:2px}
 /* ring pops */
 .pops{font-size:var(--f-body);color:var(--sec);margin-top:4px}
 .pops b{color:var(--rust)}
@@ -644,7 +643,7 @@ td.editcell{padding:12px 11px}
           (r.k > 0 ? '<div class="bar" style="width:' + w + '%"></div>' : '') + '</td>' +
         '<td class="tcol">' + (r.t || '&mdash;') + '</td>' +
         '<td class="tcol">' + (r.last ? esc(pretty(r.last)) : '&mdash;') + '</td>' +
-        '<td class="k">' + r.k + (r.fixed ? '<abbr title="you corrected this total">*</abbr>' : '') +
+        '<td class="k">' + r.k +
         '<button class="mini ghost" data-adj="' + esc(r.n) + '"' +
         (canEdit ? '' : ' disabled title="Needs the team list"') + '>Adjust</button></td>' +
         pops +
@@ -665,7 +664,7 @@ td.editcell{padding:12px 11px}
     if (canEdit) {
       h += '<div class="foot">Every entry a parent makes lands here, so this is the same leaderboard on ' +
         'every phone. <b>Adjust</b> sets a girl&rsquo;s total to whatever it should be without ' +
-        'rewriting what anybody logged &mdash; a star marks a total you have corrected. ' +
+        'rewriting what anybody logged. ' +
         '<b>Gave one</b> appears beside a girl who is owed a ring pop &mdash; the first at 500 kicks, ' +
         'then one at 1,500, 2,500 and so on &mdash; and records it handed over. The number given can be ' +
         'corrected under Adjust. ' +
