@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light">
 <meta name="robots" content="noindex, nofollow">
-<meta name="description" content="Kicking Club - log the wall kicks done at home.">
+<meta name="description" content="Kicking Club - log the wall kicks done at home, and see the team leaderboard.">
 <title>Kicking Club</title>
 <style>
 :root{color-scheme:light;--bg:#F4ECD8;--card:#FBF6E8;--tan:#EDE0BF;--rule:#D2C09C;--rule-hi:#B9A275;
@@ -75,6 +75,12 @@ td.act{text-align:right;white-space:nowrap}
 .rowmeta{display:none;font-size:.88em;color:var(--muted);font-weight:400;margin-top:3px}
 .editnote{font-size:.88em;color:var(--muted);font-weight:400;margin-top:3px}
 .tablewrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+/* the leaderboard card: the table runs edge to edge, so the heading and the
+   lines around it carry their own padding */
+.board{padding:0;overflow:hidden}
+.board h2{margin:0;padding:16px 20px 12px;border-bottom:none}
+.board .empty{font-size:var(--f-body);color:var(--sec);padding:0 20px 18px}
+.board .under{font-size:var(--f-meta);color:var(--muted);padding:12px 20px 16px;border-top:1px solid var(--rule)}
 @media (max-width:560px){
   /* the sessions and the last date move under the name; the number and the
      button are what the coach came for, so they keep their columns */
@@ -406,6 +412,110 @@ td.editcell{padding:12px 11px}
     }, function () { /* still no connection; try again next load */ });
   }
 
+  /* ---------- the leaderboard ----------
+     One table, two readers. Parents get it on the main page as it stands:
+     rank, kicks, ring pops earned, nothing to press. The coach screen gets
+     the same rows with the controls that change them -- Adjust and Gave one
+     -- which are the only things a parent cannot do. Both are sorted by
+     kicks, which no tap changes, so nothing moves under a thumb. */
+
+  function boardRows(by) {
+    return NAMES.map(function (n) {
+      var earned = earnedPops(by[n].kicks), given = pops[n] || 0;
+      return { n: n, k: by[n].kicks, t: by[n].times, last: by[n].last, fixed: by[n].fixed,
+               earned: earned, given: given, owed: earned - given };
+    }).sort(function (a, b) { return b.k - a.k || a.n.localeCompare(b.n); });
+  }
+
+  /** The table itself. `coach` adds the controls; `canEdit` says whether they
+      work right now (a reachable list and a key on this device). */
+  function boardTable(rows, coach, canEdit) {
+    var top = rows.length ? rows[0].k : 0;
+    var h = '<div class="tablewrap"><table>' +
+      '<thead><tr><th></th><th>Player</th><th class="tcol">Times</th>' +
+      '<th class="tcol">Last</th>' +
+      '<th style="text-align:right">Kicks</th><th class="pops">Ring pops</th>' +
+      '</tr></thead><tbody>';
+
+    rows.forEach(function (r, i) {
+      if (coach && canEdit && editP === r.n) {
+        h += '<tr><td class="rank"></td><td class="editcell" colspan="5"><div class="editrow">' +
+          '<div class="nm2">' + esc(r.n) + '</div>' +
+          '<label>Kicks in total<input class="adj" id="adjval" type="number" min="0" max="1000000" ' +
+          'step="1" inputmode="numeric" value="' + r.k + '"></label>' +
+          '<label>Ring pops given<input class="adj" id="adjpops" type="number" min="0" max="1000" ' +
+          'step="1" inputmode="numeric" value="' + r.given + '"></label>' +
+          '<div class="btns"><button class="mini" id="adjsave">Save</button> ' +
+          '<button class="mini ghost" id="adjcancel">Cancel</button></div>' +
+          '</div></td></tr>';
+        return;
+      }
+      var w = top > 0 ? Math.round(r.k / top * 100) : 0;
+      var meta = r.t
+        ? r.t + (r.t === 1 ? ' session' : ' sessions') +
+          (r.last ? ' &middot; ' + esc(shortDate(r.last)) : '')
+        : 'nothing logged yet';
+
+      var popCell = '<td class="pops"><span class="none">&mdash;</span></td>';
+      if (coach) {
+        /* Ring pops, in their own column: given over earned, what is still
+           owed, and the button to hand one over. A tap changes this cell and
+           nothing else -- the button leaves an invisible placeholder so the
+           row keeps its height and nothing below it moves. */
+        if (r.earned > 0 || r.given > 0) {
+          popCell = '<td class="pops"><b>' + r.given + '</b><span class="of"> of ' + r.earned + '</span>' +
+            (r.owed > 0 ? '<div class="owed">' + r.owed + ' to give</div>'
+             : r.owed === 0 ? '<div class="square">all given</div>'
+             : '<div class="square">' + (-r.owed) + ' extra</div>') +
+            (r.owed > 0
+              ? '<button class="mini" data-pop="' + esc(r.n) + '"' +
+                (canEdit ? '' : ' disabled title="Needs the team list and the key"') + '>Gave one</button>'
+              : '<button class="mini hold" tabindex="-1" aria-hidden="true" disabled>Gave one</button>') +
+            '</td>';
+        }
+      } else if (r.earned > 0) {
+        /* What a parent sees: how many she has earned, and whether they have
+           reached her yet. Never a button. ("owed" rather than "to collect":
+           the line is uppercase and cannot wrap, and the longer word pushed
+           the table 6px past a 375px card.) */
+        popCell = '<td class="pops"><b>' + r.earned + '</b>' +
+          (r.owed > 0 ? '<div class="owed">' + r.owed + ' owed</div>'
+                      : '<div class="square">collected</div>') +
+          '</td>';
+      }
+
+      h += '<tr><td class="rank">' + (r.k > 0 ? (i + 1) : '') + '</td>' +
+        '<td class="nm">' + esc(r.n) +
+          '<div class="rowmeta">' + meta + '</div>' +
+          (r.k > 0 ? '<div class="bar" style="width:' + w + '%"></div>' : '') + '</td>' +
+        '<td class="tcol">' + (r.t || '&mdash;') + '</td>' +
+        '<td class="tcol">' + (r.last ? esc(pretty(r.last)) : '&mdash;') + '</td>' +
+        '<td class="k">' + r.k +
+        (coach
+          ? '<button class="mini ghost" data-adj="' + esc(r.n) + '"' +
+            (canEdit ? '' : ' disabled title="Needs the team list"') + '>Adjust</button>'
+          : '') + '</td>' +
+        popCell +
+        '</tr>';
+    });
+    return h + '</tbody></table></div>';
+  }
+
+  /** The leaderboard as the main page shows it. Only the team list is the
+      team list: with no connection this phone knows about its own entries and
+      nobody else's, and a table of one girl would be a lie, so it says so
+      instead. */
+  function parentBoard(by) {
+    if (link === 'connecting') return '<p class="empty">Checking the team list&hellip;</p>';
+    if (!live()) {
+      return '<p class="empty">The team list cannot be reached just now, so there is no leaderboard ' +
+        'to show. Anything logged here is kept on this phone and goes up when it is back.</p>';
+    }
+    return boardTable(boardRows(by), false, false) +
+      '<div class="under">Every phone sees the same list, sorted by kicks. Correcting a total and ' +
+      'handing out a ring pop are done by the coach, at practice.</div>';
+  }
+
   /* ---------- parent ---------- */
 
   function statusLine() {
@@ -450,6 +560,8 @@ td.editcell{padding:12px 11px}
     var times = entries.length;
     h += '<div class="tot"><div class="tile"><b>' + sum + '</b>kicks by the team</div>' +
          '<div class="tile"><b>' + times + '</b>times logged</div></div>';
+
+    h += '<div class="card board"><h2>Leaderboard</h2>' + parentBoard(by) + '</div>';
 
     root.innerHTML = h;
     flash = null;
@@ -530,7 +642,7 @@ td.editcell{padding:12px 11px}
       '<input id="pw" type="password" autocomplete="off"' +
       (live() ? '' : ' disabled') + '>' +
       '<div class="row"><button id="go"' + (busy ? ' disabled' : '') + '>' +
-      (busy ? 'Checking&hellip;' : (live() ? 'Unlock the leaderboard' : 'Look anyway')) + '</button>' +
+      (busy ? 'Checking&hellip;' : (live() ? 'Unlock the coach screen' : 'Look anyway')) + '</button>' +
       '<button class="ghost" id="back">Back</button></div>' +
       '<p class="note">' + note + '</p></div>';
     flash = null;
@@ -579,15 +691,10 @@ td.editcell{padding:12px 11px}
     /* Changing the record needs both a reachable list and a key this device
         has been told. Looking at it needs neither. */
     var canEdit = live() && !!coachKey();
-    var rows = NAMES.map(function (n) {
-      var earned = earnedPops(by[n].kicks), given = pops[n] || 0;
-      return { n: n, k: by[n].kicks, t: by[n].times, last: by[n].last, fixed: by[n].fixed,
-               earned: earned, given: given, owed: earned - given };
-    }).sort(function (a, b) { return b.k - a.k || a.n.localeCompare(b.n); });
+    var rows = boardRows(by);
 
     var owedTotal = rows.reduce(function (s, r) { return s + Math.max(0, r.owed); }, 0);
 
-    var top = rows.length ? rows[0].k : 0;
     var sum = rows.reduce(function (s, r) { return s + r.k; }, 0);
     var logging = rows.filter(function (r) { return r.t > 0 || r.fixed; }).length;
 
@@ -597,59 +704,7 @@ td.editcell{padding:12px 11px}
     h += '<div class="tot"><div class="tile"><b>' + sum + '</b>kicks in total</div>' +
       '<div class="tile"><b>' + logging + ' / ' + NAMES.length + '</b>girls logging</div></div>';
 
-    h += '<div class="card" style="padding:0;overflow:hidden"><div class="tablewrap"><table>' +
-      '<thead><tr><th></th><th>Player</th><th class="tcol">Times</th>' +
-      '<th class="tcol">Last</th>' +
-      '<th style="text-align:right">Kicks</th><th class="pops">Ring pops</th>' +
-      '</tr></thead><tbody>';
-
-    rows.forEach(function (r, i) {
-      if (canEdit && editP === r.n) {
-        h += '<tr><td class="rank"></td><td class="editcell" colspan="5"><div class="editrow">' +
-          '<div class="nm2">' + esc(r.n) + '</div>' +
-          '<label>Kicks in total<input class="adj" id="adjval" type="number" min="0" max="1000000" ' +
-          'step="1" inputmode="numeric" value="' + r.k + '"></label>' +
-          '<label>Ring pops given<input class="adj" id="adjpops" type="number" min="0" max="1000" ' +
-          'step="1" inputmode="numeric" value="' + r.given + '"></label>' +
-          '<div class="btns"><button class="mini" id="adjsave">Save</button> ' +
-          '<button class="mini ghost" id="adjcancel">Cancel</button></div>' +
-          '</div></td></tr>';
-        return;
-      }
-      var w = top > 0 ? Math.round(r.k / top * 100) : 0;
-      var meta = r.t
-        ? r.t + (r.t === 1 ? ' session' : ' sessions') +
-          (r.last ? ' &middot; ' + esc(shortDate(r.last)) : '')
-        : 'nothing logged yet';
-      /* Ring pops, in their own column: given over earned, what is still
-         owed, and the button to hand one over. A tap changes this cell and
-         nothing else -- the button leaves an invisible placeholder so the
-         row keeps its height and nothing below it moves. */
-      var pops = '<td class="pops"><span class="none">&mdash;</span></td>';
-      if (r.earned > 0 || r.given > 0) {
-        pops = '<td class="pops"><b>' + r.given + '</b><span class="of"> of ' + r.earned + '</span>' +
-          (r.owed > 0 ? '<div class="owed">' + r.owed + ' to give</div>'
-           : r.owed === 0 ? '<div class="square">all given</div>'
-           : '<div class="square">' + (-r.owed) + ' extra</div>') +
-          (r.owed > 0
-            ? '<button class="mini" data-pop="' + esc(r.n) + '"' +
-              (canEdit ? '' : ' disabled title="Needs the team list and the key"') + '>Gave one</button>'
-            : '<button class="mini hold" tabindex="-1" aria-hidden="true" disabled>Gave one</button>') +
-          '</td>';
-      }
-      h += '<tr><td class="rank">' + (r.k > 0 ? (i + 1) : '') + '</td>' +
-        '<td class="nm">' + esc(r.n) +
-          '<div class="rowmeta">' + meta + '</div>' +
-          (r.k > 0 ? '<div class="bar" style="width:' + w + '%"></div>' : '') + '</td>' +
-        '<td class="tcol">' + (r.t || '&mdash;') + '</td>' +
-        '<td class="tcol">' + (r.last ? esc(pretty(r.last)) : '&mdash;') + '</td>' +
-        '<td class="k">' + r.k +
-        '<button class="mini ghost" data-adj="' + esc(r.n) + '"' +
-        (canEdit ? '' : ' disabled title="Needs the team list"') + '>Adjust</button></td>' +
-        pops +
-        '</tr>';
-    });
-    h += '</tbody></table></div></div>';
+    h += '<div class="card board">' + boardTable(rows, true, canEdit) + '</div>';
 
     h += '<div class="row">' +
       (live() ? '<button id="reload">Refresh</button>' : '') +
@@ -678,8 +733,8 @@ td.editcell{padding:12px 11px}
         'is waiting on this phone, which is the only record here.</div>';
     } else {
       h += '<div class="warn" style="margin-top:16px"><b>This device does not have the coach key.</b>' +
-        'You can read the leaderboard, but correcting a total and resetting the record need it. ' +
-        'Go back and unlock with the key to change anything.</div>';
+        'The leaderboard is the same one on the main page; correcting a total, handing out a ring pop ' +
+        'and resetting the record need the key. Go back and unlock with it to change anything.</div>';
     }
 
     root.innerHTML = h;

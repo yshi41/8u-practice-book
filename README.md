@@ -72,7 +72,7 @@ Creating and deleting need the coach key; reading does not. Where there is no AP
 
 ## Kicking Club
 
-`wall-kicks.html` — parents log the wall kicks their daughter does at home. The coach page, behind a password, shows a leaderboard. (The file keeps its old name so existing links and bookmarks still work.)
+`wall-kicks.html` — parents log the wall kicks their daughter does at home, and the **leaderboard sits under the form for everyone to see**: rank, kicks, ring pops earned and whether they have been collected. It is read-only there — nothing to press. The coach screen, behind the password, shows the same table with the controls that change it. (The file keeps its old name so existing links and bookmarks still work.)
 
 Data lives in **Cloudflare KV**, written by a Pages Function at `functions/api/entries.js`. The page calls `/api/entries` on its own origin, so it is an ordinary fetch — no CORS, no preflight, no JSONP.
 
