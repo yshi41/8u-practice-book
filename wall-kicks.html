@@ -102,6 +102,7 @@ td.pops .of{font-size:var(--f-meta);color:var(--muted)}
 td.pops .none{color:var(--muted)}
 td.pops .owed{font-size:var(--f-badge);font-weight:700;color:var(--rust);text-transform:uppercase;letter-spacing:.04em}
 td.pops .square{font-size:var(--f-badge);color:var(--forest)}
+td.pops .next{font-size:var(--f-badge);color:var(--muted)}
 td.pops .mini{display:block;margin:5px auto 0;padding:6px 9px}
 td.pops .hold{visibility:hidden}
 td.k .mini{display:block;margin:5px 0 0 auto;padding:6px 9px}
@@ -473,15 +474,19 @@ td.editcell{padding:12px 11px}
               : '<button class="mini hold" tabindex="-1" aria-hidden="true" disabled>Gave one</button>') +
             '</td>';
         }
-      } else if (r.earned > 0) {
-        /* What a parent sees: how many she has earned, and whether they have
-           reached her yet. Never a button. ("owed" rather than "to collect":
-           the line is uppercase and cannot wrap, and the longer word pushed
-           the table 6px past a 375px card.) */
-        popCell = '<td class="pops"><b>' + r.earned + '</b>' +
-          (r.owed > 0 ? '<div class="owed">' + r.owed + ' owed</div>'
-                      : '<div class="square">collected</div>') +
-          '</td>';
+      } else {
+        /* What a parent sees: how many she has earned, whether they have
+           reached her yet, and how far to the next one. Never a button.
+           ("owed" rather than "to collect": the line is uppercase and cannot
+           wrap, and the longer word pushed the table 6px past a 375px card.) */
+        var next = '<div class="next">' + toNextPop(r.k) + (r.earned ? ' to next' : ' to first') + '</div>';
+        popCell = '<td class="pops">' +
+          (r.earned > 0
+            ? '<b>' + r.earned + '</b>' +
+              (r.owed > 0 ? '<div class="owed">' + r.owed + ' owed</div>'
+                          : '<div class="square">collected</div>')
+            : '<span class="none">&mdash;</span>') +
+          next + '</td>';
       }
 
       h += '<tr><td class="rank">' + (r.k > 0 ? (i + 1) : '') + '</td>' +
