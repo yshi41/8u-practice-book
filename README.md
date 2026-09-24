@@ -37,7 +37,7 @@ All of it is hidden when printing.
 
 ### Where an adjustment lives
 
-**On Cloudflare, an adjustment saves itself for the whole team.** Change a practice and it goes to `/api/practice`, a Pages Function over KV; anybody who opens that session — Moira, your other phone — sees your version, and the banner says so and when it last changed. Reopening the page picks up a change the other coach made. *Put the original back* clears it for everyone, not just here.
+**On Cloudflare, an adjustment saves itself for the whole team.** Change a practice and it goes to `/api/practice`, a Pages Function over KV; anybody who opens that session — Moira, your other phone — sees your version. A green line says so for a few seconds after the save and then gets out of the way; the **Adjusted** flag by the editor keeps when the team copy last changed. Reopening the page picks up a change the other coach made. *Put the original back* clears it for everyone, not just here.
 
 Same file, both hosts: the page probes `/api/practice` once on load. On GitHub Pages there is no Function, the probe fails, and everything below is what you get instead — saved on this device, handed to the book by hand. Nothing to configure either way.
 
@@ -48,7 +48,7 @@ If the connection dies mid-edit the practice is still safe on the device, the ba
 A shared copy is still a copy: it is not in the book, it does not print, and it is not in git. To make an adjustment *the* practice:
 
 1. Adjust the practice on the site.
-2. In the amber **This is your edited version** banner, tap **Copy it for Claude**. That copies the practice as a readable outline plus a one-line `CODE`.
+2. Under **Share this practice**, tap **Copy it for Claude**. That copies the practice as a readable outline plus a one-line `CODE`.
 3. Paste it to Claude and ask to save it into the book. Claude runs
    `python tools/bake-practice.py --paste <file>`, which rewrites that session
    page so your version *is* the written session, then commits and pushes.

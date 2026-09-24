@@ -138,8 +138,6 @@ h1, h2, h3, h4 { text-wrap: balance; line-height: 1.2; }
 .tb-yours .tb-msg { flex: 1 1 240px; }
 .tb-yours.live { background: #E8F0E4; border-color: var(--forest); color: #24401B; }
 .tb-yours.live b { color: var(--forest); }
-.tb-yours.live .tb-restore { border-color: var(--forest); color: var(--forest); }
-.tb-yours.live .tb-restore:hover { background: var(--forest); color: #fff; }
 .tb-restore { font-family: inherit; font-size: var(--f-h3); font-weight: 700; cursor: pointer; border: 1px solid var(--warn); background: transparent; color: var(--warn); border-radius: 4px; padding: 6px 11px; min-height: 34px; }
 .tb-restore:hover { background: var(--warn); color: #fff; }
 .tb-yours .keyask { display: inline-flex; gap: 6px; align-items: center; }
@@ -1130,33 +1128,34 @@ var LIB = [{"id":"bodypart","n":"Body Part Stop","c":"Arrival games","w":"Sessio
     var st = cards[id];
     var edited = !samePlan(st.plan, defaultPlan(st.base));
     if (st.mailEl) st.mailEl.href = mailHref(id);
-    if (st.editedEl) st.editedEl.textContent = edited ? 'Adjusted' : '';
+    if (st.editedEl) st.editedEl.textContent = edited ? editedFlag(id) : '';
     if (st.copyEditsEl) st.copyEditsEl.hidden = !edited;
+    if (st.toBookEl) st.toBookEl.hidden = !edited;
     if (st.resetEl) st.resetEl.hidden = !edited;
 
-    /* Saying so loudly, because a plan quietly restored from the browser
-       looks exactly like the written session until you check the clock. */
+    /* Saying so, because a plan quietly restored from the browser looks
+       exactly like the written session until you check the clock. The
+       buttons live in the editor row and the share row; this is only the
+       sentence about where the version lives. */
     var yours = st.barEl && st.barEl.querySelector('.tb-yours');
     if (yours) {
       yours.hidden = !edited;
-      if (edited && !yours.dataset.wired) {
-        yours.innerHTML = '<span class="tb-msg"></span>' +
-          '<button type="button" class="tb-restore" data-act="tobook">Copy it for Claude</button>' +
-          '<button type="button" class="tb-restore" data-act="undo">Put the original back</button>';
-        var toBook = yours.querySelector('[data-act=tobook]');
-        toBook.title = 'Copies this practice as a code. Paste it to Claude and it becomes ' +
-                       'the published session, on every device.';
-        toBook.addEventListener('click', function () {
-          copy(bookPayload(id), toBook, 'Copy it for Claude', 'Copied \u2014 paste it to Claude');
-        });
-        yours.querySelector('[data-act=undo]').addEventListener('click', function () {
-          st.plan = defaultPlan(st.base);
-          save(id); render(id);
-        });
+      if (!yours.dataset.wired) {
+        yours.innerHTML = '<span class="tb-msg"></span>';
         yours.dataset.wired = '1';
       }
       if (edited) sayWhereItLives(id, yours);
     }
+  }
+
+  /* The flag by the editor is what stays on screen, so it carries the one
+     fact the green box used to: when the team copy last changed. */
+  function editedFlag(id) {
+    var st = cards[id];
+    var live = LINK === 'live' && !LINKVIEW && st.sync !== 'error' &&
+               st.sync !== 'empty' && st.sync !== 'locked' && st.sync !== 'saving';
+    if (live && st.serverTs) return 'Adjusted \u00b7 saved for the team ' + ago(st.serverTs);
+    return 'Adjusted';
   }
 
   /* The one sentence that has to be true: where does this version live, and
@@ -1171,6 +1170,16 @@ var LIB = [{"id":"bodypart","n":"Body Part Stop","c":"Arrival games","w":"Sessio
     if (st.sync !== 'locked') {
       var stale = yours.querySelector('.keyask');
       if (stale) stale.remove();
+    }
+
+    /* Saved and settled is the state a practice sits in for weeks. The green
+       box says so once, right after a save made on this device, then goes.
+       The amber states stay up: each is something the coach has to know or do. */
+    clearTimeout(st.hideTimer);
+    if (live && st.sync !== 'saving') {
+      var left = st.savedAt ? SHOW_SAVED_FOR - (new Date().getTime() - st.savedAt) : 0;
+      if (left <= 0) { yours.hidden = true; return; }
+      st.hideTimer = setTimeout(function () { updateChrome(id); }, left);
     }
 
     if (LINKVIEW) {
@@ -1563,6 +1572,17 @@ var LIB = [{"id":"bodypart","n":"Body Part Stop","c":"Arrival games","w":"Sessio
     share.appendChild(editsBtn);
     st.copyEditsEl = editsBtn;
 
+    var bookBtn = document.createElement('button');
+    bookBtn.type = 'button'; bookBtn.className = 'sbtn ghost'; bookBtn.hidden = true;
+    bookBtn.textContent = 'Copy it for Claude';
+    bookBtn.title = 'Copies this practice as a code. Paste it to Claude and it becomes ' +
+                    'the published session, on every device.';
+    bookBtn.addEventListener('click', function () {
+      copy(bookPayload(id), bookBtn, 'Copy it for Claude', 'Copied \u2014 paste it to Claude');
+    });
+    share.appendChild(bookBtn);
+    st.toBookEl = bookBtn;
+
     if (document.querySelectorAll('article.card').length > 1) {
       var own = document.createElement('a');
       own.className = 'sbtn ghost';
@@ -1589,6 +1609,7 @@ var LIB = [{"id":"bodypart","n":"Body Part Stop","c":"Arrival games","w":"Sessio
   var COACHKEY = '8u.coachkey';   /* set by whichever page the coach unlocked */
   var LINK = 'connecting';    /* connecting | live | local */
   var LINKVIEW = false;       /* reading somebody's ?p= link, not editing ours */
+  var SHOW_SAVED_FOR = 6000;  /* how long the green "saved" box stays, in ms */
   var pushTimer = {};
 
   var MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
@@ -1689,6 +1710,7 @@ var LIB = [{"id":"bodypart","n":"Body Part Stop","c":"Arrival games","w":"Sessio
         if (res && res.ok) {
           st.sync = 'ok';
           st.serverTs = res.saved ? res.saved.ts : 0;
+          st.savedAt = new Date().getTime();
         } else { st.sync = 'error'; }
         updateChrome(id);
       }, function (err) {
